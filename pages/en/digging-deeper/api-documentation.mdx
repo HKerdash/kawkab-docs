@@ -1,0 +1,467 @@
+---
+title: API Documentation
+---
+
+# API Documentation in Kawkab
+
+The Kawkab framework provides an integrated documentation system for your API, helping you document your endpoints professionally and in an easy-to-use way.
+
+## Documentation Settings
+
+You can customize the documentation settings in the `app/configuration.ts` file:
+
+```typescript
+// API Documentation settings
+docs: {
+  // Enable or disable API documentation
+  enable: true,
+
+  // Documentation title
+  title: "API Documentation",
+
+  // Documentation description
+  description: "Documentation for API endpoints.",
+
+  // Path to store the generated documentation
+  path: "storage/private/docs",
+},
+```
+
+## Creating Documentation
+
+To generate the API documentation, run the following command:
+
+```bash
+npm run kawkab docs:make
+```
+
+After generating the documentation, it will be saved in the specified folder:
+```
+/storage/private/docs
+```
+
+## Available Documentation Features
+
+### @api
+Used to define an API endpoint and the method to access it.
+
+```typescript
+/**
+ * @api {method} path [title]
+ */
+```
+
+- **method**: HTTP request method (GET, POST, PUT, DELETE, etc.)
+- **path**: Path to the endpoint
+- **title**: A brief description of the endpoint (optional)
+
+Example:
+```typescript
+/**
+ * @api {get} /users/:id Get User Information
+ */
+```
+
+### @apiName
+Used to define a unique name for the endpoint.
+
+```typescript
+/**
+ * @apiName GetUserProfile
+ */
+```
+
+- The name must be unique within the group
+- It is recommended to use CamelCase
+- The same name can be used across different versions
+
+Example:
+```typescript
+/**
+ * @apiName GetUserProfile
+ */
+```
+
+### @apiGroup
+Used to organize endpoints into logical groups.
+
+```typescript
+/**
+ * @apiGroup Users
+ */
+```
+
+- Helps organize documentation
+- Appears as main headers in the generated documentation
+
+Example:
+```typescript
+/**
+ * @apiGroup Users
+ */
+```
+
+### @apiVersion
+Used to specify the version of the endpoint.
+
+```typescript
+/**
+ * @apiVersion 1.2.0
+ */
+```
+
+- Follows semantic versioning
+- Different versions can be compared in the documentation
+
+Example:
+```typescript
+/**
+ * @apiVersion 1.2.0
+ */
+```
+
+### @apiDescription
+Used to add a detailed description for the endpoint.
+
+```typescript
+/**
+ * @apiDescription This endpoint allows you to get complete user information.
+ * You can use it to retrieve:
+ * - Personal Information
+ * - Settings
+ * - Preferences
+ */
+```
+
+- Can span multiple lines
+- Supports Markdown formatting
+
+Example:
+```typescript
+/**
+ * @apiDescription This endpoint allows you to get complete user information.
+ * You can use it to retrieve:
+ * - Personal Information
+ * - Settings
+ * - Preferences
+ */
+```
+
+### @apiParam
+Used to document required parameters in the request.
+
+```typescript
+/**
+ * @apiParam [(group)] {type} name [=default_value] [description]
+ */
+```
+
+- **group**: Used to group parameters (optional)
+- **type**: Data type (String, Number, Boolean, etc.)
+- **name**: The parameter name
+- **default_value**: The default value (optional)
+- **description**: A description of the parameter (optional)
+
+Example:
+```typescript
+/**
+ * @apiParam {String} username Username (3-20 characters)
+ * @apiParam {String} [email] Email address
+ * @apiParam {Number} [age=18] Age
+ * @apiParam (Authentication) {String} api_key API Key
+ */
+```
+
+### @apiSuccess
+Used to document a successful response.
+
+```typescript
+/**
+ * @apiSuccess [(group)] {type} field description
+ */
+```
+
+Example:
+```typescript
+/**
+ * @apiSuccess {Boolean} status Operation status
+ * @apiSuccess {Object} data User data
+ * @apiSuccess {Number} data.id User ID
+ * @apiSuccess {String} data.username Username
+ */
+```
+
+### @apiError
+Used to document possible error responses.
+
+```typescript
+/**
+ * @apiError [(group)] {type} field description
+ */
+```
+
+Example:
+```typescript
+/**
+ * @apiError UserNotFound User was not found
+ * @apiError (Authentication) InvalidAPIKey Invalid API key
+ */
+```
+
+### @apiHeader
+Used to document required HTTP headers.
+
+```typescript
+/**
+ * @apiHeader [(group)] {type} field description
+ */
+```
+
+Example:
+```typescript
+/**
+ * @apiHeader {String} Authorization Bearer token
+ * @apiHeader {String} [Accept-Language] Response language
+ */
+```
+
+### @apiExample
+Used to provide examples of how to use the endpoint.
+
+```typescript
+/**
+ * @apiExample {type} title
+ *    example
+ */
+```
+
+Example:
+```typescript
+/**
+ * @apiExample {curl} Example usage:
+ *    curl -X POST \
+ *      http://api.example.com/users \
+ *      -H 'Authorization: Bearer token' \
+ *      -d '{"username":"john","email":"john@example.com"}'
+ */
+```
+
+### @apiSuccessExample and @apiErrorExample
+Used to provide examples of successful responses and error cases.
+
+```typescript
+/**
+ * @apiSuccessExample {type} title
+ *    example
+ *
+ * @apiErrorExample {type} title
+ *    example
+ */
+```
+
+Example:
+```typescript
+/**
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "status": true,
+ *       "data": {
+ *         "id": 1,
+ *         "username": "john",
+ *         "email": "john@example.com"
+ *       }
+ *     }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *       "status": false,
+ *       "error": "UserNotFound",
+ *       "message": "User not found"
+ *     }
+ */
+```
+
+### @apiDefine and @apiUse
+Used to define and reuse common blocks in documentation.
+
+```typescript
+/**
+ * @apiDefine block_name
+ *    block_content
+ */
+
+/**
+ * @apiUse block_name
+ */
+```
+
+Example:
+```typescript
+/**
+ * @apiDefine CommonErrors
+ * @apiError NotFound Resource not found
+ * @apiError Unauthorized Unauthorized access
+ */
+
+/**
+ * @api {get} /users/:id
+ * @apiUse CommonErrors
+ */
+```
+
+### @apiDeprecated
+Used to indicate that the endpoint is deprecated and will be removed.
+
+```typescript
+/**
+ * @apiDeprecated [message]
+ */
+```
+
+Example:
+```typescript
+/**
+ * @apiDeprecated Use /api/v2/users instead
+ */
+```
+
+## How to Document Endpoints
+
+Kawkab uses JSDoc-style comments to document endpoints. Here's an example of how to document a controller:
+
+```typescript
+import { BaseController, inherit } from "kawkab";
+
+export default class extends inherit(BaseController) {
+  /**
+   * @api {get} / Get Welcome Message
+   * @apiName GetWelcomeMessage
+   * @apiGroup Kawkab
+   * @apiVersion 1.0.0
+   *
+   * @apiSuccess {Boolean} status API response status.
+   * @apiSuccess {String} message Kawkab framework welcome message.
+   *
+   * @apiSuccessExample {json} Success-Response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *       "status": true,
+   *       "message": "Welcome to Kawkab Framework 🚀 - Your fast companion for building APIs with unparalleled elegance and simplicity. Let's build something extraordinary together!"
+   *     }
+   */
+  async get() {
+    return {
+      status: true,
+      message:
+        "Welcome to Kawkab Framework 🚀 - Your fast companion for building APIs with unparalleled elegance and simplicity. Let's build something extraordinary together!",
+    };
+  }
+}
+```
+
+## Key Elements of Documentation
+
+### @api
+Defines the request method (GET, POST, etc.) and the endpoint path.
+```typescript
+@api {method} /path Endpoint description
+```
+
+### @apiName
+The unique name for the endpoint.
+```typescript
+@apiName function_name
+```
+
+### @apiGroup
+The group the endpoint belongs to.
+```typescript
+@apiGroup group_name
+```
+
+### @apiVersion
+The version of the endpoint.
+```typescript
+@apiVersion 1.0.0
+```
+
+### @apiParam
+Documents required parameters.
+```typescript
+@apiParam {type} name description
+```
+
+### @apiSuccess
+Documents a successful response.
+```typescript
+@apiSuccess {type} name description
+```
+
+### @apiError
+Documents error cases.
+```typescript
+@apiError {type} name description
+```
+
+## Advanced Examples
+
+### Documenting an Endpoint with Parameters
+
+```typescript
+/**
+ * @api {post} /user Create New User
+ * @apiName CreateUser
+ * @apiGroup Users
+ * @apiVersion 1.0.0
+ *
+ * @apiParam {String} username Username (3-20 characters)
+ * @apiParam {String} email Email address
+ * @apiParam {String{6..}} password Password (minimum 6 characters)
+ *
+ * @apiSuccess {Boolean} status Operation status
+ * @apiSuccess {Object} user Created user data
+ * @apiSuccess {Number} user.id User ID
+ * @apiSuccess {String} user.username Username
+ * @apiSuccess {String} user.email Email address
+ *
+ * @apiError UserExists User already exists
+ * @apiError InvalidInput Invalid input data
+ */
+```
+
+### Documenting an Endpoint with Request and Response Examples
+
+```typescript
+/**
+ * @api {get} /products Search Products
+ *
+
+ @apiName SearchProducts
+ * @apiGroup Products
+ * @apiVersion 1.0.0
+ *
+ * @apiParam {String} [query] Search query
+ * @apiParam {Number} [page=1] Page number for pagination
+ *
+ * @apiSuccess {Boolean} status Operation status
+ * @apiSuccess {Array} products List of products
+ * @apiSuccess {String} products.name Product name
+ * @apiSuccess {Number} products.price Product price
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "status": true,
+ *       "products": [
+ *         { "name": "Product 1", "price": 20 },
+ *         { "name": "Product 2", "price": 30 }
+ *       ]
+ *     }
+ *
+ * @apiError InvalidQuery Invalid search query
+ */
+```
+
+With these guidelines, documenting your API in Kawkab becomes streamlined and easy to maintain.

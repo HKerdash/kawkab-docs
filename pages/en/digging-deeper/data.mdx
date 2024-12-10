@@ -1,0 +1,94 @@
+---
+title: Creating Data Files with Kawkab
+---
+
+# Data Files in Kawkab
+
+Data files in **Kawkab** are used to organize and store static or dependent data that is utilized in your application. This data could be lists, settings, or any other fixed information you wish to use in your project in an organized manner.
+
+## Creating Data Files with Kawkab
+
+In this guide, we will show you how to create new data files using the **Kawkab** framework and integrate them into your application.
+
+## Step 1: Creating a New Data File
+
+To create a new data file using **Kawkab**, run the following command in the terminal:
+
+```bash
+npm run kawkab data:make <name> [module]
+```
+
+### **Parameter Details:**
+
+- **`<name>`**: The name of the data file you want to create (e.g., `cats`).
+- **`[module]`**: The name of the module that contains the data (optional, default is `main`).
+
+### Example of Command Execution:
+
+```bash
+npm run kawkab data:make cats
+```
+
+This command will create a data file named `cats` inside the `main` module.
+
+### What Happens After Running the Command?
+
+- A data file named `'cats'` will be created in the specified module.
+- This file will contain data that can be used in your application. For example, this guide will create a file containing a list of popular cat breeds.
+
+## Step 2: Using the Data in Your Application
+
+Once the data file is created, you can import and use it within your project files.
+
+### Importing the Data:
+
+To import the data that has been created, use the following code in your file:
+
+```javascript
+import catsData from '../data/cats';
+```
+
+### Contents of the Data File:
+
+The `cats` data file will contain the following data (cat breeds):
+
+```javascript
+export default {
+  data: [
+    "Persian",        // Persian Cats
+    "Maine Coon",     // Maine Coon Cats
+    "Bengal",         // Bengal Cats
+    "Siamese",        // Siamese Cats
+    "Ragdoll",        // Ragdoll Cats
+    "British Shorthair", // British Shorthair Cats
+    "Sphynx",         // Sphynx Cats
+    "Abyssinian",     // Abyssinian Cats
+    "Scottish Fold",  // Scottish Fold Cats
+    "Birman"          // Birman Cats
+  ]
+}
+```
+
+### Using the Data in Your Application:
+
+Now, you can access and use the data easily anywhere in your application:
+
+```javascript
+const data = catsData.data;
+console.log(data);  // Will print the list of cat breeds
+```
+
+## Additional Notes
+
+- Ensure that the path you use to import the data is correct according to your project’s folder structure.
+- You can use the same approach to create other data files by changing the name of the created file (e.g., `dogs` instead of `cats`).
+  
+- If you are using multiple modules, you can specify the module that contains the data using the `[module]` parameter:
+
+```bash
+npm run kawkab data:make cats customModuleName
+```
+
+## Conclusion
+
+Creating data files with Kawkab helps organize and streamline the management of static data in your application. With Kawkab, you can easily create these files and integrate them into your application quickly. Enjoy using **Kawkab** to build your applications more efficiently and flexibly!

@@ -1,0 +1,189 @@
+---
+title: إدارة المجلدات في Kawkab
+description: دليل شامل لإدارة المجلدات في تطبيقك باستخدام مكتبة Folder في Kawkab.
+---
+
+# إدارة المجلدات في Kawkab
+
+**Folder** هي فئة متخصصة في إطار العمل **Kawkab** تتيح لك إدارة المجلدات بكفاءة عالية. في هذا الدليل، سنتعرف على كيفية استخدام جميع العمليات المتاحة على المجلدات.
+
+## الإستيراد
+
+قبل استخدام أي من العمليات، يجب استيراد الفئة:
+
+```typescript
+import { folder } from 'kawkab';
+```
+
+## العمليات المتاحة على المجلدات
+
+### 1. التحقق من وجود مجلد (exists)
+
+التحقق من وجود مجلد قبل إجراء أي عملية عليه.
+
+```typescript
+const exists = await folder.exists('storage/public/uploads');
+if (exists) {
+    console.log('المجلد موجود');
+} else {
+    console.log('المجلد غير موجود');
+}
+```
+
+### 2. إنشاء مجلد (create)
+
+إنشاء مجلد جديد مع إمكانية إنشاء المجلدات الأب تلقائياً.
+
+```typescript
+await folder.create('storage/public/components/users');
+```
+
+### 3. حذف مجلد (remove)
+
+حذف مجلد وكل محتوياته بشكل آمن.
+
+```typescript
+await folder.remove('storage/public/temp');
+```
+
+### 4. عرض محتويات مجلد (list)
+
+الحصول على قائمة بجميع الملفات والمجلدات داخل مجلد معين.
+
+```typescript
+const contents = await folder.list('storage/public');
+contents.forEach(item => {
+    console.log(`${item.name} - ${item.isDirectory ? 'مجلد' : 'ملف'}`);
+});
+```
+
+### 5. حساب حجم المجلد (size)
+
+حساب الحجم الإجمالي لمجلد وكل محتوياته.
+
+```typescript
+const totalSize = await folder.size('storage/public/uploads');
+console.log(`حجم المجلد: ${totalSize} بايت`);
+```
+
+### 6. نسخ مجلد (copy)
+
+نسخ مجلد وكل محتوياته إلى موقع جديد.
+
+```typescript
+await folder.copy('storage/public/old-components', 'storage/public/new-components');
+```
+
+### 7. نقل مجلد (move)
+
+نقل مجلد من موقع إلى آخر.
+
+```typescript
+await folder.move('storage/public/old-location', 'storage/public/new-location');
+```
+
+### 8. البحث في المجلد (find)
+
+البحث عن ملفات في المجلد تطابق نمط معين.
+
+```typescript
+const files = await folder.find('storage/public', '.test.ts');
+files.forEach(file => console.log(`وجد ملف اختبار: ${file}`));
+```
+
+## معالجة الأخطاء
+
+جميع العمليات تقوم برمي استثناء في حالة حدوث خطأ. يُنصح باستخدام try-catch لمعالجة الأخطاء:
+
+```typescript
+try {
+    await folder.remove('storage/public/non-existent-folder');
+} catch (error) {
+    console.error('حدث خطأ:', error.message);
+}
+```
+
+## أمثلة متقدمة
+
+### مثال 1: إنشاء هيكل مشروع
+
+```typescript
+async function createProjectStructure(projectName: string) {
+    try {
+        // التحقق من وجود المجلد أولاً
+        const exists = await folder.exists(`storage/public/${projectName}`);
+        if (exists) {
+            throw new Error('المشروع موجود بالفعل');
+        }
+
+        await folder.create(`storage/public/${projectName}/src`);
+        await folder.create(`storage/public/${projectName}/tests`);
+        await folder.create(`storage/public/${projectName}/docs`);
+        await folder.create(`storage/public/${projectName}/assets`);
+        console.log('تم إنشاء هيكل المشروع بنجاح');
+    } catch (error) {
+        console.error('فشل إنشاء هيكل المشروع:', error.message);
+    }
+}
+```
+
+### مثال 2: نقل وأرشفة المجلدات القديمة
+
+```typescript
+async function archiveOldFolders(threshold: number) {
+    try {
+        const contents = await folder.list('storage/public');
+        const now = Date.now();
+        
+        for (const item of contents) {
+            if (item.isDirectory) {
+                const stats = await fs.stat(`storage/public/${item.name}`);
+                const age = now - stats.mtimeMs;
+                
+                if (age > threshold) {
+                    const archiveName = `storage/public/archives/${item.name}-${new Date().toISOString()}`;
+                    await folder.move(`storage/public/${item.name}`, archiveName);
+                    console.log(`تم أرشفة المجلد: ${item.name}`);
+                }
+            }
+        }
+    } catch (error) {
+        console.error('فشل أرشفة المجلدات:', error.message);
+    }
+}
+```
+
+### مثال 3: تنظيف المجلدات الفارغة
+
+```typescript
+async function cleanEmptyFolders(directory: string = 'storage/public') {
+    try {
+        const contents = await folder.list(directory);
+        for (const item of contents) {
+            if (item.isDirectory) {
+                const subContents = await folder.list(`${directory}/${item.name}`);
+                if (subContents.length === 0) {
+                    await folder.remove(`${directory}/${item.name}`);
+                    console.log(`تم حذف المجلد الفارغ: ${item.name}`);
+                }
+            }
+        }
+    } catch (error) {
+        console.error('فشل تنظيف المجلدات الفارغة:', error.message);
+    }
+}
+```
+
+## ملاحظات هامة
+
+- جميع العمليات غير متزامنة (asynchronous) وتستخدم Promises
+- يتم التعامل مع المسارات بشكل تلقائي باستخدام `path.join`
+- يمكن التحقق من وجود المجلد قبل إجراء أي عملية باستخدام `exists`
+- عملية الحذف تكون آمنة وتتجاهل الأخطاء في حالة عدم وجود المجلد
+- عملية النسخ تقوم بنسخ كل المحتويات بشكل متكرر
+- البحث يدعم الأنماط البسيطة باستخدام `includes`
+- جميع العمليات تتم في مجلد `storage/public` كمجلد افتراضي للتطبيق
+
+## الخاتمة
+
+توفر فئة **Folder** في **Kawkab** مجموعة شاملة من الأدوات لإدارة المجلدات في تطبيقك. من خلال هذه الواجهة البرمجية البسيطة والقوية، يمكنك التعامل مع المجلدات بكفاءة وأمان. تم تصميم جميع العمليات لتعمل بشكل افتراضي في مجلد `storage/public` لضمان أمان وتنظيم الملفات في تطبيقك.

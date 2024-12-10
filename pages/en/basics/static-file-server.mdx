@@ -1,0 +1,119 @@
+---
+title: Server Configuration and Routing in Static File Server
+description: A comprehensive guide on server configuration in `configuration.ts` and using routing to serve public and private files in Kawkab Framework.
+---
+
+## **Static File Server Configuration**
+
+The **Kawkab Framework** provides a flexible mechanism for configuring the server to serve both public and private files. These settings are configured through the `configuration.ts` file, which includes options for specifying custom paths for public files and how to securely access private files.
+
+---
+
+## **Server Configuration in `configuration.ts`**
+
+### **Serving Public Files**
+
+In **Kawkab Framework**, public file serving can be enabled through `serveStatic` settings that allow access to static files such as images or other files that can be accessed by users. The path where these files will be served is specified, with `/public` being the default path.
+
+#### **Public File Serving Configuration**
+
+```ts
+import { env } from 'kawkab'
+import { Provider } from './provider'
+
+export const app = {
+    app: {
+        serveStatic: {
+            enable: true,            // Enable public file serving
+            path: '/public',         // Path where public files will be accessible
+        },
+    },
+}
+```
+
+- **`serveStatic.enable`**: Determines whether public file serving will be enabled.
+- **`serveStatic.path`**: Specifies the path where public files will be served (e.g., `/public`).
+
+#### **User Access to Public Files**
+
+Once these settings are enabled, users can access public files stored in the `storage/public` folder via the following URL:
+
+```
+http://localhost:3000/public/pic.jpg
+```
+
+### **Serving Private Files**
+
+Private files differ from public files in that they cannot be accessed directly through public URLs. These files are stored in the `storage/private` folder and cannot be accessed by users through direct browser links. To access these files, the `response.privateFile` function is used securely.
+
+---
+
+## **Accessing Private Files Using `response.privateFile`**
+
+To retrieve private files from the `storage/private` folder, use the `response.privateFile` function which ensures secure file delivery:
+
+#### **Accessing Private Files**
+
+```ts
+import { response } from "kawkab";
+
+async get() {
+    return response.privateFile("file.mp4");  // Access private file
+}
+```
+
+- **`response.privateFile("file.mp4")`**: This function provides secure access to `file.mp4` from the private **storage/private** directory.
+
+---
+
+## **How to Access Files in Kawkab Framework**
+
+### **Public Files**
+
+Public files can be easily accessed through the path specified in the `serveStatic.path` settings. These files must be located in the `storage/public` folder and can be accessed using direct browser URLs.
+
+**Example:**
+```
+http://localhost:3000/public/pic.jpg
+```
+
+### **Private Files**
+
+Private files are stored in the `storage/private` folder and cannot be accessed through direct links. To access them securely, you must use the `response.privateFile()` function within a Controller or elsewhere in the application.
+
+---
+
+## **Configuration Summary**
+
+```ts
+import { env } from 'kawkab'
+import { Provider } from './provider'
+
+export const app = {
+    app: {
+        serveStatic: {
+            enable: true,        // Enable public file serving
+            path: '/public',     // Path for accessing public files
+        },
+    },
+}
+```
+
+- **`enable`**: Determines whether public file serving will be enabled.
+- **`path`**: Specifies the path where public files will be served.
+
+**Accessing Public Files:**
+```
+http://localhost:3000/public/pic.jpg
+```
+
+**Accessing Private Files:**
+```ts
+return response.privateFile("file.mp4");
+```
+
+---
+
+## **Conclusion**
+
+Configuring public and private file serving in **Kawkab Framework** is a simple and flexible process. Through `configuration.ts`, you can control how public files are served via a specified path while the `response.privateFile` function ensures secure access to private files.

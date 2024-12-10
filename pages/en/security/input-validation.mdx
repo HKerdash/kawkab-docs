@@ -1,0 +1,149 @@
+---
+title: Input Validation with Kawkab
+description: A comprehensive guide on creating and using input validation classes in Kawkab using Zod rules.
+---
+
+# Input Validation with Kawkab
+
+Kawkab provides an advanced input validation system using the **Zod** library. The system is user-friendly and customizable to suit the needs of your application.
+
+---
+
+## **Creating Validation Classes**
+
+To create a new validation class, you can use the following command:
+
+```bash
+npm run kawkab validation:make <name> [module]
+```
+
+### **Parameter Details:**
+
+- **`<name>`**: The name of the Validation class you want to create (e.g., `login`).
+- **`[module]`**: The module containing the Validation class (optional, default is `main`).
+
+### **Example:**
+
+To create a validation class named `login`:
+
+```bash
+npm run kawkab validation:make login
+```
+
+### **Result:**
+
+```
+🆗 Validation login created successfully in module main.
+
+1️⃣  Your validation class is ready! You can now use it like this:
+ 👉 import { LoginValidation } from '../validation/login'
+
+ Simply create an instance like this:
+👉 new LoginValidation()
+
+Enjoy coding! 😎
+```
+
+---
+
+## **Validation Class Structure**
+
+When creating a new validation class, a file with the basic structure is generated as follows:
+
+```ts
+import { BaseValidation, rule as r } from "kawkab";
+
+export class LoginValidation extends BaseValidation {
+    rules() {
+        return {
+            name: r.string(),
+        };
+    }
+}
+```
+
+---
+
+## **Using the Validation Class**
+
+After creating the validation class, it can be easily used:
+
+```ts
+import { LoginValidation } from "../validation/login";
+
+new LoginValidation(); // This will validate the inputs
+
+const data = new LoginValidation().data(); // Or to retrieve the inputs
+```
+
+---
+
+## **Response When Validation Fails**
+
+When an error occurs during validation, Kawkab returns a formatted response that includes the full details of the issue. The messages are also translated based on the user's default or detected language.
+
+### **Error Response Format:**
+
+```json
+{
+    "status": false,
+    "code": "validation",
+    "message": {
+        "field": "name",
+        "name": "name",
+        "message_original": {
+            "code": "invalid_type",
+            "expected": "string",
+            "received": "undefined",
+            "path": [
+                "name"
+            ],
+            "message": "Required"
+        },
+        "message": "مطلوب"
+    },
+    "messages": [
+        {
+            "field": "name",
+            "name": "name",
+            "message_original": {
+                "code": "invalid_type",
+                "expected": "string",
+                "received": "undefined",
+                "path": [
+                    "name"
+                ],
+                "message": "Required"
+            },
+            "message": "مطلوب"
+        }
+    ]
+}
+```
+
+### **Field Details:**
+
+- **`status`**: The validation status (`false` when there's an issue).  
+- **`code`**: The error type (`validation` indicates a validation issue).  
+- **`message`**: The main error message containing details about the first problematic field.  
+- **`field`**: The name of the field with the issue.  
+- **`message_original`**: The original message from the Zod library (contains technical information).  
+- **`message`**: The translated message based on the user's language.  
+- **`messages`**: A list of all errors, with full details for each field.
+
+### **Message Translation:**
+
+Messages are translated based on the user's default language set in the application settings or detected from the `Accept-Language` header.
+
+---
+
+## Additional Resources
+
+- [Zod Official Documentation](https://zod.dev/)
+- [GitHub Repository](https://github.com/colinhacks/zod)
+- [API Reference](https://zod.dev/api/)
+
+
+## **Conclusion**
+
+The validation system in Kawkab relies on the **Zod** library to provide a flexible and precise input validation system. It features easy class creation, customizable data, and multilingual support to ensure an excellent experience for both developers and users.

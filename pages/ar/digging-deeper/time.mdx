@@ -1,0 +1,272 @@
+---
+
+title: استخدام Time في Kawkab  
+description: دليل شامل لإدارة التواريخ والأوقات في تطبيقك باستخدام إطار عمل كوكب Kawkab.
+
+---
+
+# إدارة التواريخ والأوقات في Kawkab
+
+يوفر كلاس **Time** في إطار عمل **كوكب Kawkab** واجهة برمجية قوية وسهلة الاستخدام للتعامل مع التواريخ والأوقات. مما يوفر أدوات متقدمة لمعالجة وتنسيق التواريخ والأوقات بكفاءة عالية.
+
+## البدء باستخدام Time
+
+### تهيئة كائن Time جديد
+
+يمكنك إنشاء كائن Time جديد بعدة طرق:
+
+```typescript
+import { time as Time } from "kawkab";
+
+// إنشاء كائن بالوقت الحالي
+const now = new Time();
+
+// إنشاء كائن من تاريخ محدد
+const specificDate = new Time("2024-01-15");
+
+// إنشاء كائن من كائن Date
+const fromJsDate = new Time(new Date());
+
+// إنشاء كائن من timestamp
+const fromTimestamp = new Time(1642234567890);
+```
+
+### استخدام الطرق الثابتة (Static Methods)
+
+```typescript
+// الحصول على الوقت الحالي
+const currentTime = Time.now();
+
+// إنشاء كائن من تاريخ محدد
+const createdTime = Time.create("2024-01-15");
+```
+
+## التنسيق والعرض
+
+### تنسيق التاريخ والوقت
+
+```typescript
+const time = new Time("2024-01-15 14:30:45");
+
+// تنسيق افتراضي (YYYY-MM-DD HH:mm:ss)
+console.log(time.format()); // "2024-01-15 14:30:45"
+
+// تنسيق مخصص
+console.log(time.format("DD/MM/YYYY")); // "15/01/2024"
+console.log(time.format("MMMM Do YYYY")); // "January 15th 2024"
+```
+
+### تنسيق الوقت فقط
+
+```typescript
+const time = new Time("2024-01-15 14:30:45");
+
+// تنسيق الوقت افتراضي (HH:mm:ss)
+console.log(time.formatTime()); // "14:30:45"
+
+// تنسيق وقت مخصص
+console.log(time.formatTime("HH:mm")); // "14:30"
+```
+
+## العمليات على التواريخ
+
+### إضافة وحدات زمنية
+
+```typescript
+const time = new Time("2024-01-15");
+
+// إضافة أيام
+const afterThreeDays = time.add(3, "day");
+console.log(afterThreeDays.format()); // "2024-01-18 00:00:00"
+
+// إضافة ساعات
+const afterTwoHours = time.add(2, "hour");
+console.log(afterTwoHours.format()); // "2024-01-15 02:00:00"
+
+// إضافة دقائق
+const afterMinutes = time.add(30, "minute");
+console.log(afterMinutes.format()); // "2024-01-15 00:30:00"
+```
+
+### طرح وحدات زمنية
+
+```typescript
+const time = new Time("2024-01-15");
+
+// طرح أيام
+const beforeThreeDays = time.subtract(3, "day");
+console.log(beforeThreeDays.format()); // "2024-01-12 00:00:00"
+
+// طرح ساعات
+const beforeTwoHours = time.subtract(2, "hour");
+console.log(beforeTwoHours.format()); // "2024-01-14 22:00:00"
+```
+
+## الحصول على مكونات الوقت
+
+```typescript
+const time = new Time("2024-01-15 14:30:45");
+
+// الحصول على الساعة
+console.log(time.getHour()); // 14
+
+// الحصول على الدقائق
+console.log(time.getMinute()); // 30
+
+// الحصول على الثواني
+console.log(time.getSecond()); // 45
+```
+
+## ضبط الوقت
+
+```typescript
+const time = new Time("2024-01-15");
+
+// ضبط وقت محدد
+const setTime = time.setTime(15, 30, 45);
+console.log(setTime.format()); // "2024-01-15 15:30:45"
+
+// ضبط الوقت بدون ثواني
+const setTimeNoSeconds = time.setTime(15, 30);
+console.log(setTimeNoSeconds.format()); // "2024-01-15 15:30:00"
+```
+
+## المقارنات
+
+### مقارنة التواريخ
+
+```typescript
+const time1 = new Time("2024-01-15");
+const time2 = new Time("2024-01-20");
+
+// التحقق إذا كان التاريخ قبل تاريخ آخر
+console.log(time1.isBefore(time2)); // true
+
+// التحقق إذا كان التاريخ بعد تاريخ آخر
+console.log(time1.isAfter(time2)); // false
+
+// التحقق إذا كان التاريخ يساوي تاريخ آخر
+console.log(time1.isSame(time2)); // false
+```
+
+### حساب الفرق بين التواريخ
+
+```typescript
+const time1 = new Time("2024-01-15");
+const time2 = new Time("2024-01-20");
+
+// الفرق بالمللي ثانية (افتراضي)
+console.log(time1.diff(time2)); // -432000000
+
+// الفرق بالأيام
+console.log(time1.diff(time2, "day")); // -5
+
+// الفرق بالساعات
+console.log(time1.diff(time2, "hour")); // -120
+```
+
+## التحويلات
+
+### التحويل إلى كائن Date
+
+```typescript
+const time = new Time("2024-01-15");
+const jsDate = time.toDate();
+console.log(jsDate instanceof Date); // true
+```
+
+### التحويل إلى Timestamp
+
+```typescript
+const time = new Time("2024-01-15");
+const timestamp = time.toTimestamp();
+console.log(timestamp); // 1705276800
+```
+
+## تغيير اللغة
+```typescript
+const time = Time.now().setLocale("ar").from(time);
+console.log(time); // بعد 6 ساعات
+```
+
+## أفضل الممارسات
+
+1. **استخدام الثوابت**: عند التعامل مع تنسيقات متكررة، قم بتعريفها كثوابت:
+```typescript
+const DATE_FORMAT = "YYYY-MM-DD";
+const TIME_FORMAT = "HH:mm:ss";
+
+const time = new Time();
+console.log(time.format(DATE_FORMAT));
+```
+
+2. **التسلسل المنطقي**: يمكنك تسلسل العمليات على كائن Time:
+```typescript
+const result = new Time()
+  .add(1, "day")
+  .subtract(2, "hour")
+  .setTime(15, 0)
+  .format();
+```
+
+3. **التحقق من الصحة**: تأكد دائماً من صحة التواريخ المدخلة:
+```typescript
+const time = new Time(userInput);
+if (time.isValid()) {
+  // متابعة العمل
+} else {
+  throw new Error("تاريخ غير صالح");
+}
+```
+
+## الوحدات الزمنية المدعومة
+
+يدعم كلاس Time الوحدات الزمنية التالية:
+
+- `year`: السنوات
+- `month`: الشهور
+- `day`: الأيام
+- `hour`: الساعات
+- `minute`: الدقائق
+- `second`: الثواني
+- `millisecond`: المللي ثانية
+
+### أمثلة عن الوقت:
+
+#### 1. **تنسيق الوقت والتاريخ معًا**
+```typescript
+const now = Time.now();
+console.log(now.format('YYYY-MM-DD HH:mm:ss')); // "2024-12-01 14:45:30"
+```
+
+#### 2. **تحديد وقت معين**
+```typescript
+const time = Time.now().setTime(15, 30, 45);
+console.log(time.formatTime()); // "15:30:45"
+```
+
+#### 3. **إضافة 3 ساعات و30 دقيقة**
+```typescript
+const time = Time.now().add(3, 'hours').add(30, 'minutes');
+console.log(time.format()); // الوقت محدث مع الإضافة
+```
+
+#### 4. **الحصول على الوقت فقط**
+```typescript
+const now = Time.now();
+console.log(now.formatTime()); // مثلاً "14:45:30"
+```
+
+#### 5. **الفرق بين توقيتين**
+```typescript
+const start = Time.create('2024-12-01 12:00:00');
+const end = Time.create('2024-12-01 15:30:00');
+console.log(end.diff(start, 'minutes')); // 210 دقيقة
+```
+
+## الخاتمة
+
+يوفر كلاس **Time** في Kawkab واجهة برمجية قوية وسهلة الاستخدام للتعامل مع التواريخ والأوقات. يقدم مجموعة شاملة من الأدوات لمعالجة وتنسيق وتحويل التواريخ والأوقات بكفاءة عالية.
+
+استخدم هذا الدليل كمرجع لك عند العمل مع التواريخ والأوقات في تطبيقات Kawkab، واستفد من الأمثلة العملية لتطوير حلول فعالة ومتينة لإدارة الوقت في تطبيقك.
+

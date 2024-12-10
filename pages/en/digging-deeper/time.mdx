@@ -1,0 +1,270 @@
+---
+title: Using Time in Kawkab  
+description: A comprehensive guide to managing dates and times in your application using the Kawkab framework.
+
+---
+
+# Managing Dates and Times in Kawkab
+
+The **Time** class in the **Kawkab** framework provides a powerful and easy-to-use API for handling dates and times, offering advanced tools for processing and formatting dates and times efficiently.
+
+## Getting Started with Time
+
+### Creating a New Time Object
+
+You can create a new Time object in several ways:
+
+```typescript
+import { time as Time } from "kawkab";
+
+// Create an object with the current time
+const now = new Time();
+
+// Create an object from a specific date
+const specificDate = new Time("2024-01-15");
+
+// Create an object from a JavaScript Date object
+const fromJsDate = new Time(new Date());
+
+// Create an object from a timestamp
+const fromTimestamp = new Time(1642234567890);
+```
+
+### Using Static Methods
+
+```typescript
+// Get the current time
+const currentTime = Time.now();
+
+// Create an object from a specific date
+const createdTime = Time.create("2024-01-15");
+```
+
+## Formatting and Display
+
+### Formatting Date and Time
+
+```typescript
+const time = new Time("2024-01-15 14:30:45");
+
+// Default format (YYYY-MM-DD HH:mm:ss)
+console.log(time.format()); // "2024-01-15 14:30:45"
+
+// Custom format
+console.log(time.format("DD/MM/YYYY")); // "15/01/2024"
+console.log(time.format("MMMM Do YYYY")); // "January 15th 2024"
+```
+
+### Formatting Time Only
+
+```typescript
+const time = new Time("2024-01-15 14:30:45");
+
+// Default time format (HH:mm:ss)
+console.log(time.formatTime()); // "14:30:45"
+
+// Custom time format
+console.log(time.formatTime("HH:mm")); // "14:30"
+```
+
+## Operations on Dates
+
+### Adding Time Units
+
+```typescript
+const time = new Time("2024-01-15");
+
+// Add days
+const afterThreeDays = time.add(3, "day");
+console.log(afterThreeDays.format()); // "2024-01-18 00:00:00"
+
+// Add hours
+const afterTwoHours = time.add(2, "hour");
+console.log(afterTwoHours.format()); // "2024-01-15 02:00:00"
+
+// Add minutes
+const afterMinutes = time.add(30, "minute");
+console.log(afterMinutes.format()); // "2024-01-15 00:30:00"
+```
+
+### Subtracting Time Units
+
+```typescript
+const time = new Time("2024-01-15");
+
+// Subtract days
+const beforeThreeDays = time.subtract(3, "day");
+console.log(beforeThreeDays.format()); // "2024-01-12 00:00:00"
+
+// Subtract hours
+const beforeTwoHours = time.subtract(2, "hour");
+console.log(beforeTwoHours.format()); // "2024-01-14 22:00:00"
+```
+
+## Getting Time Components
+
+```typescript
+const time = new Time("2024-01-15 14:30:45");
+
+// Get the hour
+console.log(time.getHour()); // 14
+
+// Get the minutes
+console.log(time.getMinute()); // 30
+
+// Get the seconds
+console.log(time.getSecond()); // 45
+```
+
+## Setting Time
+
+```typescript
+const time = new Time("2024-01-15");
+
+// Set a specific time
+const setTime = time.setTime(15, 30, 45);
+console.log(setTime.format()); // "2024-01-15 15:30:45"
+
+// Set time without seconds
+const setTimeNoSeconds = time.setTime(15, 30);
+console.log(setTimeNoSeconds.format()); // "2024-01-15 15:30:00"
+```
+
+## Comparisons
+
+### Comparing Dates
+
+```typescript
+const time1 = new Time("2024-01-15");
+const time2 = new Time("2024-01-20");
+
+// Check if the date is before another date
+console.log(time1.isBefore(time2)); // true
+
+// Check if the date is after another date
+console.log(time1.isAfter(time2)); // false
+
+// Check if the date is the same as another date
+console.log(time1.isSame(time2)); // false
+```
+
+### Calculating the Difference Between Dates
+
+```typescript
+const time1 = new Time("2024-01-15");
+const time2 = new Time("2024-01-20");
+
+// Difference in milliseconds (default)
+console.log(time1.diff(time2)); // -432000000
+
+// Difference in days
+console.log(time1.diff(time2, "day")); // -5
+
+// Difference in hours
+console.log(time1.diff(time2, "hour")); // -120
+```
+
+## Conversions
+
+### Converting to a JavaScript Date Object
+
+```typescript
+const time = new Time("2024-01-15");
+const jsDate = time.toDate();
+console.log(jsDate instanceof Date); // true
+```
+
+### Converting to a Timestamp
+
+```typescript
+const time = new Time("2024-01-15");
+const timestamp = time.toTimestamp();
+console.log(timestamp); // 1705276800
+```
+
+## Changing Locale
+```typescript
+const time = Time.now().setLocale("ar").from(time);
+console.log(time); // بعد 6 ساعات
+```
+
+## Best Practices
+
+1. **Use Constants**: For recurring formats, define them as constants:
+```typescript
+const DATE_FORMAT = "YYYY-MM-DD";
+const TIME_FORMAT = "HH:mm:ss";
+
+const time = new Time();
+console.log(time.format(DATE_FORMAT));
+```
+
+2. **Chaining Operations**: You can chain operations on a Time object:
+```typescript
+const result = new Time()
+  .add(1, "day")
+  .subtract(2, "hour")
+  .setTime(15, 0)
+  .format();
+```
+
+3. **Validation**: Always check the validity of input dates:
+```typescript
+const time = new Time(userInput);
+if (time.isValid()) {
+  // Proceed
+} else {
+  throw new Error("Invalid date");
+}
+```
+
+## Supported Time Units
+
+The Time class supports the following time units:
+
+- `year`: years
+- `month`: months
+- `day`: days
+- `hour`: hours
+- `minute`: minutes
+- `second`: seconds
+- `millisecond`: milliseconds
+
+### Examples of Time:
+
+#### 1. **Formatting Date and Time Together**
+```typescript
+const now = Time.now();
+console.log(now.format('YYYY-MM-DD HH:mm:ss')); // "2024-12-01 14:45:30"
+```
+
+#### 2. **Setting a Specific Time**
+```typescript
+const time = Time.now().setTime(15, 30, 45);
+console.log(time.formatTime()); // "15:30:45"
+```
+
+#### 3. **Adding 3 Hours and 30 Minutes**
+```typescript
+const time = Time.now().add(3, 'hours').add(30, 'minutes');
+console.log(time.format()); // Updated time with addition
+```
+
+#### 4. **Getting Time Only**
+```typescript
+const now = Time.now();
+console.log(now.formatTime()); // Example: "14:45:30"
+```
+
+#### 5. **Calculating the Difference Between Two Times**
+```typescript
+const start = Time.create('2024-12-01 12:00:00');
+const end = Time.create('2024-12-01 15:30:00');
+console.log(end.diff(start, 'minutes')); // 210 minutes
+```
+
+## Conclusion
+
+The **Time** class in Kawkab offers a powerful and easy-to-use API for handling dates and times. It provides a comprehensive set of tools for processing, formatting, and converting dates and times efficiently.
+
+Use this guide as a reference when working with dates and times in Kawkab applications, and take advantage of the practical examples to build effective and robust time management solutions for your application.

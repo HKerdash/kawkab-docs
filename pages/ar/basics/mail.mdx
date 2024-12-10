@@ -1,0 +1,134 @@
+# إرسال البريد الإلكتروني في **كوكب Kawkab**
+
+يوفر **كوكب Kawkab** واجهة مرنة وسهلة الاستخدام لإرسال رسائل البريد الإلكتروني في تطبيقاتك. باستخدام تكوينات بيئية مرنة، يمكنك إرسال رسائل نصية أو HTML بسهولة باستخدام فئة `Mail` التي توفر لك خيارات متنوعة حسب احتياجاتك.
+
+## التكوين في ملف `.env`
+
+يتم تحديد إعدادات البريد الإلكتروني في ملف البيئة `.env` داخل تطبيقك. يمكنك تخصيص هذه الإعدادات لتتوافق مع خادم البريد الإلكتروني الذي تستخدمه، سواء كان ذلك من خدمة SMTP مثل Gmail أو أي خادم آخر.
+
+### مثال لإعدادات البريد الإلكتروني في `.env`:
+
+```dotenv
+# إعدادات البريد الإلكتروني
+MAIL_HOST=smtp.example.com        # خادم SMTP
+MAIL_PORT=587                     # رقم المنفذ (587 لتقنية TLS)
+MAIL_USER=your-username@example.com  # اسم المستخدم للمصادقة
+MAIL_PASS=your-email-password      # كلمة مرور المصادقة
+MAIL_TLS=true                      # تمكين/تعطيل TLS
+MAIL_FROM_ADDRESS="hello@example.com"  # عنوان البريد الإلكتروني الافتراضي
+MAIL_FROM_NAME="${APP_NAME}"       # اسم المرسل الافتراضي (يمكن تضمين اسم التطبيق)
+```
+
+### شرح إعدادات البريد الإلكتروني:
+
+- **MAIL_HOST**: اسم خادم SMTP الذي ستتصل به (مثال: smtp.gmail.com).
+- **MAIL_PORT**: المنفذ الذي يستخدمه خادم SMTP (عادةً 587 لـ TLS أو 465 لـ SSL).
+- **MAIL_USER**: اسم المستخدم للمصادقة مع خادم البريد الإلكتروني.
+- **MAIL_PASS**: كلمة المرور الخاصة بحساب البريد الإلكتروني.
+- **MAIL_TLS**: تحديد ما إذا كان يجب استخدام TLS (صح أو خطأ).
+- **MAIL_FROM_ADDRESS**: البريد الإلكتروني الافتراضي للمرسل.
+- **MAIL_FROM_NAME**: اسم المرسل الذي يظهر في الرسائل المرسلة (يمكنك استخدام `${APP_NAME}` للحصول على اسم التطبيق ديناميكيًا).
+
+---
+
+## إرسال البريد الإلكتروني باستخدام Kawkab
+
+لإرسال رسالة بريد إلكتروني، يمكنك استخدام طريقة `send` من فئة `Mail`. تتيح لك هذه الطريقة تخصيص المرسل، المستلم، الموضوع، الجسم، والصيغة (نص أو HTML) كما تريد.
+
+### طريقة الاستخدام الأساسية لإرسال بريد إلكتروني:
+
+```javascript
+import { mail } from "kawkab";
+
+mail
+  .send({
+    from: "sender@example.com", // اختياري: إذا تم تحديده في .env، سيتم استخدام القيمة من .env
+    fromName: "Sender Name", // اختياري: إذا لم يتم تحديده، سيتم استخدام القيمة من .env
+    to: "recipient@example.com", // البريد الإلكتروني للمستلم
+    toName: "Recipient Name", // اختياري: اسم المستلم (يمكن تضمينه)
+    subject: "Hello!", // موضوع البريد
+    body: "This is a plain text body.", // محتوى الرسالة
+    isHtml: false, // تحديد ما إذا كان المحتوى نص عادي (false) أو HTML (true)
+  })
+  .then((info) => {
+    console.log("تم إرسال البريد بنجاح:", info);
+  })
+  .catch((error) => {
+    console.error("فشل إرسال البريد:", error);
+  });
+```
+
+### شرح الخيارات المتاحة في `mail.send`:
+
+- **from**: (اختياري) البريد الإلكتروني للمرسل. إذا لم يتم تحديده، سيتم استخدام القيمة من `MAIL_FROM_ADDRESS` في `.env`.
+- **fromName**: (اختياري) اسم المرسل. إذا لم يتم تحديده، سيتم استخدام القيمة من `MAIL_FROM_NAME` في `.env`.
+- **to**: البريد الإلكتروني للمستلم.
+- **toName**: (اختياري) اسم المستلم. عندما يتم تحديده، سيظهر البريد بشكل "Recipient Name \<recipientexample.com\>".
+- **subject**: الموضوع الذي يظهر في الرسالة.
+- **body**: نص الرسالة (قد يكون نصًا عاديًا أو HTML حسب القيمة المدخلة في `isHtml`).
+- **isHtml**: (اختياري) لتحديد ما إذا كان الجسم يحتوي على HTML. إذا كان `false`، سيتم التعامل معه كنص عادي.
+
+---
+
+## أمثلة عملية لإرسال البريد الإلكتروني باستخدام **Kawkab**
+
+### 1. إرسال بريد نصي بسيط:
+
+```javascript
+import { mail } from "kawkab";
+
+mail
+  .send({
+    to: "recipient@example.com",
+    subject: "Plain Text Email",
+    body: "This is a plain text email.",
+  })
+  .then((info) => console.log("تم إرسال البريد بنجاح:", info))
+  .catch((error) => console.error("خطأ في إرسال البريد:", error));
+```
+
+### 2. إرسال بريد بتنسيق HTML:
+
+```javascript
+import { mail } from "kawkab";
+
+mail
+  .send({
+    to: "recipient@example.com",
+    subject: "HTML Email",
+    body: "<h1>Welcome</h1><p>This is an HTML email!</p>",
+    isHtml: true,
+  })
+  .then((info) => console.log("تم إرسال البريد بنجاح:", info))
+  .catch((error) => console.error("خطأ في إرسال البريد:", error));
+```
+
+### 3. إرسال بريد مع عنوان مرسل مخصص:
+
+```javascript
+import { mail } from "kawkab";
+
+mail
+  .send({
+    from: "customsender@example.com",
+    fromName: "Custom Sender",
+    to: "recipient@example.com",
+    toName: "John Doe",
+    subject: "Custom Sender Email",
+    body: "This email comes from a custom sender address and name.",
+  })
+  .then((info) => console.log("تم إرسال البريد بنجاح:", info))
+  .catch((error) => console.error("خطأ في إرسال البريد:", error));
+```
+
+---
+
+## تلخيص
+
+- **إعدادات البريد**: يتم تحديدها من خلال متغيرات البيئة في ملف `.env`، مما يتيح لك تكوين خادم البريد، بيانات المصادقة، والمنفذ بسهولة.
+- **إرسال البريد**: يتم عبر طريقة `mail.send` مع تخصيص خيارات مثل المرسل، المستلم، الموضوع، الجسم (نص أو HTML)، وغيرها.
+- **التخصيص**: بوفر لك **كوكب Kawkab** القدرة على تخصيص العديد من جوانب البريد الإلكتروني مثل العناوين، الأسماء، وأيضًا محتوى الرسالة.
+
+يمكنك بسهولة دمج وظيفة إرسال البريد الإلكتروني في تطبيقك، مما يجعل عملية التواصل مع المستخدمين أو العملاء أكثر فعالية ومرونة.
+
+---

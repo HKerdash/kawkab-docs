@@ -1,0 +1,220 @@
+---
+title: Tests in Kawkab
+description: A comprehensive guide to tests and their types in the Kawkab framework
+---
+
+# Tests in Kawkab
+
+## Introduction to Testing
+
+Testing is a crucial part of software development. In Kawkab, we use Jest as the testing framework due to its ease of use and powerful features.
+
+## Types of Tests
+
+### 1. Unit Tests
+
+Unit tests examine a small part of the code in isolation.
+
+```typescript
+// tests/unit/Calculator.test.ts
+describe('Calculator', () => {
+    test('Addition', () => {
+        const calc = new Calculator();
+        expect(calc.add(2, 3)).toBe(5);
+    });
+
+    test('Multiplication', () => {
+        const calc = new Calculator();
+        expect(calc.multiply(4, 3)).toBe(12);
+    });
+});
+```
+
+### 2. Integration Tests
+
+Integration tests evaluate how multiple components interact with each other.
+
+```typescript
+// tests/integration/UserAuth.test.ts
+describe('User Authentication', () => {
+    test('Login process', async () => {
+        const auth = new AuthService(new UserRepository());
+        const result = await auth.login('user@example.com', 'password');
+        expect(result.success).toBe(true);
+    });
+});
+```
+
+### 3. API Tests
+
+API tests validate the endpoints in the application.
+
+```typescript
+// tests/api/users.test.ts
+describe('Users API', () => {
+    test('Create new user', async () => {
+        const response = await request(app)
+            .post('/api/users')
+            .send({
+                name: 'Ahmed',
+                email: 'ahmed@example.com'
+            });
+
+        expect(response.status).toBe(201);
+        expect(response.body).toHaveProperty('id');
+    });
+});
+```
+
+## Testing Helpers
+
+### 1. Mocks
+
+Mocks are used to simulate complex behavior or external services.
+
+```typescript
+// Mocking the mail service
+jest.mock('@services/mail', () => ({
+    sendMail: jest.fn().mockResolvedValue({ sent: true })
+}));
+
+test('Send verification email', async () => {
+    const result = await sendVerificationEmail('user@example.com');
+    expect(result.sent).toBe(true);
+});
+```
+
+### 2. Fixtures
+
+Fixtures are used to create static test data.
+
+```typescript
+// tests/fixtures/users.ts
+export const testUser = {
+    id: 1,
+    name: 'Ahmed',
+    email: 'ahmed@example.com',
+    role: 'user'
+};
+```
+
+### 3. Helpers
+
+Helpers are utility functions that simplify tests.
+
+```typescript
+// tests/helpers/database.ts
+export async function cleanDatabase() {
+    await db.truncate(['users', 'posts', 'comments']);
+}
+
+export async function seedTestData() {
+    await db.seed(['users', 'posts']);
+}
+```
+
+## Writing Good Tests
+
+### 1. Organization
+
+```typescript
+describe('User Service', () => {
+    // Setup before each test
+    beforeEach(async () => {
+        await cleanDatabase();
+    });
+
+    // Group of tests for user creation
+    describe('Create User', () => {
+        test('Successful creation', async () => {
+            // Test code
+        });
+
+        test('Failed creation - Duplicate email', async () => {
+            // Test code
+        });
+    });
+});
+```
+
+### 2. Best Practices
+
+#### Clear Naming
+
+```typescript
+// ✅ Good
+test('Should reject short password', () => {});
+
+// ❌ Bad
+test('Password test', () => {});
+```
+
+#### Test One Case
+
+```typescript
+// ✅ Good
+test('Should reject invalid email', () => {
+    expect(validateEmail('invalid')).toBe(false);
+});
+
+// ❌ Bad
+test('Email validation', () => {
+    expect(validateEmail('valid@email.com')).toBe(true);
+    expect(validateEmail('invalid')).toBe(false);
+    expect(validateEmail('')).toBe(false);
+});
+```
+
+## Running Tests
+
+### Basic Commands
+
+```bash
+# Run all tests
+npm test
+
+# Run specific tests
+npm test users
+
+# Run with coverage
+npm test -- --coverage
+```
+
+### Running Options
+
+```bash
+# Watch mode
+npm test -- --watch
+
+# Run a specific test
+npm test -- users.test.ts
+
+# Filter tests
+npm test -- -t "Create user"
+```
+
+## Code Coverage
+
+The code coverage report shows:
+- The percentage of code covered by tests
+- The uncovered parts of the code
+- Test effectiveness
+
+```bash
+# Generate coverage report
+npm test -- --coverage
+```
+
+## Conclusion
+
+Tests in Kawkab:
+- Ensure code quality
+- Facilitate error discovery
+- Provide practical documentation
+- Increase confidence in changes
+
+Final Tips:
+- Write tests for every new feature
+- Keep tests simple
+- Make tests fast and independent
+- Use helpers wisely

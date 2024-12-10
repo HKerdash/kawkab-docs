@@ -1,0 +1,106 @@
+---
+title: Managing Resources in Kawkab Framework
+description: A guide to creating and using Resources to format response data in the Kawkab framework.
+---
+
+# Managing Resources in Kawkab Framework
+
+Resources are an additional layer in the **Kawkab Framework** used to format data sent to the client. Resources help standardize response formatting and make code more organized and maintainable.
+
+---
+
+## Resource Creation Command
+
+To create a new resource, use the following command:
+
+```bash
+npm run kawkab resource:make <n> [module]
+```
+
+### **Parameters:**
+- `<n>`: The name of the resource to create (e.g., `user`).
+- `[module]` _(optional)_: The name of the module the resource belongs to. If no module is specified, it will be placed in the default `main` module.
+
+### **Example:**
+```bash
+npm run kawkab resource:make user
+```
+
+### **Output:**
+```plaintext
+🆗 Resource user created successfully in module main.
+1️⃣  Your resource is ready! You can now import it like this:
+
+👉 import { UserResource } from '../resources/user'
+
+2️⃣  Use the resource like so:
+👉 const users = await Users.query().get();
+👉 return { status: true, users: UserResource.collect(users) };
+```
+
+---
+
+## Basic Resource File Structure
+
+When creating a new resource, a file will be created containing the following structure:
+
+```typescript
+import { BaseResource } from "kawkab";
+
+export class UserResource extends BaseResource {
+    public resource() {
+        return {
+            id: this.data.id,
+            name: this.data.name
+        };
+    }
+}
+```
+
+### **Code Explanation:**
+1. **BaseResource**: The base class used for data formatting.
+2. **`resource`**: A function used to define the format of data sent to the client.
+3. **`this.data`**: Represents the data passed to the resource.
+
+---
+
+## Using Resources
+
+Resources can be used to format data before returning it to the client. Here's an example:
+
+```typescript
+import { BaseController, inherit } from "kawkab";
+import { UserResource } from "../resources/user";
+
+export default class extends inherit(BaseController) {
+  async get() {
+    const users = await Users.query().get();
+    return { 
+      status: true, 
+      users: UserResource.collect(users) 
+    };
+  }
+}
+```
+
+### **Code Explanation:**
+1. **`UserResource.collect(users)`**: Formats a collection of items using the resource.
+2. **`users`**: Represents data retrieved from the database.
+3. **`return`**: Returns the response formatted using the resource.
+
+---
+
+## Benefits of Using Resources
+
+1. **Data Formatting**: Makes responses uniform and easy to understand.
+2. **Code Reusability**: Resources can be used to format data across multiple modules.
+3. **Security Enhancement**: Allows you to control what data is sent to the client.
+4. **Code Organization**: Separates data processing logic from presentation logic.
+
+---
+
+## Conclusion
+
+Resources in **Kawkab Framework** help you improve the development experience of organized and maintainable APIs. 
+
+🎉 **Start organizing your responses with Resources in Kawkab Framework now!**

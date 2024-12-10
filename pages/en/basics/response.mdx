@@ -1,0 +1,368 @@
+# Managing Responses in Kawkab Framework
+
+The **Kawkab Framework** provides an easy-to-use interface for creating HTTP responses in multiple formats such as plain text, JSON, or files. This document explains how to use the `response` and `res` objects to customize responses and meet your application's needs.
+
+---
+
+## Response Object
+
+`response` is the primary object that allows creating different types of responses with complete control over **Content Type**, **Headers**, and **Status Codes**.
+
+### Available Methods
+
+#### `response.text()`
+
+Used to create a text response.
+
+```typescript
+import { response } from "kawkab";
+
+export function helloWorld() {
+  return response.text("Hello, World!");
+}
+```
+
+#### `response.json()`
+
+Used to create a JSON response.
+
+```typescript
+import { response } from "kawkab";
+
+export function getUserInfo() {
+  return response.json({ name: "Hassan", country: "Egypt" });
+}
+```
+
+#### `response.file()`
+
+To return a specific file as a response.
+
+```typescript
+import { response } from "kawkab";
+
+export async function getFile(request) {
+  return await response.file("/storage/public", "textFile.txt");
+}
+```
+
+#### `response.publicFile()`
+
+To return files from the public directory.
+
+```typescript
+import { response } from "kawkab";
+
+export async function getPublicImage() {
+  return await response.publicFile("images/logo.png");
+}
+```
+
+#### `response.privateFile()`
+
+To return files from the private directory.
+
+```typescript
+import { response } from "kawkab";
+
+export async function getPrivateDocument() {
+  return await response.privateFile("documents/report.pdf");
+}
+```
+
+---
+
+## Res Object
+
+`res` provides quick methods for creating common responses, ideal for developing APIs.
+
+### Available Methods
+
+#### `res.ok()`
+
+To return a success response (200 OK).
+
+```typescript
+import { res } from "kawkab";
+
+export function successResponse() {
+  return res.ok({ status: true });
+}
+```
+
+#### `res.created()`
+
+To return a creation response (201 Created).
+
+```typescript
+import { res } from "kawkab";
+
+export function createUser() {
+  return res.created({ id: 1, name: "New User" });
+}
+```
+
+#### `res.noContent()`
+
+To return an empty response (204 No Content).
+
+```typescript
+import { res } from "kawkab";
+
+export function deleteUser() {
+  return res.noContent();
+}
+```
+
+#### `res.badRequest()`
+
+To return a bad request error response (400 Bad Request).
+
+```typescript
+import { res } from "kawkab";
+
+export function validateInput(request) {
+  if (!request.body.email) {
+    return res.badRequest({ error: "Email is required" });
+  }
+}
+```
+
+#### `res.notFound()`
+
+To return a resource not found response (404 Not Found).
+
+```typescript
+import { res } from "kawkab";
+
+export function getUser(id) {
+  const user = findUserById(id);
+  if (!user) {
+    return res.notFound({ error: "User not found" });
+  }
+  return res.ok(user);
+}
+```
+
+---
+
+## Headers and Status Code Options
+
+Responses can be customized by adding headers and status codes as needed.
+
+```typescript
+import { response } from "kawkab";
+
+export function customResponse() {
+  return response.json(
+    { message: "Custom response" },
+    {
+      status: 202,
+      headers: {
+        "X-Custom-Header": "Custom value",
+        "Content-Type": "application/json",
+      },
+    }
+  );
+}
+```
+
+---
+
+## Using `throw` in Responses
+
+**Kawkab Framework** provides methods to throw responses directly and terminate processing.
+
+#### Example:
+
+```typescript
+import { res } from "kawkab";
+
+export function processInput(input) {
+  if (!isValid(input)) {
+    res.throwBadRequest({ error: "Invalid input" });
+  }
+}
+```
+
+---
+
+## Respond Object
+
+`respond` or shortly `resp` provides faster methods for creating standardized responses for building APIs.
+
+### Usage
+
+It provides all the properties available in `res` discussed earlier, with the addition of standardizing results by automatically adding status, code, data, message, and messages in a concise way.
+
+#### 1. Example of Customization for Success Cases
+
+To return a success response (200 OK).
+
+```typescript
+import { respond } from "kawkab";
+
+export function successResponse() {
+  respond.ok({
+    status: true,
+    code: "ok",
+    data: { name: "Hassan", country: "Egypt" }
+  });
+}
+```
+
+##### Output
+```text
+{
+    "status": true,
+    "code": "ok",
+    "data": {
+        "name": "Hassan",
+        "country": "Egypt"
+    }
+}
+```
+
+#### 2. Example without Customization for Success Cases
+
+```typescript
+import { respond } from "kawkab";
+
+export function successResponse() {
+  respond.ok({ name: "Hassan", country: "Egypt" });
+}
+```
+
+##### Output
+```text
+{
+    "status": true,
+    "code": "valid",
+    "data": {
+        "name": "Hassan",
+        "country": "Egypt"
+    }
+}
+```
+
+#### 3. Example of Customization for Failure Cases
+
+#### `res.notFound()`
+
+To return a resource not found response (404 Not Found).
+
+```typescript
+import { respond } from "kawkab";
+
+export function getUser(id) {
+  const user = findUserById(id);
+  if (!user) {
+    respond.notFound({
+      status: false,
+      code: "not_found_user",
+      message: "User not found",
+    });
+  }
+  return respond.ok(user);
+}
+```
+
+##### Output
+```text
+{
+    "status": false,
+    "code": "not_found_user",
+    "message": "User not found"
+}
+```
+
+Or instead of a single message with `message`, use an array of messages with `messages`
+
+```typescript
+import { respond } from "kawkab";
+
+export function getUser(id) {
+  const user = findUserById(id);
+  if (!user) {
+    respond.notFound({
+        status: false,
+        code: "not_found_user",
+        messages: ["User not found", "ID not found"],
+      });
+  }
+  return respond.ok(user);
+}
+```
+
+##### Output
+```text
+{
+    "status": false,
+    "code": "not_found_user",
+    "messages": [
+        "User not found",
+        "ID not found"
+    ]
+}
+```
+
+#### 4. Example without Customization for Failure Cases
+
+#### `res.notFound()`
+
+To return a resource not found response (404 Not Found).
+
+```typescript
+import { respond } from "kawkab";
+
+export function getUser(id) {
+  const user = findUserById(id);
+  if (!user) {
+    respond.notFound({
+      message: "User not found",
+    });
+  }
+  return respond.ok(user);
+}
+```
+
+##### Output
+```text
+{
+    "status": false,
+    "code": "invalid",
+    "message": "User not found"
+}
+```
+
+Or instead of a single message with `message`, use an array of messages with `messages`
+
+```typescript
+import { respond } from "kawkab";
+
+export function getUser(id) {
+  const user = findUserById(id);
+  if (!user) {
+    respond.notFound({
+        messages: ["User not found", "ID not found"],
+      });
+  }
+  return respond.ok(user);
+}
+```
+
+##### Output
+```text
+{
+    "status": false,
+    "code": "invalid",
+    "messages": [
+        "User not found",
+        "ID not found"
+    ]
+}
+```
+
+## Conclusion
+
+Kawkab Framework provides flexible tools for managing HTTP responses, allowing you to easily create responses that meet your API needs. Using the appropriate methods, you can ensure effective and smooth communication between your services and users.

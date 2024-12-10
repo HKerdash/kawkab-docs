@@ -1,0 +1,155 @@
+# التحويلات (Serialization)
+
+عند بناء واجهات برمجية (APIs)، ستحتاج غالبًا إلى تحويل النماذج والعلاقات المرتبطة بها إلى كائن (Object) أو JSON. يتضمن **كوكب Kawkab** طرقًا مريحة لإجراء هذه التحويلات، بالإضافة إلى التحكم في الخصائص التي يتم تضمينها في التمثيل التحويلاتي للنماذج.
+
+### تسلسل النماذج والمجموعات
+
+#### التحويلات إلى كائن بيانات
+
+لتحويل نموذج وعلاقاته المحملة إلى مصفوفة، يمكنك استخدام طريقة `toData`. هذه الطريقة تعمل بشكل متكرر، بحيث يتم تحويل جميع الخصائص والعلاقات (بما في ذلك علاقات العلاقات) إلى كائن:
+
+```javascript
+const user = await User.query().with('roles').first();
+
+return user.toData();
+```
+
+يمكن استخدام طريقة `attributesToData` لتحويل خصائص النموذج إلى كائن دون تضمين العلاقات:
+
+```javascript
+const user = await User.query().first();
+ 
+return user.attributesToData();
+```
+
+كما يمكنك تحويل مجموعات كاملة من النماذج إلى كائن بيانات باستخدام طريقة `toData` على مثيل المجموعة:
+
+```javascript
+const users = await User.query().all();
+ 
+return users.toData();
+```
+
+#### التحويلات إلى JSON
+
+لتحويل نموذج إلى JSON، يمكنك استخدام طريقة `toJson`. على غرار `toData`، تعمل طريقة `toJson` بشكل متكرر، بحيث يتم تحويل جميع الخصائص والعلاقات إلى JSON. يمكنك أيضًا تحديد خيارات التشفير المدعومة في JavaScript:
+
+```javascript
+const user = await User.query().find(1);
+ 
+return user.toJson();
+ 
+return user.toJson(null, 2);
+```
+
+بدلاً من ذلك، يمكنك تحويل نموذج أو مجموعة إلى سلسلة نصية (String)، مما يؤدي تلقائيًا إلى استدعاء طريقة `toJson`:
+
+```javascript
+const user = await User.query().find(1);
+
+return String(user);
+
+return JSON.stringify(user);
+```
+
+نظرًا لأنه يتم تحويل النماذج والمجموعات إلى JSON عند تحويلها إلى سلسلة نصية، يمكنك إرجاع كائنات **كوكب Kawkab** مباشرةً من تطبيقات `express` أو `Koa`. سيقوم **كوكب Kawkab** تلقائيًا بتسلسل النماذج والمجموعات إلى JSON عند إرجاعها من المسارات أو وحدات التحكم:
+
+```javascript
+const app = require('express')();
+
+app.get('/', async (req, res) => {
+  const user = await User.query().find(1);
+
+  res.send(user);
+});
+```
+
+**العلاقات**
+
+عند تحويل نموذج **كوكب Kawkab** إلى JSON، سيتم تلقائيًا تضمين علاقاته المحملة كخصائص داخل كائن JSON.
+
+### إخفاء الخصائص من JSON
+
+قد ترغب أحيانًا في تقييد الخصائص (مثل كلمات المرور) التي يتم تضمينها في كائن بيانات النموذج أو تمثيله بصيغة JSON. لتحقيق ذلك، أضف خاصية `hidden` إلى النموذج. سيتم استبعاد الخصائص المدرجة في مصفوفة `hidden` من التمثيل التحويلاتي للنموذج:
+
+```javascript
+import { BaseModel } from "kawkab";
+
+class User extends Model {
+  hidden = ['password'];
+}
+```
+
+بدلاً من ذلك، يمكنك استخدام خاصية `visible` لتحديد قائمة "سماح" بالخصائص التي يجب تضمينها في كائن بيانات النموذج وتمثيله بصيغة JSON. سيتم إخفاء جميع الخصائص غير المدرجة في مصفوفة `visible`:
+
+```javascript
+import { BaseModel } from "kawkab";
+
+class User extends Model {
+  visible = ['first_name', 'last_name'];
+}
+```
+
+**تعديل رؤية الخصائص مؤقتًا**
+
+إذا كنت ترغب في جعل بعض الخصائص المخفية عادةً مرئية على مثيل معين للنموذج، يمكنك استخدام طريقة `makeVisible`. تعيد هذه الطريقة مثيل النموذج:
+
+```javascript
+user.makeVisible('attribute').toData();
+
+user.makeVisible(['attribute', 'another_attribute']).toData();
+```
+
+وبالمثل، إذا كنت ترغب في إخفاء بعض الخصائص التي تكون مرئية عادةً، يمكنك استخدام طريقة `makeHidden`:
+
+```javascript
+user.makeHidden('attribute').toData();
+
+user.makeHidden(['attribute', 'another_attribute']).toData();
+```
+
+إذا كنت ترغب في تجاوز جميع الخصائص المرئية أو المخفية مؤقتًا، يمكنك استخدام طريقتي `setVisible` و`setHidden` على التوالي:
+
+```javascript
+user.setVisible(['id', 'name']).toData();
+
+user.setHidden(['email', 'password', 'remember_token']).toData();
+```
+
+### إلحاق القيم إلى JSON
+
+في بعض الأحيان، عند تحويل النماذج إلى كائن بيانات أو JSON، قد ترغب في إضافة خصائص لا تحتوي على عمود مقابل في قاعدة البيانات. لتحقيق ذلك، قم أولاً بتعريف ملحق للقيمة:
+
+```javascript
+import { BaseModel, AttributeModel } from "kawkab";
+
+class User extends Model {
+  attributeIsAdmin() {
+    return Attribute.make({
+      get: (value, attributes) => (attributes.admin === 'yes')
+    });
+  }
+}
+```
+
+بعد إنشاء الملحق، أضف اسم الخاصية إلى خاصية `appends` الخاصة بالنموذج. لاحظ أن أسماء الخصائص تُستخدم عادة بصيغة "snake case" في التمثيل التحويلاتي، حتى وإن كان الملحق مُعرَّفًا بصيغة "camel case":
+
+```javascript
+import { BaseModel } from "kawkab";
+
+class User extends Model {
+  appends = ['is_admin'];
+}
+```
+
+بمجرد إضافة الخاصية إلى قائمة `appends`، سيتم تضمينها في كلا التمثيلين: كائن البيانات و JSON. ستتوافق الخصائص في مصفوفة `appends` أيضًا مع إعدادات `visible` و`hidden` الخاصة بالنموذج.
+
+**إلحاق القيم أثناء وقت التشغيل**
+
+أثناء التشغيل، يمكنك إبلاغ مثيل النموذج بإلحاق خصائص إضافية باستخدام طريقة `append`. أو يمكنك استخدام طريقة `setAppends` لتجاوز المصفوفة الكاملة للخصائص الملحقة لمثيل النموذج:
+
+```javascript
+user.append('is_admin').toData();
+ 
+user.setAppends(['is_admin']).toData();
+```

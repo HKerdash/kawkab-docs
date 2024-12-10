@@ -1,0 +1,589 @@
+---
+title: استخدام Http في Kawkab
+description: دليل شامل لاستخدام طلبات Http للتعامل مع طلبات HTTP في تطبيقك باستخدام إطار عمل كوكب Kawkab.
+---
+
+# طلبات Http في Kawkab
+
+طلبات **HTTP** في إطار عمل **Kawkab** توفر واجهة برمجية بسيطة وفعالة للتعامل مع طلبات HTTP. تقدم أدوات متقدمة لدعم المصادقة، وإرسال البيانات بتنسيقات مختلفة، مع تصميم مرن لتلبية احتياجات التطبيقات الحديثة.
+
+## البدء باستخدام طلبات HTTP
+
+لبدء استخدام طلبات HTTP في Kawkab، قم أولاً بإنشاء نموذج جديد يحتوي على رابط أساسي (Base URL) يُستخدم كأساس لتنفيذ الطلبات.
+
+```typescript
+import { http as Http } from "kawkab";
+
+const http = new Http("https://api.example.com");
+```
+
+## الميزات الأساسية
+
+### إرسال الطلبات الأساسية
+
+#### طلب GET
+
+يمكنك استخدام طلب **GET** لجلب البيانات من الخادم:
+
+```typescript
+// جلب قائمة المستخدمين
+
+// استخدام .data()
+const response = await http.get("/users");
+console.log(response.data());
+
+// او استخدام .body()
+console.log(response.body());
+```
+
+#### طلب POST
+
+يمكنك إرسال البيانات إلى الخادم باستخدام طلب **POST**:
+
+```typescript
+// إنشاء مستخدم جديد
+const userData = {
+  name: "أحمد",
+  email: "ahmed@example.com",
+};
+const response = await http.post("/users", userData);
+```
+
+### إدارة المصادقة
+
+#### استخدام المصادقة باستخدام التوكن (Token)
+
+يمكنك استخدام **JWT Token** للوصول إلى الموارد المحمية:
+
+```typescript
+http.withToken("your-jwt-token").get("/secure-endpoint");
+```
+
+#### المصادقة الأساسية (Basic Authentication)
+
+لتنفيذ مصادقة باستخدام اسم المستخدم وكلمة المرور:
+
+```typescript
+http.withBasicAuth("username", "password").get("/protected-resource");
+```
+
+#### المصادقة باستخدام Digest
+
+يمكنك أيضًا استخدام **Digest Authentication**:
+
+```typescript
+http.withDigestAuth("username", "password").get("/digest-protected-resource");
+```
+
+### إرسال البيانات كـ Form-Data
+
+```typescript
+const formData = {
+  title: "عنوان جديد",
+  content: "محتوى المنشور",
+};
+
+const response = await http.asForm().post("/posts", formData);
+```
+
+### تحديث البيانات
+
+#### طلب PUT
+
+لاستبدال بيانات موجودة:
+
+```typescript
+const updateData = {
+  name: "الاسم المحدث",
+  age: 30,
+};
+const response = await http.put("/users/123", updateData);
+```
+
+#### طلب PATCH
+
+لتحديث جزئي للبيانات:
+
+```typescript
+const partialUpdate = {
+  status: "نشط",
+};
+const response = await http.patch("/users/123", partialUpdate);
+```
+
+### حذف البيانات
+
+```typescript
+const response = await http.delete("/users/123");
+```
+
+## معالجة الأخطاء
+
+### التعامل مع الأخطاء باستخدام `.catch`
+
+```typescript
+http.get("/user/12345").catch(function (error) {
+  if (error.response) {
+    // The request was made and the server responded with a status code
+    // that falls out of the range of 2xx
+    console.log(error.response.data);
+    console.log(error.response.status);
+    console.log(error.response.headers);
+  } else if (error.request) {
+    // The request was made but no response was received
+    // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+    // http.ClientRequest in node.js
+    console.log(error.request);
+  } else {
+    // Something happened in setting up the request that triggered an Error
+    console.log("Error", error.message);
+  }
+  console.log(error.config);
+});
+```
+
+### تخصيص حالة الخطأ
+
+```typescript
+http.get("/user/12345", {
+  validateStatus: function (status) {
+    return status < 500; // النجاح إذا كان كود الحالة أقل من 500
+  },
+});
+```
+
+### الحصول على تفاصيل الخطأ
+
+```typescript
+http.get("/user/12345").catch(function (error) {
+  console.log(error.toJSON());
+});
+```
+
+## التعامل مع الاستجابة عند النجاح
+
+يمكنك استخدام **`.then`** لمعالجة الاستجابات الناجحة:
+
+```typescript
+http({
+  method: "get",
+  url: "/post",
+  responseType: "stream",
+}).then(function (response) {
+  console.log(error.toJSON());
+});
+```
+
+يتم تنفيذ الدالة الموجودة داخل **`.then`** عند نجاح الطلب، مما يتيح لك التعامل مع البيانات المستلمة بطريقة مخصصة.
+
+## تخصيص الإعدادات
+
+### تخصيص Headers
+
+يمكنك تمرير إعدادات رأسية مخصصة عند إنشاء نموذج HTTP:
+
+```typescript
+const http = new Http("https://api.example.com", {}, {
+  "Accept-Language": "ar",
+  "Custom-Header": "قيمة-مخصصة",
+});
+```
+## خيارات إضافية للطلبات (Options)
+
+يمكنك تخصيص إعدادات الطلب باستخدام الخيارات الإضافية. الخيارات تدعم إعدادات متنوعة مثل تهيئة **Headers**، ضبط الوقت المستغرق، إدارة المصادقة، وإرسال البيانات بتنسيقات مختلفة.
+
+### مثال على استخدام الخيارات
+
+```typescript
+const response = await http.post(
+  "/posts",
+  {
+    title: "foo",
+    body: "bar",
+    userId: 1,
+  },
+  {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    timeout: 5000, // وقت تنفيذ الطلب 5 ثوانٍ
+    responseType: "json", // صيغة الاستجابة JSON
+  }
+);
+```
+
+### خيارات مدعومة
+
+إليك جميع الخيارات التي يمكن تخصيصها مع أي طلب HTTP:
+
+```typescript
+{
+  url: "/user", // رابط الطلب
+  method: "get", // طريقة الطلب (GET، POST، PUT، إلخ)
+  baseURL: "https://api.example.com", // الرابط الأساسي للطلب
+  headers: { "Custom-Header": "Value" }, // رؤوس مخصصة
+  params: { ID: 12345 }, // معاملات الطلب في الرابط
+  paramsSerializer: (params) => Qs.stringify(params, { arrayFormat: "brackets" }), // تنسيق معاملات الرابط
+  data: { key: "value" }, // البيانات المرسلة في جسم الطلب
+  timeout: 1000, // المهلة الزمنية (بالمللي ثانية)
+  withCredentials: false, // إرسال الكوكيز مع الطلب
+  responseType: "json", // صيغة البيانات المستقبلة: json، text، stream، إلخ
+  validateStatus: (status) => status < 500, // التحقق من حالة الاستجابة
+  maxRedirects: 5, // عدد التحويلات المسموح بها
+  proxy: {
+    protocol: "https",
+    host: "127.0.0.1",
+    port: 9000,
+    auth: { username: "user", password: "pass" },
+  }, // إعدادات الخادم الوسيط (Proxy)
+  auth: { username: "user", password: "pass" }, // مصادقة أساسية
+  onUploadProgress: (progressEvent) => console.log(progressEvent), // مراقبة رفع الملفات
+  onDownloadProgress: (progressEvent) => console.log(progressEvent), // مراقبة تحميل الملفات
+}
+```
+
+### استخدام خيارات متعددة مع طلبات مختلفة
+
+```typescript
+// طلب GET مع خيارات مخصصة
+const response = await http.get("/users", {
+  headers: { "Authorization": "Bearer token" },
+  timeout: 3000,
+  params: { active: true },
+});
+
+// طلب POST مع بيانات ورؤوس مخصصة
+const response = await http.post(
+  "/login",
+  { username: "ahmed", password: "123456" },
+  { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+);
+```
+
+
+## إنشاء طلب HTTP باستخدام أمر CLI  
+
+### إنشاء كلاس HTTP Request  
+
+يوفر Kawkab أداة لإنشاء كلاس طلب HTTP بسهولة باستخدام CLI.  
+
+#### الأمر  
+
+```bash  
+npm run kawkab http:make <name> [module]  
+```  
+
+#### مثال  
+
+```bash  
+npm run kawkab http:make getUsers  
+```  
+
+#### الناتج  
+
+```plaintext  
+🆗 HTTP request getUsers created successfully in module main.  
+
+1️⃣  Your HTTP request file is ready! You can now emit it like this:  
+👉 import { GetUsersHttpRequest } from "../http/getUsers"  
+👉 const response = await new GetUsersHttpRequest().send()  
+
+2️⃣  You can pass the data like this:  
+👉 const response = await new GetUsersHttpRequest().send({id:1, name:'Hassan'})  
+
+3️⃣  You can access the data in HTTP request class like this:  
+👉 this.data  
+```  
+
+### الكود المُولَّد  
+
+```typescript  
+import { BaseHttp, HttpMethodEnum } from "kawkab";  
+
+export class GetUsersHttpRequest extends BaseHttp {  
+  baseUrl(): string {  
+    return "";  
+  }  
+
+  url(): string {  
+    return "/";  
+  }  
+
+  method(): HttpMethodEnum {  
+    return HttpMethodEnum.GET;  
+  }  
+
+  headers(): Record<string, string | string[]> {  
+    return {  
+      "Content-Type": "application/json",  
+    };  
+  }  
+
+  body(): any {  
+    return {};  
+  }  
+
+  asForm(): boolean {  
+    return false;  
+  }  
+
+  then(response: any) {  
+    return response;  
+  }  
+
+  catch(error: any) {  
+    console.log(error);  
+  }  
+
+  finally() {  
+    // ...  
+  }  
+}  
+```  
+
+#### استدعاء الطلب  
+
+```typescript  
+import { GetUsersHttpRequest } from "../http/getUsers";  
+
+// إرسال طلب بدون بيانات إضافية  
+const response = await new GetUsersHttpRequest().send();  
+
+// إرسال طلب مع بيانات إضافية  
+const responseWithData = await new GetUsersHttpRequest().send({ id: 1, name: "Hassan" });  
+```  
+
+### الوصول إلى البيانات باستخدام `this.data` في Kawkab
+
+عند إنشاء طلب HTTP باستخدام إطار عمل **Kawkab**، يمكن تمرير بيانات إضافية أثناء استدعاء الطلب. هذه البيانات تصبح متاحة داخل الكلاس من خلال الخاصية **`this.data`**.  
+
+يتيح لك ذلك تخصيص الطلب بناءً على البيانات المرسلة مع استدعاء الطلب. فيما يلي شرح مفصل مع أمثلة:
+
+---
+
+### 1. **إنشاء كلاس طلب HTTP**
+ 
+عند إنشاء كلاس طلب، يمكنك استخدام **`this.data`** للوصول إلى البيانات المُمررة مع الطلب. على سبيل المثال:
+
+```typescript
+import { BaseHttp, HttpMethodEnum } from "kawkab";
+
+export class GetUserHttpRequest extends BaseHttp {
+  baseUrl(): string {
+    return "https://api.example.com"; // الرابط الأساسي للطلبات
+  }
+
+  url(): string {
+    // استخدام `this.data` لتخصيص الرابط بناءً على البيانات المُمررة
+    return `/users/${this.data.id}`;
+  }
+
+  method(): HttpMethodEnum {
+    return HttpMethodEnum.GET; // نوع الطلب (GET)
+  }
+
+  headers(): Record<string, string | string[]> {
+    return {
+      "Content-Type": "application/json", // إعدادات الرؤوس
+    };
+  }
+
+  body(): any {
+    return {}; // لا حاجة لجسم الطلب مع GET
+  }
+
+  then(response: any) {
+    return response.data; // معالجة الاستجابة الناجحة
+  }
+
+  catch(error: any) {
+    console.error("خطأ أثناء تنفيذ الطلب:", error); // معالجة الأخطاء
+  }
+
+  finally() {
+    console.log("تم الانتهاء من تنفيذ الطلب.");
+  }
+}
+```
+
+---
+
+### 2. **استدعاء الطلب وتمرير البيانات**
+
+#### مثال: طلب بيانات مستخدم معين
+```typescript
+import { GetUserHttpRequest } from "../http/GetUserHttpRequest";
+
+async function fetchUserData() {
+  try {
+    // إرسال الطلب وتمرير بيانات ID المستخدم
+    const response = await new GetUserHttpRequest().send({ id: 123 });
+    console.log("بيانات المستخدم:", response);
+  } catch (error) {
+    console.error("حدث خطأ:", error);
+  }
+}
+
+fetchUserData();
+```
+
+- **شرح الكود:**
+  - يتم تمرير البيانات (\{ id: 123 \}) أثناء استدعاء الطلب.
+  - يتم الوصول إلى البيانات داخل الكلاس عبر **`this.data`**، مما يتيح تخصيص الرابط.
+
+---
+
+### 3. **استخدام `this.data` في سيناريوهات متعددة**
+
+#### طلب يحتوي على بيانات إضافية
+إذا كنت ترسل بيانات إضافية مثل معايير البحث أو عوامل التصفية، يمكن استخدام **`this.data`** لتخصيص **Body** الطلب.
+
+#### مثال: إرسال بيانات التصفية مع طلب POST
+```typescript
+import { BaseHttp, HttpMethodEnum } from "kawkab";
+
+export class SearchUsersHttpRequest extends BaseHttp {
+  baseUrl(): string {
+    return "https://api.example.com";
+  }
+
+  url(): string {
+    return "/users/search";
+  }
+
+  method(): HttpMethodEnum {
+    return HttpMethodEnum.POST;
+  }
+
+  body(): any {
+    // تمرير بيانات التصفية في جسم الطلب
+    return {
+      name: this.data.name,
+      age: this.data.age,
+    };
+  }
+
+  then(response: any) {
+    return response.data;
+  }
+
+  catch(error: any) {
+    console.error("خطأ أثناء البحث:", error);
+  }
+}
+```
+
+#### استدعاء الطلب:
+```typescript
+import { SearchUsersHttpRequest } from "../http/SearchUsersHttpRequest";
+
+async function searchUsers() {
+  try {
+    const filters = { name: "أحمد", age: 30 };
+    const response = await new SearchUsersHttpRequest().send(filters);
+    console.log("نتائج البحث:", response);
+  } catch (error) {
+    console.error("حدث خطأ أثناء البحث:", error);
+  }
+}
+
+searchUsers();
+```
+
+---
+
+### 4. **أفضل الممارسات عند استخدام `this.data`**
+
+- **التحقق من القيم:** تأكد من التحقق من البيانات قبل استخدامها داخل الكلاس.
+  
+#### مثال:
+```typescript
+url(): string {
+  if (!this.data.id) {
+    throw new Error("رقم التعريف ID غير موجود.");
+  }
+  return `/users/${this.data.id}`;
+}
+```
+
+- **إعداد قيم افتراضية:** يمكن إعداد قيم افتراضية إذا لم يتم تمرير البيانات.
+
+#### مثال:
+```typescript
+body(): any {
+  return {
+    page: this.data.page || 1, // صفحة افتراضية
+    limit: this.data.limit || 10, // حد افتراضي
+  };
+}
+```
+
+---
+
+### 5. **إنشاء كود ديناميكي متعدد الاستخدامات**
+
+#### مثال شامل: تنفيذ طلبات ديناميكية
+```typescript
+import { BaseHttp, HttpMethodEnum } from "kawkab";
+
+export class DynamicHttpRequest extends BaseHttp {
+  baseUrl(): string {
+    return "https://api.example.com";
+  }
+
+  url(): string {
+    return this.data.endpoint || "/default";
+  }
+
+  method(): HttpMethodEnum {
+    return this.data.method || HttpMethodEnum.GET;
+  }
+
+  body(): any {
+    return this.data.body || {};
+  }
+
+  headers(): Record<string, string | string[]> {
+    return this.data.headers || {};
+  }
+
+  then(response: any) {
+    return response.data;
+  }
+
+  catch(error: any) {
+    console.error("خطأ:", error);
+  }
+}
+```
+
+#### استدعاء ديناميكي:
+```typescript
+import { DynamicHttpRequest } from "../http/DynamicHttpRequest";
+
+async function sendDynamicRequest() {
+  try {
+    const options = {
+      endpoint: "/users",
+      method: "POST",
+      body: { name: "حسن", email: "hassan@example.com" },
+    };
+    const response = await new DynamicHttpRequest().send(options);
+    console.log("الاستجابة:", response);
+  } catch (error) {
+    console.error("حدث خطأ:", error);
+  }
+}
+
+sendDynamicRequest();
+```
+
+## أفضل الممارسات
+
+1. **استخدام async/await**: يُفضل استخدام `async/await` للحصول على كود أكثر وضوحًا وقابلية للصيانة.
+2. **تنظيم الكود في خدمات**: قم بتجميع الوظائف المتشابهة في وحدات مستقلة (Services).
+3. **ضمان الأمان**: تجنب تخزين التوكن أو بيانات المصادقة مباشرة في الكود. استخدم بيئات التشغيل لتخزين القيم الحساسة.
+
+## الخاتمة
+
+توفر طلبات **HTTP** في Kawkab أدوات قوية وسهلة الاستخدام، مما يتيح لك التركيز على بناء التطبيقات دون الانشغال بتفاصيل طلبات HTTP. يمكنك الاعتماد عليها للحصول على أداء عالٍ ومرونة كبيرة في تطوير التطبيقات.

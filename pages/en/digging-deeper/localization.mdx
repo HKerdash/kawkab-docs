@@ -1,0 +1,204 @@
+---
+title: Translation Settings in Kawkab
+description: A comprehensive guide on translation settings in Kawkab, how to create translation files, and how to use them within your application.
+---
+
+# Translation Settings in Kawkab
+
+Translation is a key feature in Kawkab that allows you to manage and use translations for multiple languages within your application. This feature is designed to simplify multi-language support and ensure a personalized user experience for various languages and cultures.
+
+---
+
+## How to Create Translation Files
+
+To create translation files within your application using Kawkab, you can use the following command to generate a new translation file for the language you need:
+
+```bash
+npm run kawkab trans:make <language> [type] [module]
+```
+
+### Parameter Details:
+
+- **`<language>`**: The language code for which you want to create the translation (e.g., `ar` for Arabic).
+- **`[type]`**: The type of file you want to use (optional: `ts` or `json`, and if not specified, `ts` will be used).
+- **`[module]`**: The module name that contains the translation (optional, the default is `main`).
+
+### Example for Creating a Translation File:
+
+Suppose you want to create a translation file for Arabic in the `main` module. You can run the following command:
+
+```bash
+npm run kawkab trans:make ar
+```
+
+### Result of Execution:
+
+- A file named `ar.json` will be created in the designated translations folder within the module, and its basic structure will be as follows:
+
+```json
+{
+  "hello_world": "Hello World!"
+}
+```
+
+---
+
+## Using Translations in Your Application
+
+After creating translation files, you can easily import and use them in your application. For example:
+
+```ts
+import { __, t, trans } from "kawkab";
+```
+
+### Using Translations:
+
+#### Using `trans.get`:
+You can retrieve a translation using the key for the text you want to translate.
+
+```ts
+trans.get("hello_world", {}, "default value");
+```
+
+#### Using `__`:
+This function provides a shorthand way to retrieve translated texts.
+
+```ts
+__("hello_world", {}, "default value");
+```
+
+#### Using `t`:
+Works the same way as `__`.
+
+```ts
+t("hello_world", {}, "default value");
+```
+
+---
+
+## Customizing the Language Used
+
+### Setting the Language:
+
+You can change the default language for your application by updating the settings in the `app/configuration.ts` file:
+
+```ts
+export const app = {
+  locale: {
+    default: env.string("LOCALE_CODE", "en"), // default language
+    detect: true, // Automatically detect language
+  },
+};
+```
+
+#### - **`default`**:
+Used to set the default language for the application. In the example above, the default language is English.
+
+#### - **`detect`**:
+Used to automatically detect the language based on the `Accept-Language` header from the request.
+
+---
+
+## Automatically Detecting the User's Language
+
+When the `detect: true` option is enabled in the app settings, Kawkab will automatically detect the user's language based on the `Accept-Language` header. For example:
+
+- If the header contains: `Accept-Language: ar,en;q=0.9`
+- The application will use Arabic (`ar`) if supported.
+
+### Changing the Language During Runtime:
+
+You can change the active language during runtime using:
+
+```ts
+trans.setLocale("ar"); // to set Arabic as the active language
+```
+
+---
+
+## Additional Translation Features
+
+### Placeholders and Variables:
+
+You can use variables inside translation strings to dynamically customize translations. For example:
+
+In the `trans/en.ts` translation file:
+
+```ts
+export default {
+  hello: "Hello :name!",
+};
+```
+
+Using the translation with a variable replacement:
+
+```ts
+__("hello", { name: "Hassan" });
+```
+
+The result will be:
+
+```
+Hello Hassan!
+```
+
+### Using a Fallback Value:
+
+If no translation is found for a key, you can specify a fallback value that will be shown instead of the translation:
+
+```ts
+__("hello", { name: "Hassan" }, "Hello there!");
+```
+
+If the key `hello` is not found, the result will be:
+
+```
+Hello there!
+```
+
+### Specifying Language When Retrieving Translations:
+
+You can specify the language when retrieving a translation:
+
+```ts
+__("hello", { name: "Hassan" }, "Hello there!", "ar");
+```
+
+---
+
+## Managing Translations
+
+### Retrieving All Translations:
+
+You can retrieve all translations for all languages:
+
+```ts
+trans.all();
+```
+
+### Retrieving Translations for a Specific Language:
+
+To retrieve translations for a specific language, such as Arabic:
+
+```ts
+trans.all("ar");
+```
+
+---
+
+## Ideas for Improving Translations
+
+1. **Clear Key Naming**:
+   - Choose descriptive keys that reflect the content, ensuring ease of understanding and management.
+
+2. **Organizing Files**:
+   - Keep translations in separate folders for each module and language.
+
+3. **Using Default Values**:
+   - Always provide default values to ensure the application works even if translations are missing.
+
+---
+
+## Conclusion
+
+Kawkab provides a powerful and flexible system for managing translations and supporting multiple languages. With these settings and functions, you can enhance the user experience and offer applications that support a wide variety of cultures and languages easily and effectively.

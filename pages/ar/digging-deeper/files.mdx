@@ -1,0 +1,172 @@
+---
+title: العمليات الأساسية على الملفات في Kawkab
+description: دليل شامل لإدارة الملفات في تطبيقك باستخدام مكتبة File في Kawkab.
+---
+
+# العمليات الأساسية على الملفات في Kawkab
+
+**File** هي فئة قوية في إطار العمل **Kawkab** تتيح لك إدارة الملفات بسهولة وكفاءة. في هذا الدليل، سنتعرف على كيفية استخدام جميع العمليات المتاحة على الملفات.
+
+## الإستيراد
+
+قبل استخدام أي من العمليات، يجب استيراد الفئة:
+
+```typescript
+import { file } from 'kawkab';
+```
+
+## العمليات المتاحة على الملفات
+
+### 1. التحقق من وجود ملف (exists)
+
+التحقق من وجود ملف قبل إجراء أي عملية عليه.
+
+```typescript
+const fileExists = await file.exists('storage/public/config.json');
+if (fileExists) {
+    console.log('الملف موجود');
+} else {
+    console.log('الملف غير موجود');
+}
+```
+
+### 2. قراءة محتوى ملف (read)
+
+قراءة محتوى ملف نصي بالكامل.
+
+```typescript
+const content = await file.read('storage/public/config.json');
+console.log(content); // سيعرض محتوى الملف
+```
+
+### 3. كتابة محتوى في ملف (write)
+
+كتابة أو استبدال محتوى ملف.
+
+```typescript
+const data = {
+    name: "Kawkab App",
+    version: "1.0.0"
+};
+await file.write('storage/public/config.json', JSON.stringify(data, null, 2));
+```
+
+### 4. إضافة محتوى لملف (append)
+
+إضافة محتوى جديد في نهاية ملف موجود.
+
+```typescript
+await file.append('storage/public/log.txt', 'تم تسجيل الدخول في ' + new Date().toISOString() + '\n');
+```
+
+### 5. حذف ملف (delete)
+
+حذف ملف من النظام.
+
+```typescript
+await file.delete('storage/public/temp.txt');
+```
+
+### 6. عرض قائمة الملفات (list)
+
+الحصول على قائمة الملفات في المجلد مع معلوماتها التفصيلية.
+
+```typescript
+const files = await file.list('storage/public');
+files.forEach(file => {
+    console.log(`اسم الملف: ${file.name}`);
+    console.log(`الحجم: ${file.stats.size} بايت`);
+    console.log(`تاريخ الإنشاء: ${file.stats.created}`);
+    console.log(`آخر تعديل: ${file.stats.modified}`);
+    console.log(`نوع: ${file.stats.isDirectory ? 'مجلد' : 'ملف'}`);
+    console.log('---');
+});
+```
+
+### 7. نسخ ملف (copy)
+
+نسخ ملف من مكان إلى آخر.
+
+```typescript
+await file.copy('storage/public/source.txt', 'storage/public/backup/source-backup.txt');
+```
+
+### 8. نقل ملف (move)
+
+نقل ملف من مكان إلى آخر.
+
+```typescript
+await file.move('storage/public/old-location.txt', 'storage/public/new-location.txt');
+```
+
+### 9. معلومات الملف (stats)
+
+الحصول على معلومات تفصيلية عن ملف.
+
+```typescript
+const stats = await file.stats('document.pdf');
+console.log(`حجم الملف: ${stats.size} بايت`);
+console.log(`تاريخ الإنشاء: ${stats.created}`);
+console.log(`آخر تعديل: ${stats.modified}`);
+console.log(`هل هو مجلد؟ ${stats.isDirectory}`);
+```
+
+## أمثلة عملية
+
+### مثال 1: التحقق من وجود ملف قبل القراءة
+
+```typescript
+async function readIfExists(fileName: string) {
+    try {
+        if (await file.exists(fileName)) {
+            const content = await file.read(fileName);
+            return content;
+        }
+        return null;
+    } catch (error) {
+        console.error('حدث خطأ:', error.message);
+        return null;
+    }
+}
+```
+
+### مثال 2: نسخ ملف مع التحقق من وجوده
+
+```typescript
+async function safeBackup(fileName: string) {
+    const backupName = `${fileName}.backup`;
+    
+    try {
+        if (await file.exists(fileName)) {
+            await file.copy(fileName, backupName);
+            console.log('تم إنشاء نسخة احتياطية بنجاح');
+            return true;
+        }
+        console.log('الملف الأصلي غير موجود');
+        return false;
+    } catch (error) {
+        console.error('فشل إنشاء النسخة الاحتياطية:', error.message);
+        return false;
+    }
+}
+```
+## أفضل الممارسات
+
+1. **التحقق من وجود الملفات**: استخدم دائماً `exists()` قبل إجراء عمليات على الملفات لتجنب الأخطاء.
+
+2. **معالجة الأخطاء**: استخدم دائماً try-catch لمعالجة الأخطاء المحتملة.
+
+3. **المسارات النسبية**: استخدم المسارات النسبية بدلاً من المسارات المطلقة لتحسين قابلية النقل.
+
+4. **التحقق من النوع**: استخدم `stats.isDirectory` للتأكد من نوع العنصر قبل إجراء العمليات.
+
+## ملاحظات هامة
+
+- جميع العمليات غير متزامنة (asynchronous) وتستخدم Promises
+- يمكنك استخدام المسارات النسبية أو المطلقة
+- جميع العمليات تتحقق من الأخطاء وتديرها بشكل آمن
+- استخدم `init()` لتعيين المسار الأساسي عند بداية التطبيق
+
+## الخاتمة
+
+توفر فئة **File** في **Kawkab** واجهة برمجة قوية وسهلة الاستخدام للتعامل مع الملفات. مع إضافة وظيفة `exists()` والتحسينات الأخرى، أصبح التعامل مع الملفات أكثر أماناً وموثوقية. استخدم هذه الوظائف مع أفضل الممارسات المذكورة للحصول على أفضل النتائج في تطبيقك.

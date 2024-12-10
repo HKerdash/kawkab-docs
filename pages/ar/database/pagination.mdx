@@ -1,0 +1,94 @@
+# تعدد الصفحات
+
+تمتلك Kawkab دعمًا مدمجًا لتعدد الصفحات. يمكنك ترقيم نتائج الاستعلام عن طريق ربط طريقة `paginate`.
+
+تقبل طريقة `paginate` رقم الصفحة كمعامل أول وعدد الصفوف المطلوب جلبها كمعامل ثانٍ. داخليًا، نقوم بتنفيذ استعلام إضافي لحساب العدد الإجمالي للصفوف.
+
+### الاستخدام الأساسي
+
+```js
+const users = await db.table('users')
+  .where('vote', '>', 1)
+  .paginate(2, 15); // instanceof Paginator
+
+const users = await User.query()
+  .where('vote', '>', 1)
+  .paginate(1, 15); // instanceof Paginator
+
+const users = await db.table('users')
+  .where('vote', '>', 1)
+  .forPage(2, 15)
+  .get(); // instanceof Array
+
+const users = await User.query()
+  .where('vote', '>', 1)
+  .forPage(1, 15)
+  .get(); // instanceof Collection
+
+users.map(user => {
+  //
+});
+```
+
+إذا لم يتم تحديده، فإن عدد الصفوف لكل صفحة يكون افتراضيًا 15. إذا كنت تستخدم النماذج، يمكنك أيضًا تعيين السمة `perPage` كعدد الصفحات الافتراضي لكل نموذج.
+
+```js
+class Post extends Model {}
+class User extends Model {
+  perPage = 20;
+}
+
+const posts = await Post.query().paginate();
+console.log(posts.perPage()); // 15
+
+const users = await User.query().paginate();
+console.log(users.perPage()); // 20
+```
+
+تعيد طريقة `paginate` مثيلًا من `Paginator`. يحتوي على البيانات الوصفية للترقيم، إلى جانب الصفوف التي تم جلبها.
+
+يوفر كل مثيل من `Paginator` معلومات إضافية عن الترقيم عبر الطرق التالية:
+
+| الطريقة                     | الوصف                                                     |
+| -------------------------- | --------------------------------------------------------------- |
+| `paginator.count()`        | الحصول على عدد العناصر للصفحة الحالية.                   |
+| `paginator.currentPage()`  | الحصول على رقم الصفحة الحالية.                                    |
+| `paginator.hasMorePages()` | تحديد ما إذا كان هناك المزيد من العناصر في مخزن البيانات.            |
+| `paginator.items()`        | الحصول على العناصر للصفحة الحالية.                             |
+| `paginator.lastPage()`     | الحصول على رقم الصفحة الأخيرة المتاحة.                 |
+| `paginator.perPage()`      | عدد العناصر التي يجب عرضها لكل صفحة.                       |
+| `paginator.total()`        | تحديد العدد الإجمالي للعناصر المطابقة في مخزن البيانات. |
+
+### التحويلات إلى كائن/JSON
+
+يمكنك أيضًا تسلسل نتائج المرقم إلى كائن/JSON عن طريق استدعاء طريقة `toData` أو `toJson`. يعيد أسماء المفاتيح في صيغة snake\_case بشكل افتراضي. ومع ذلك، يمكنك تمرير استراتيجية تسمية لتجاوز الاتفاقية الافتراضية.
+
+```JSON
+{
+  "total": 45,
+  "per_page": 15,
+  "current_page": 1,
+  "last_page": 3,
+  "count": 15,
+  "data": [
+    {
+      // Record...
+    },
+    {
+      // Record...
+    }
+  ],
+}
+```
+
+سيقوم المرقم بتحويله إلى JSON عند تحويله إلى سلسلة، بحيث يمكن استخدامه مباشرة في مسار التطبيق أو وحدة التحكم. سيقوم تطبيق express/Koa الخاص بك بتسلسل JSON تلقائيًا:
+
+```js
+const users = await User.query().paginate(req.query.page || 1);
+
+return res.ok({
+    "status": true,
+    "users": users
+});
+
+```

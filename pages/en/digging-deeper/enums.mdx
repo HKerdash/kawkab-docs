@@ -1,0 +1,94 @@
+---
+title: Creating Enums with Kawkab
+description: A comprehensive guide to creating and using Enums in your application using the `npm run kawkab enum:make` command.
+---
+
+# Creating Enums with Kawkab
+
+**Enums** are a great way to organize predefined constant values in your application in a structured and scalable way. In this guide, we will learn how to create and use **Enums** with the **Kawkab** framework.
+
+## Creating a New Enum with Kawkab
+
+To create a new **Enum** using **Kawkab**, run the following command in your terminal:
+
+```bash
+npm run kawkab enum:make <name> [module]
+```
+
+### **Parameter Details:**
+
+- **`<name>`**: The name of the Enum you want to create (for example, `UserType`).
+- **`[module]`**: The name of the module that contains the Enum (optional, the default is `main`).
+
+### Example of Running the Command:
+
+```bash
+npm run kawkab enum:make UserType
+```
+
+After running the command, an Enum named `UserType` will be created in the `main` module.
+
+### What Happens After Running the Command?
+
+- A file named `UserType` will be successfully created as an Enum.
+- You can now use the Enum in your application by importing and utilizing it, as shown in the following example.
+
+## Using the Enum in Your Application
+
+Once the Enum is created, you can import and use it anywhere in your application.
+
+### Importing the Enum:
+
+To import the Enum you created, use the following code in your file:
+
+```javascript
+import { UserType, UserTypeEnum } from "../enums/UserType";
+```
+
+### Enum File Content:
+
+The content of the `UserType` Enum file will look like this:
+
+```javascript
+import { BaseEnum as Enum } from "kawkab";
+
+export enum UserTypeEnum {
+    Administrator = 0,       // Administrator
+    Moderator = 1,          // Moderator
+    Subscriber = 2,         // Subscriber
+    SuperAdministrator = 3, // Super Administrator
+    // You can add more values here
+}
+
+Enum.set(UserTypeEnum);
+
+export class UserType extends Enum<typeof UserTypeEnum> {}
+```
+
+### Using the Enum in the Application:
+
+You can use the Enum in multiple ways, as shown in the following examples:
+
+#### Method 1: Accessing Values Using the Enum
+
+```javascript
+console.log(UserTypeEnum.Administrator);  // Will print 0
+console.log(UserTypeEnum.Moderator);     // Will print 1
+```
+
+#### Method 2: Using the `get` Method to Access Values
+
+```javascript
+console.log(UserType.get('Administrator'));  // Will print 0
+console.log(UserType.get('Subscriber'));    // Will print 2
+```
+
+## Additional Notes
+
+- **Using Enum with Other Classes:** You can use the Enum anywhere in the application where you need to represent constant values. These could represent user types, the state of something, etc.
+- **Flexibility:** New values can be easily added to the Enum at any time.
+- **Renaming:** If you need to rename any values in the Enum, you can modify them directly within the file.
+
+## Conclusion
+
+Using **Enums** in Kawkab helps organize constant values in your application in a clearer and more powerful way. With **Kawkab**, you can create and use Enums in a flexible and simplified manner within your project. Enjoy building more efficient and organized applications!

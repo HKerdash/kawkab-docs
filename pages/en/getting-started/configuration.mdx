@@ -1,0 +1,163 @@
+---
+title: "Configurations"
+---
+
+### Introduction
+Configurations are a set of settings used to manage application properties in an organized and easily modifiable way. The goal is to provide a flexible and simplified method for customizing the application without directly modifying the code.
+
+### **Main Configurations**
+Basic configurations are managed through a central file like `configuration.ts`, which aggregates all settings related to the application, making it easier to manage settings in one place.
+
+```typescript showLineNumbers copy filename="configuration.ts"
+import { env } from "kawkab";
+import { Provider } from "./provider";
+
+export const app = {
+  app: {
+    serverError: {
+      enable: true,
+      debug: env.bool("APP_DEBUG"),
+      code: "server_error",
+      message: env.bool("APP_DEBUG")
+        ? "Server Error"
+        : "An unexpected error occurred",
+    },
+    notFound: {
+      enable: true,
+      code: "not_found",
+      message: "Not found",
+    },
+    maintenanceMode: {
+      enable: env.bool("APP_MAINTENANCE_MODE"),
+      message: "Service Unavailable",
+    },
+  },
+  server: {
+    port: env.number("SERVER_PORT", 3000),
+    url: env.string("SERVER_URL", "http://localhost"),
+  },
+  database: {
+    enable: true,
+    client: env.get("DATABASE_CLIENT"),
+    connection: {
+      host: env.get("DATABASE_HOST"),
+      port: env.int("DATABASE_PORT"),
+      user: env.get("DATABASE_USER"),
+      password: env.get("DATABASE_PASSWORD"),
+      database: env.get("DATABASE_NAME"),
+    },
+    migrationsTableName: "migrations",
+  },
+  mail: {
+    host: env.string("MAIL_HOST"),
+    port: env.number("MAIL_PORT"),
+    user: env.string("MAIL_USER"),
+    password: env.string("MAIL_PASS"),
+    tls: env.bool("MAIL_TLS"),
+    fromAddress: env.string("MAIL_FROM_ADDRESS"),
+    fromName: env.string("MAIL_FROM_NAME"),
+  },
+};
+```
+
+#### **Benefits of Configurations**
+- **Flexibility of Settings**: Provides complete control over project settings, from email to databases.
+- **Reliance on Environment Variables**: Using the `env` library, you can read values directly from `.env` files, simplifying the customization process.
+
+---
+
+### **Provider**
+The provider is a core component that manages the services and modules the application depends on.
+
+#### **Defining the Provider**
+The provider is defined within the configuration file as follows:
+
+```typescript showLineNumbers copy filename="configuration.ts"
+import { Provider } from "./provider";
+
+export const app = {
+  provider: Provider,
+}
+```
+
+#### **Example of a Provider**
+```typescript showLineNumbers copy filename="provider.ts"
+import { BaseProvider } from "kawkab";
+
+export class Provider extends BaseProvider {
+  protected currentDir: string = __dirname;
+
+  async register() {
+    await this.modules();
+  }
+
+  boot() {
+    // Initialization code for the request
+  }
+}
+```
+
+#### **Provider Functions**
+1. **`register`**: 
+   - Executed during application startup.
+   - Used to register core services and modules.
+2. **`boot`**:
+   - Executed with each new request.
+   - Used to initialize request lifecycle processes.
+
+---
+
+### **Creating a New Configuration File**
+To extend configurations, you can create new files using the available commands:
+
+#### **Command:**
+```bash copy
+npm run kawkab config:make <name> [type] [module]
+```
+
+#### **Parameter Meanings**
+- **`name`**: The name of the new configuration file.
+- **`type`**: The file type (default is `json`, can be changed to `ts`).
+- **`module`**: The module associated with the file (default is `main`).
+
+#### **Examples:**
+
+##### Creating a JSON File
+```bash copy
+npm run kawkab config:make example json master
+```
+
+##### Creating a TypeScript File
+```bash copy
+npm run kawkab config:make example ts master
+```
+
+---
+
+### **Retrieving Configurations**
+
+#### **To Retrieve All Configurations**
+```typescript showLineNumbers copy
+import { config } from "kawkab";
+
+config.all();
+```
+
+#### **To Retrieve a Specific Value**
+```typescript showLineNumbers copy
+import { config } from "kawkab";
+
+config.get("example.name");
+```
+
+---
+
+### **Best Practices**
+- Ensure sensitive settings are separated from code using `.env` files.
+- Use configurations to avoid code duplication and simplify customization.
+- Organize configuration files based on modules to improve readability and maintainability.
+
+---
+
+### **Conclusion**
+Configurations in the **Kawkab** framework provide an effective way to manage various settings in an organized and flexible manner. By leveraging the available functions, you can improve the application development process and ensure sustainability over time.

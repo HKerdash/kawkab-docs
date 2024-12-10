@@ -1,0 +1,158 @@
+---
+title: Modules in the Kawkab Framework  
+description: A comprehensive guide to understanding modules in Kawkab, and how to create a new module using the HMVC architecture.
+---
+
+# **Modules in the Kawkab Framework**
+
+The **Kawkab Framework** supports the **HMVC (Hierarchical Model-View-Controller)** architecture, allowing you to build flexible and modular applications. Each module can contain all the necessary components, such as **Controllers**, **Services**, **Repositories**, and **DTOs**. Modules are created using the `module:make` command, and a default module named `main` is installed to handle the traditional **MVC** structure, should you choose to use it alone as an MVC setup.
+
+---
+
+## **Creating a New Module**
+
+To create a new module in your Kawkab project, use the following command:
+
+```bash
+npm run kawkab module:make <name>
+```
+
+Replace **`<name>`** with the name of the new module.
+
+### **Output when running the command**
+
+When this command is executed, a new module structure is created in the project, which includes:
+
+- **`module.ts`**: The module definition file, responsible for setting up and managing the module.
+
+---
+
+## **Module Structure**
+
+### **`module.ts` File**
+
+The `module.ts` file is the heart of each module. It is used to define the module's name, its status (enabled or disabled), and any configurations or settings the module needs.
+
+#### **Example of `module.ts` File Content:**
+
+```ts
+import { app, BaseModule } from "kawkab";
+
+export class Module extends BaseModule {
+    /**
+     * Used to define the module's name.
+     * 
+     * @returns {string} Module name.
+     */
+    name(): string {
+        return "main"; // Change the name to match the module's name
+    }
+
+    /**
+     * Checks whether the module is enabled or not.
+     * 
+     * @returns {boolean} `true` if enabled, `false` if disabled.
+     */
+    isEnabled(): boolean {
+        return true;
+    }
+
+    /**
+     * This method is called once when the application starts.
+     * It is used for registering and setting up the module.
+     */
+    register() {
+        this.module(this, __dirname); // Registers the module based on its path
+    }
+
+    /**
+     * This method is called with every incoming request.
+     * Can be used to configure additional settings or custom services.
+     */
+    boot() {
+        // Add code here if needed
+    }
+}
+```
+
+### **Folders Inside the Module**
+
+1. **`controllers`**: Contains the controllers for the module. These controllers are responsible for handling requests and interacting with services and models.
+2. **`services`**: Services that contain the core business logic. They help in organizing complex operations.
+3. **`repositories`**: The data access layer that interacts with the databases.
+4. **`dtos`**: Data Transfer Objects used to define the data coming into or going out of the module.
+5. And others as needed...
+
+---
+
+## **The Default `main` Module**
+
+A default module named `main` is installed when starting a new project with Kawkab.  
+### **Using the `main` Module**
+
+- If you prefer to work with the traditional **MVC** structure, you can use the `main` module directly without needing to create additional modules.
+- The `module.ts` file for `main` is already set up and contains the default configurations.
+
+---
+
+## **Working with the HMVC Architecture**
+
+The **HMVC** architecture makes each module independent and reusable. Each module has its own `module.ts` file, which controls:
+- The registration of the module when the application starts.
+- The enabling or disabling of the module.
+- The necessary configurations when handling incoming requests.
+
+### **Benefits of HMVC Architecture in Kawkab:**
+1. **Code Reusability**: Modules can easily be reused across multiple projects.
+2. **Clear Division**: Divides the application into independent modules, making development and maintenance easier.
+3. **Flexibility**: You can add or disable modules without affecting the entire application.
+
+---
+
+## **Example of Creating a New Module**
+
+### **The Command**
+```bash
+npm run kawkab module:make users
+```
+
+### **Generated Structure**
+```
+modules/
+├── users/
+│   ├── controllers/
+│   ├── services/
+│   ├── repositories/
+│   ├── dtos/
+│   └── module.ts
+```
+
+### **Configuring the `module.ts` File for the `users` Module**
+
+```ts
+import { app, BaseModule } from "kawkab";
+
+export class Module extends BaseModule {
+    name(): string {
+        return "users";
+    }
+
+    isEnabled(): boolean {
+        return true;
+    }
+
+    register() {
+        this.module(this, __dirname);
+    }
+
+    boot() {
+        // Customize settings or services for the module if necessary
+    }
+}
+```
+
+---
+
+## **Conclusion**
+
+Modules in **Kawkab** are a fundamental part of designing applications using the **HMVC** architecture. Whether you prefer the traditional **MVC** structure or want to take advantage of **HMVC** to split your application into independent modules, Kawkab guarantees flexibility and efficiency for developing scalable and maintainable applications.

@@ -1,0 +1,31 @@
+# Queue System
+
+The queue system in the Kawkab framework provides an efficient way to handle background tasks. Two types of queue systems can be used:
+
+## 1. Memory Queue
+This is the default system when `QUEUE_ENABLE_REDIS=false`. Tasks are stored directly in the application's memory.
+
+### Features:
+- Easy to set up - no external services required
+- Suitable for local development and small applications
+- Tasks are lost when the application is restarted
+
+## 2. Redis Queue
+Activated when `QUEUE_ENABLE_REDIS=true`. Redis is used as the task storage system.
+
+### Configuration in `.env` file:
+```env
+QUEUE_ENABLE_REDIS=true
+QUEUE_REDIS_HOST=127.0.0.1
+QUEUE_REDIS_PORT=6379
+```
+
+### Features:
+- High reliability - tasks are preserved even after restarting the application
+- Scalable - can handle a large number of tasks
+- Suitable for production and large applications
+
+## Important Notes
+- Ensure that the Redis server is running if using the Redis queue
+- Queue settings can be modified in the `configuration.ts` file
+- Tasks are processed automatically in the background

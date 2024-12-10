@@ -1,0 +1,620 @@
+# منشئ الاستعلامات
+
+يوفر منشئ الاستعلامات واجهة مريحة وسلسة لإنشاء وتشغيل استعلامات قاعدة البيانات. يمكن استخدامه لتنفيذ معظم عمليات قاعدة البيانات في تطبيقك ويعمل بشكل مثالي مع جميع أنظمة قواعد البيانات المدعومة من Kawkab.
+
+يسمح لك منشئ استعلامات Kawkab بكتابة وتنفيذ استعلامات SQL.
+
+لقد قمنا بتقسيم منشئي الاستعلامات إلى الفئات التالية:
+
+* منشئ الاستعلامات القياسي يسمح لك ببناء استعلامات SQL لعمليات التحديد والتحديث والحذف.
+* منشئ استعلامات الإدراج يسمح لك ببناء استعلامات SQL لعمليات الإدراج.
+* منشئ الاستعلامات الخام يتيح لك كتابة وتنفيذ الاستعلامات من سلسلة SQL خامة.
+
+### تشغيل استعلامات قاعدة البيانات
+
+#### تشغيل استعلامات SQL
+
+بمجرد تكوين اتصال قاعدة البيانات الخاصة بك، يمكنك استخدام طريقة `raw` لتشغيل استعلام أساسي:
+
+```js
+import { db } from "kawkab";
+
+const response = await db.raw('SET TIME_ZONE = ?', ['UTC']);
+```
+
+سيكون الرد ما ستعيده مكتبة SQL الأساسية (مثل mysql2) عادةً في استعلام عادي، لذلك قد ترغب في الاطلاع على توثيق المكتبة الأساسية التي يتم تنفيذ الاستعلام عليها لتحديد كيفية التعامل مع الرد.
+
+#### استرجاع جميع الصفوف من جدول
+
+يمكنك استخدام طريقة `table` المقدمة من DB لبدء استعلام. تعيد طريقة `table` مثيل منشئ استعلام سلس للجدول المحدد، مما يتيح لك ربط المزيد من القيود على الاستعلام ثم استرجاع نتائج الاستعلام باستخدام طريقة `get`:
+
+```js
+import { db } from "kawkab";
+
+const users = await db.table('users').get();
+```
+
+تعيد طريقة `get` مصفوفة تحتوي على نتائج الاستعلام حيث يكون كل نتيجة كائن. يمكنك الوصول إلى قيمة كل عمود عن طريق الوصول إلى العمود كخاصية للكائن:
+
+```js
+const users = await db.table('users').get();
+ 
+users.map(user => {
+  console.log(user.name);
+})
+```
+
+#### استرجاع صف أو عمود واحد من جدول
+
+إذا كنت بحاجة فقط إلى استرجاع صف واحد من جدول قاعدة البيانات، يمكنك استخدام طريقة `first`:
+
+```js
+const user = await db.table('users').where('name', 'John').first();
+ 
+console.log(user.email);
+```
+
+لاسترجاع صف واحد بواسطة قيمة عمود `id` الخاصة به، استخدم طريقة `find`:
+
+```js
+const user = await db.table('users').find(3);
+```
+
+#### استرجاع قائمة بقيم الأعمدة
+
+إذا كنت ترغب في استرجاع مصفوفة تحتوي على قيم عمود واحد، يمكنك استخدام طريقة `pluck`. في هذا المثال، سنسترجع مجموعة من عناوين المستخدمين:
+
+```js
+const titles = await db.table('users').pluck('title');
+ 
+titles.map(title => {
+  console.log(title)
+});
+```
+
+### تقسيم النتائج
+
+إذا كنت بحاجة إلى العمل مع آلاف من سجلات قاعدة البيانات، فكر في استخدام طريقة `chunk`. تسترجع هذه الطريقة جزءًا صغيرًا من النتائج في كل مرة وتغذي كل جزء إلى إغلاق للمعالجة. على سبيل المثال، دعنا نسترجع جدول `users` بالكامل في أجزاء من 100 سجل في كل مرة:
+
+```js
+await db.table('users').orderBy('id').chunk(100, users => {
+  users.map(user => {
+    // افعل شيئًا...
+  })
+});
+```
+
+يمكنك إيقاف معالجة الأجزاء الإضافية عن طريق إرجاع `false` من الإغلاق:
+
+```js
+await db.table('users').orderBy('id').chunk(100, users => {
+  // معالجة السجلات...
+ 
+  return false;
+});
+```
+
+### التجميعات
+
+يوفر منشئ الاستعلامات أيضًا مجموعة متنوعة من الطرق لاسترجاع القيم المجمعة مثل العد، `max`، `min`، `avg`، و `sum`. يمكنك استدعاء أي من هذه الطرق بعد بناء استعلامك:
+
+```js
+const count = await db.table('users').count();
+ 
+const price = await db.table('orders').max('price');
+```
+
+بالطبع، يمكنك دمج هذه الطرق مع بنود أخرى لتعديل كيفية حساب قيمة التجميع الخاصة بك:
+
+```js
+const price = await db.table('orders')
+  .where('finalized', 1)
+  .avg('price');
+```
+
+#### تحديد ما إذا كانت السجلات موجودة
+
+بدلاً من استخدام طريقة `count` لتحديد ما إذا كانت أي سجلات موجودة تطابق قيود استعلامك، يمكنك استخدام طرق `exists`:
+
+```js
+const isExists = await table('orders').where('finalized', 1).exists()
+if (isExists) {
+    // ...
+}
+```
+
+### عبارات التحديد
+
+#### تحديد بند التحديد
+
+قد لا ترغب دائمًا في تحديد جميع الأعمدة من جدول قاعدة البيانات. باستخدام طريقة `select`، يمكنك تحديد بند "select" مخصص للاستعلام:
+
+```js
+const users = await db.table('users')
+  .select('name', 'email as user_email')
+  .get();
+```
+
+تسمح لك طريقة `distinct` بإجبار الاستعلام على إعادة نتائج متميزة:
+
+```js
+const users = await db.table('users').distinct().get();
+```
+
+### التعبيرات الخام
+
+في بعض الأحيان قد تحتاج إلى إدراج سلسلة اعتباطية في استعلام. لإنشاء تعبير سلسلة خام، يمكنك استخدام طريقة `raw`:
+
+```js
+const users = await db.table('users')
+  .select(db.raw('count(*) as user_count, status'))
+  .where('status', '<>', 1)
+  .groupBy('status')
+  .get();
+```
+
+#### الطرق الخام
+
+بدلاً من استخدام طريقة `raw`، يمكنك أيضًا استخدام الطرق التالية لإدراج تعبير خام في أجزاء مختلفة من استعلامك. لا يمكن لـ Kawkab ضمان أن أي استعلام يستخدم التعبيرات الخام محمي ضد ثغرات حقن SQL.
+
+**whereRaw**
+
+يمكن استخدام طرق `whereRaw` لإدخال بند "where" خام في استعلامك. تقبل هذه الطرق مصفوفة اختيارية من الربط كوسيطة ثانية:
+
+```js
+const orders = await db.table('orders')
+  .whereRaw('price > IF(state = "TX", ?, 100)', [200])
+  .get();
+```
+
+**havingRaw**
+
+يمكن استخدام طرق `havingRaw` و `orHavingRaw` لتوفير سلسلة خام كقيمة لبند "having". تقبل هذه الطرق مصفوفة اختيارية من الربط كوسيطة ثانية:
+
+```js
+const orders = await db.table('orders')
+  .select('department', db.raw('SUM(price) as total_sales'))
+  .groupBy('department')
+  .havingRaw('SUM(price) > ?', [2500])
+  .get();
+```
+
+**orderByRaw**
+
+يمكن استخدام طريقة `orderByRaw` لتوفير سلسلة خام كقيمة لبند "order by":
+
+```js
+const orders = await db.table('orders')
+  .orderByRaw('updated_at - created_at DESC')
+  .get();
+```
+
+**groupByRaw**
+
+يمكن استخدام طريقة `groupByRaw` لتوفير سلسلة خام كقيمة لبند "group by":
+
+```js
+const orders = await db.table('orders')
+  .select('city', 'state')
+  .groupByRaw('city, state')
+  .get();
+```
+
+### الانضمامات
+
+#### بند الانضمام الداخلي
+
+يمكن أيضًا استخدام منشئ الاستعلامات لإضافة بنود الانضمام إلى استعلاماتك. لتنفيذ "انضمام داخلي" أساسي، يمكنك استخدام طريقة `join` على مثيل منشئ الاستعلام. يتم تمرير اسم الجدول الذي تحتاج إلى الانضمام إليه كوسيطة أولى لطريقة `join`، بينما تحدد الوسائط المتبقية قيود الأعمدة للانضمام. يمكنك حتى الانضمام إلى جداول متعددة في استعلام واحد:
+
+```js
+const users = await db.table('users')
+  .join('contacts', 'users.id', '=', 'contacts.user_id')
+  .join('orders', 'users.id', '=', 'orders.user_id')
+  .select('users.*', 'contacts.phone', 'orders.price')
+  .get();
+```
+
+#### بند الانضمام الأيسر / الأيمن
+
+إذا كنت ترغب في تنفيذ "انضمام أيسر" أو "انضمام أيمن" بدلاً من "انضمام داخلي"، استخدم طرق `leftJoin` أو `rightJoin`. تحتوي هذه الطرق على نفس التوقيع مثل طريقة الانضمام:
+
+```js
+const users = await db.table('users')
+  .leftJoin('posts', 'users.id', '=', 'posts.user_id')
+  .get();
+ 
+const users = await db.table('users')
+  .rightJoin('posts', 'users.id', '=', 'posts.user_id')
+  .get();
+```
+
+#### بند الانضمام المتقاطع
+
+يمكنك استخدام طريقة `crossJoin` لتنفيذ "انضمام متقاطع". تولد الانضمامات المتقاطعة منتجًا ديكارتيًا بين الجدول الأول والجدول المنضم:
+
+```js
+const sizes = await db.table('sizes')
+  .crossJoin('colors')
+  .get();
+```
+
+#### بنود الانضمام المتقدمة
+
+يمكنك أيضًا تحديد بنود انضمام أكثر تقدمًا. للبدء، مرر إغلاقًا كوسيطة ثانية لطريقة `join`.
+
+```js
+await db.table('users')
+  .join('contacts', () => {
+    this.on('users.id', '=', 'contacts.user_id').orOn(/* ... */);
+  })
+  .get();
+```
+
+### الاتحادات
+
+يوفر منشئ الاستعلامات أيضًا طريقة مريحة "لاتحاد" استعلامين أو أكثر معًا. على سبيل المثال، يمكنك إنشاء استعلام أولي واستخدام طريقة `union` لاتحاده مع المزيد من الاستعلامات:
+
+```js
+const first = db.table('users')
+  .whereNull('first_name');
+ 
+const users = await db.table('users')
+  .whereNull('last_name')
+  .union(first)
+  .get();
+```
+
+بالإضافة إلى طريقة `union`، يوفر منشئ الاستعلامات طريقة `unionAll`. لن تحتوي الاستعلامات التي يتم دمجها باستخدام طريقة `unionAll` على نتائجها المكررة التي تمت إزالتها. تحتوي طريقة `unionAll` على نفس توقيع طريقة `union`.
+
+### بنود "where" الأساسية
+
+#### بنود "where"
+
+يمكنك استخدام طريقة `where` الخاصة بمنشئ الاستعلامات لإضافة بنود "where" إلى الاستعلام. يتطلب الاستدعاء الأكثر أساسية لطريقة `where` ثلاث وسائط. الوسيطة الأولى هي اسم العمود. الوسيطة الثانية هي عامل التشغيل، والذي يمكن أن يكون أي من العوامل التي يدعمها قاعدة البيانات. الوسيطة الثالثة هي القيمة التي يتم مقارنتها بقيمة العمود.
+
+على سبيل المثال، يسترجع الاستعلام التالي المستخدمين حيث تكون قيمة عمود `votes` مساوية لـ `100` وقيمة عمود `age` أكبر من `35`:
+
+```js
+const users = await db.table('users')
+  .where('votes', '=', 100)
+  .where('age', '>', 35)
+  .get();
+```
+
+للتسهيل، إذا كنت ترغب في التحقق من أن العمود يساوي قيمة معينة، يمكنك تمرير القيمة كوسيطة ثانية لطريقة `where`. سيفترض Kawkab أنك ترغب في استخدام عامل التشغيل `=`:
+
+```js
+const users = await db.table('users').where('votes', 100).get();
+```
+
+كما ذكرنا سابقًا، يمكنك استخدام أي عامل تشغيل يدعمه نظام قاعدة البيانات الخاص بك:
+
+```js
+const users = await db.table('users')
+  .where('votes', '>=', 100)
+  .get();
+ 
+const users = await db.table('users')
+  .where('votes', '<>', 100)
+  .get();
+ 
+const users = await db.table('users')
+  .where('name', 'like', 'T%')
+  .get();
+```
+
+#### بنود "or Where"
+
+عند ربط استدعاءات طريقة `where` الخاصة بمنشئ الاستعلامات، سيتم ربط بنود "where" معًا باستخدام عامل التشغيل `and`. ومع ذلك، يمكنك استخدام طريقة `orWhere` لربط بند بالاستعلام باستخدام عامل التشغيل `or`. تقبل طريقة `orWhere` نفس الوسائط مثل طريقة `where`:
+
+```js
+const users = await db.table('users')
+  .where('votes', '>', 100)
+  .orWhere('name', 'John')
+  .get();
+```
+
+إذا كنت بحاجة إلى تجميع شرط "or" داخل أقواس، يمكنك تمرير إغلاق كوسيطة أولى لطريقة `orWhere`:
+
+```js
+const users = await db.table('users')
+  .where('votes', '>', 100)
+  .orWhere(query => {
+    query.where('name', 'Abigail')
+      .where('votes', '>', 50);
+  })
+  .get();
+```
+
+سينتج المثال أعلاه SQL التالي:
+
+```SQL
+select * from users where votes > 100 or (name = 'Abigail' and votes > 50)
+```
+
+#### بنود "where Not"
+
+يمكن استخدام طرق `whereNot` و `orWhereNot` لنفي مجموعة معينة من قيود الاستعلام. على سبيل المثال، يستثني الاستعلام التالي المنتجات التي هي في التخفيضات أو التي لديها سعر أقل من عشرة:
+
+```js
+const products = await db.table('products')
+  .whereNot(() => {
+    this.where('clearance', true).orWhere('price', '<', 10);
+  })
+  .get();
+```
+
+#### بنود "where" الإضافية
+
+**whereBetween / orWhereBetween**
+
+تتحقق طريقة `whereBetween` من أن قيمة العمود تقع بين قيمتين:
+
+```js
+const users = await db.table('users')
+  .whereBetween('votes', [1, 100])
+  .get();
+```
+
+**whereNotBetween / orWhereNotBetween**
+
+تتحقق طريقة `whereNotBetween` من أن قيمة العمود تقع خارج قيمتين:
+
+```js
+const users = await db.table('users')
+  .whereNotBetween('votes', [1, 100])
+  .get();
+```
+
+**whereIn / whereNotIn / orWhereIn / orWhereNotIn**
+
+تتحقق طريقة `whereIn` من أن قيمة العمود المعطاة موجودة داخل المصفوفة المعطاة:
+
+```js
+const users = await db.table('users')
+  .whereIn('id', [1, 2, 3])
+  .get();
+```
+
+تتحقق طريقة `whereNotIn` من أن قيمة العمود المعطاة ليست موجودة في المصفوفة المعطاة:
+
+```js
+const users = await db.table('users')
+  .whereNotIn('id', [1, 2, 3])
+  .get();
+```
+
+**whereNull / whereNotNull / orWhereNull / orWhereNotNull**
+
+تتحقق طريقة `whereNull` من أن قيمة العمود المعطاة هي NULL:
+
+```js
+const users = await db.table('users')
+  .whereNull('updated_at')
+  .get();
+```
+
+تتحقق طريقة `whereNotNull` من أن قيمة العمود ليست NULL:
+
+```js
+const users = await db.table('users')
+  .whereNotNull('updated_at')
+  .get();
+```
+
+#### WhereX
+
+هناك طريقة أنيقة لتحويل هذا:
+
+```js
+const users = await User.query().where('approved', 1).get();
+const posts = await Post.query().where('views_count', '>', 100).get();
+```
+
+إلى هذا:
+
+```js
+const users = await User.query().whereApproved(1).get();
+const posts = await Post.query().whereViewsCount('>', 100).get();
+```
+
+#### التجميع المنطقي
+
+في بعض الأحيان قد تحتاج إلى تجميع عدة بنود "where" داخل أقواس لتحقيق التجميع المنطقي المطلوب لاستعلامك. في الواقع، يجب عليك عمومًا دائمًا تجميع استدعاءات طريقة `orWhere` داخل أقواس لتجنب سلوك الاستعلام غير المتوقع. لتحقيق ذلك، يمكنك تمرير إغلاق إلى طريقة `where`:
+
+```js
+const users = await db.table('users')
+  .where('name', '=', 'John')
+  .where(() => {
+    this.where('votes', '>', 100).orWhere('title', '=', 'Admin');
+  })
+  .get();
+```
+
+كما ترى، يوجه تمرير إغلاق إلى طريقة `where` منشئ الاستعلام لبدء مجموعة قيود. سيتلقى الإغلاق مثيل منشئ استعلام يمكنك استخدامه لتعيين القيود التي يجب أن تكون موجودة داخل مجموعة الأقواس. سينتج المثال أعلاه SQL التالي:
+
+```SQL
+select * from users where name = 'John' and (votes > 100 or title = 'Admin')
+```
+
+### الترتيب، التجميع
+
+#### الترتيب
+
+**طريقة `orderBy`**
+
+تسمح لك طريقة `orderBy` بفرز نتائج الاستعلام حسب عمود معين. يجب أن تكون الوسيطة الأولى التي تقبلها طريقة `orderBy` هي العمود الذي ترغب في الفرز حسبه، بينما تحدد الوسيطة الثانية اتجاه الفرز وقد تكون إما `asc` أو `desc`:
+
+```js
+const users = await db.table('users')
+  .orderBy('name', 'desc')
+  .get();
+```
+
+للفرز حسب أعمدة متعددة، يمكنك ببساطة استدعاء `orderBy` بقدر ما هو ضروري:
+
+```js
+const users = await db.table('users')
+  .orderBy('name', 'desc')
+  .orderBy('email', 'asc')
+  .get();
+```
+
+**طرق `latest` و `oldest`**
+
+تسمح لك طرق `latest` و `oldest` بترتيب النتائج بسهولة حسب التاريخ. بشكل افتراضي، سيتم ترتيب النتيجة حسب عمود `created_at` الخاص بالجدول. أو يمكنك تمرير اسم العمود الذي ترغب في الفرز حسبه:
+
+```js
+const user = await db.table('users')
+  .latest()
+  .first();
+```
+
+**الترتيب العشوائي**
+
+يمكن استخدام طريقة `inRandomOrder` لفرز نتائج الاستعلام عشوائيًا. على سبيل المثال، يمكنك استخدام هذه الطريقة لجلب مستخدم عشوائي:
+
+```js
+const randomUser = await db.table('users')
+  .inRandomOrder()
+  .first();
+```
+
+**إزالة الترتيبات الموجودة**
+
+تزيل طريقة `clearOrder` جميع بنود "order by" التي تم تطبيقها مسبقًا على الاستعلام:
+
+```js
+const query = db.table('users').orderBy('name');
+ 
+const unorderedUsers = await query.clearOrder().get();
+```
+
+#### التجميع
+
+**طرق `groupBy` و `having`**
+
+كما قد تتوقع، يمكن استخدام طرق `groupBy` و `having` لتجميع نتائج الاستعلام. تشبه توقيع طريقة `having` توقيع طريقة `where`:
+
+```js
+const users = await db.table('users')
+  .groupBy('account_id')
+  .having('account_id', '>', 100)
+  .get();
+```
+
+يمكنك استخدام طريقة `havingBetween` لتصفية النتائج ضمن نطاق معين:
+
+```js
+const report = await db.table('orders')
+  .selectRaw('count(id) as number_of_orders, customer_id')
+  .groupBy('customer_id')
+  .havingBetween('number_of_orders', [5, 15])
+  .get();
+```
+
+يمكنك تمرير وسائط متعددة إلى طريقة `groupBy` للتجميع حسب أعمدة متعددة:
+
+```js
+const users = await db.table('users')
+  .groupBy('first_name', 'status')
+  .having('account_id', '>', 100)
+  .get();
+```
+
+لبناء بنود "having" أكثر تقدمًا، راجع طريقة `havingRaw`.
+
+### الحد والإزاحة
+
+**طرق `skip` و `take`**
+
+يمكنك استخدام طرق `skip` و `take` لتحديد عدد النتائج التي يتم إرجاعها من الاستعلام أو لتخطي عدد معين من النتائج في الاستعلام:
+
+```js
+const users = await db.table('users').skip(10).take(5).get();
+```
+
+بدلاً من ذلك، يمكنك استخدام طرق `limit` و `offset`. هذه الطرق مكافئة وظيفيًا لطرق `take` و `skip`، على التوالي:
+
+```js
+const users = await db.table('users')
+  .offset(10)
+  .limit(5)
+  .get();
+```
+
+### عبارات الإدراج
+
+يوفر منشئ الاستعلامات أيضًا طريقة `insert` التي يمكن استخدامها لإدراج سجلات في جدول قاعدة البيانات. تقبل طريقة `insert` مصفوفة من أسماء الأعمدة والقيم:
+
+```js
+await db.table('users').insert({
+  email: 'kayla@example.com',
+  votes: 0
+});
+```
+
+يمكنك إدراج عدة سجلات دفعة واحدة عن طريق تمرير مصفوفة من المصفوفات. تمثل كل مصفوفة سجلًا يجب إدراجه في الجدول:
+
+```js
+await db.table('users').insert([
+  { email: 'picard@example.com', votes: 0 },
+  { email: 'janeway@example.com', votes: 0 },
+]);
+```
+
+### عبارات التحديث
+
+بالإضافة إلى إدراج السجلات في قاعدة البيانات، يمكن لمنشئ الاستعلامات أيضًا تحديث السجلات الموجودة باستخدام طريقة `update`. تقبل طريقة `update`، مثل طريقة `insert`، مصفوفة من أزواج الأعمدة والقيم التي تشير إلى الأعمدة التي يجب تحديثها. تعيد طريقة `update` عدد الصفوف المتأثرة. يمكنك تقييد استعلام التحديث باستخدام بنود where:
+
+```js
+await db.table('users')
+  .where('id', 1)
+  .update({
+    votes: 1
+  });
+```
+
+### الزيادة والنقصان
+
+يوفر منشئ الاستعلامات أيضًا طرقًا مريحة لزيادة أو نقصان قيمة عمود معين. تقبل كل من هاتين الطريقتين وسائط واحدة على الأقل: العمود الذي يجب تعديله. يمكن توفير وسيطة ثانية لتحديد المقدار الذي يجب زيادة أو نقصان العمود به:
+
+```js
+await db.table('users').increment('votes');
+ 
+await db.table('users').increment('votes', 5);
+ 
+await db.table('users').decrement('votes');
+ 
+await db.table('users').decrement('votes', 5);
+```
+
+### عبارات الحذف
+
+يمكن استخدام طريقة `delete` الخاصة بمنشئ الاستعلامات لحذف السجلات من الجدول. تعيد طريقة `delete` عدد الصفوف المتأثرة. يمكنك تقييد عبارات الحذف عن طريق إضافة بنود "where" قبل استدعاء طريقة `delete`:
+
+```js
+const deleted = await db.table('users').delete();
+ 
+const deleted = await db.table('users').where('votes', '>', 100).delete();
+```
+
+### القفل المتشائم
+
+يتضمن منشئ الاستعلامات أيضًا بعض الوظائف لمساعدتك في تحقيق "القفل المتشائم" عند تنفيذ عبارات `select` الخاصة بك. لتنفيذ عبارة باستخدام "قفل مشترك"، يمكنك استدعاء طريقة `forShare`. يمنع القفل المشترك تعديل الصفوف المحددة حتى يتم تأكيد معاملتك:
+
+```js
+await db.table('users')
+  .where('votes', '>', 100)
+  .forShare()
+  .get();
+```
+
+بدلاً من ذلك، يمكنك استخدام طريقة `forUpdate`. يمنع قفل "للتحديث" تعديل السجلات المحددة أو اختيارها باستخدام قفل مشترك آخر:
+
+```js
+await db.table('users')
+  .where('votes', '>', 100)
+  .forUpdate()
+  .get();
+```

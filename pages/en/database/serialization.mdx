@@ -1,0 +1,155 @@
+# Serializations
+
+When building APIs, you often need to convert models and their related relationships into an object or JSON. **Kawkab Kawkab** provides convenient methods to perform these conversions, along with control over the properties included in the serialized representation of the models.
+
+### Model and Collection Serialization
+
+#### Converting to Data Object
+
+To convert a model and its loaded relationships into an array, you can use the `toData` method. This method works recursively, converting all properties and relationships (including nested relationships) into an object:
+
+```javascript
+const user = await User.query().with('roles').first();
+
+return user.toData();
+```
+
+You can use the `attributesToData` method to convert only the model’s attributes into an object without including relationships:
+
+```javascript
+const user = await User.query().first();
+ 
+return user.attributesToData();
+```
+
+You can also convert entire collections of models into a data object using the `toData` method on the collection instance:
+
+```javascript
+const users = await User.query().all();
+ 
+return users.toData();
+```
+
+#### Converting to JSON
+
+To convert a model to JSON, you can use the `toJson` method. Similar to `toData`, the `toJson` method works recursively, converting all properties and relationships into JSON. You can also specify supported encoding options in JavaScript:
+
+```javascript
+const user = await User.query().find(1);
+ 
+return user.toJson();
+ 
+return user.toJson(null, 2);
+```
+
+Alternatively, you can convert a model or collection into a string, which will automatically call the `toJson` method:
+
+```javascript
+const user = await User.query().find(1);
+
+return String(user);
+
+return JSON.stringify(user);
+```
+
+Since models and collections are converted to JSON when converted to a string, you can return **Kawkab Kawkab** objects directly from `express` or `Koa` applications. **Kawkab Kawkab** will automatically serialize models and collections into JSON when returned from routes or controllers:
+
+```javascript
+const app = require('express')();
+
+app.get('/', async (req, res) => {
+  const user = await User.query().find(1);
+
+  res.send(user);
+});
+```
+
+**Relationships**
+
+When a **Kawkab Kawkab** model is converted to JSON, its loaded relationships are automatically included as properties inside the JSON object.
+
+### Hiding Properties from JSON
+
+Sometimes, you may want to restrict properties (such as passwords) from being included in the model's data object or JSON representation. To achieve this, add a `hidden` property to the model. Properties listed in the `hidden` array will be excluded from the serialized representation of the model:
+
+```javascript
+import { BaseModel } from "kawkab";
+
+class User extends Model {
+  hidden = ['password'];
+}
+```
+
+Alternatively, you can use the `visible` property to define a "whitelist" of properties that should be included in the model's data object and JSON representation. All properties not listed in the `visible` array will be hidden:
+
+```javascript
+import { BaseModel } from "kawkab";
+
+class User extends Model {
+  visible = ['first_name', 'last_name'];
+}
+```
+
+**Temporarily Modify Property Visibility**
+
+If you want to make properties that are usually hidden visible for a particular model instance, you can use the `makeVisible` method. This method returns the model instance:
+
+```javascript
+user.makeVisible('attribute').toData();
+
+user.makeVisible(['attribute', 'another_attribute']).toData();
+```
+
+Similarly, if you want to hide properties that are usually visible, you can use the `makeHidden` method:
+
+```javascript
+user.makeHidden('attribute').toData();
+
+user.makeHidden(['attribute', 'another_attribute']).toData();
+```
+
+If you want to override all visible or hidden properties temporarily, you can use the `setVisible` and `setHidden` methods respectively:
+
+```javascript
+user.setVisible(['id', 'name']).toData();
+
+user.setHidden(['email', 'password', 'remember_token']).toData();
+```
+
+### Appending Values to JSON
+
+Sometimes, when converting models to a data object or JSON, you may want to add properties that do not have a corresponding column in the database. To achieve this, first define an appended value:
+
+```javascript
+import { BaseModel, AttributeModel } from "kawkab";
+
+class User extends Model {
+  attributeIsAdmin() {
+    return Attribute.make({
+      get: (value, attributes) => (attributes.admin === 'yes')
+    });
+  }
+}
+```
+
+After defining the appended value, add the property name to the model's `appends` property. Note that property names are usually used in "snake_case" in the serialized representation, even if the appended value is defined in "camelCase":
+
+```javascript
+import { BaseModel } from "kawkab";
+
+class User extends Model {
+  appends = ['is_admin'];
+}
+```
+
+Once the property is added to the `appends` list, it will be included in both the data object and JSON representations. Properties in the `appends` array will also respect the model's `visible` and `hidden` settings.
+
+**Appending Values at Runtime**
+
+At runtime, you can tell a model instance to append additional properties using the `append` method. Or you can use the `setAppends` method to override the entire array of appended properties for the model instance:
+
+```javascript
+user.append('is_admin').toData();
+ 
+user.setAppends(['is_admin']).toData();
+```

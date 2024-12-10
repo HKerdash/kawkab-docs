@@ -1,0 +1,163 @@
+---
+title: "الإعدادات"
+---
+
+### مقدمة
+الإعدادات هي مجموعة من المعاملات التي تُستخدم لإدارة خصائص التطبيق بطريقة منظمة وسهلة التعديل. الهدف هو توفير طريقة مرنة ومبسطة لتخصيص التطبيق دون تعديل الشيفرة البرمجية مباشرة.
+
+### **الإعدادات الرئيسية**
+يتم إدارة الإعدادات الأساسية من خلال ملف مركزي مثل `configuration.ts`، الذي يجمع جميع الإعدادات المتعلقة بالتطبيق، مما يسهل إدارة الإعدادات في مكان واحد.
+
+```typescript showLineNumbers copy filename="configuration.ts"
+import { env } from "kawkab";
+import { Provider } from "./provider";
+
+export const app = {
+  app: {
+    serverError: {
+      enable: true,
+      debug: env.bool("APP_DEBUG"),
+      code: "server_error",
+      message: env.bool("APP_DEBUG")
+        ? "Server Error"
+        : "An unexpected error occurred",
+    },
+    notFound: {
+      enable: true,
+      code: "not_found",
+      message: "Not found",
+    },
+    maintenanceMode: {
+      enable: env.bool("APP_MAINTENANCE_MODE"),
+      message: "Service Unavailable",
+    },
+  },
+  server: {
+    port: env.number("SERVER_PORT", 3000),
+    url: env.string("SERVER_URL", "http://localhost"),
+  },
+  database: {
+    enable: true,
+    client: env.get("DATABASE_CLIENT"),
+    connection: {
+      host: env.get("DATABASE_HOST"),
+      port: env.int("DATABASE_PORT"),
+      user: env.get("DATABASE_USER"),
+      password: env.get("DATABASE_PASSWORD"),
+      database: env.get("DATABASE_NAME"),
+    },
+    migrationsTableName: "migrations",
+  },
+  mail: {
+    host: env.string("MAIL_HOST"),
+    port: env.number("MAIL_PORT"),
+    user: env.string("MAIL_USER"),
+    password: env.string("MAIL_PASS"),
+    tls: env.bool("MAIL_TLS"),
+    fromAddress: env.string("MAIL_FROM_ADDRESS"),
+    fromName: env.string("MAIL_FROM_NAME"),
+  },
+};
+```
+
+#### **فوائد الإعدادات**
+- **مرونة الإعدادات**: توفر تحكمًا كاملاً في إعدادات المشروع، من البريد الإلكتروني إلى قواعد البيانات.
+- **الاعتماد على المتغيرات البيئية**: باستخدام مكتبة `env`، يمكنك قراءة القيم مباشرة من ملفات `.env`، مما يبسط عملية التخصيص.
+
+---
+
+### **المزود (Provider)**
+المزود هو مكون أساسي يدير الخدمات والوحدات التي يعتمد عليها التطبيق.
+
+#### **تعريف المزود**
+يتم تعريف المزود داخل ملف الإعدادات كما يلي:
+
+```typescript showLineNumbers copy filename="configuration.ts"
+import { Provider } from "./provider";
+
+export const app = {
+  provider: Provider,
+}
+```
+
+#### **مثال على مزود**
+```typescript showLineNumbers copy filename="provider.ts"
+import { BaseProvider } from "kawkab";
+
+export class Provider extends BaseProvider {
+  protected currentDir: string = __dirname;
+
+  async register() {
+    await this.modules();
+  }
+
+  boot() {
+    // كود التهيئة للطلب
+  }
+}
+```
+
+#### **وظائف المزود**
+1. **`register`**: 
+   - يتم تنفيذه أثناء بدء تشغيل التطبيق.
+   - يُستخدم لتسجيل الخدمات والوحدات الأساسية.
+2. **`boot`**:
+   - يتم تنفيذه مع كل طلب جديد.
+   - يُستخدم لتهيئة عمليات دورة حياة الطلب.
+
+---
+
+### **إنشاء ملف إعدادات جديد**
+لتوسيع الإعدادات، يمكنك إنشاء ملفات جديدة باستخدام الأوامر المتاحة:
+
+#### **الأمر:**
+```bash copy
+npm run kawkab config:make <name> [type] [module]
+```
+
+#### **معاني المعلمات**
+- **`name`**: اسم ملف الإعدادات الجديد.
+- **`type`**: نوع الملف (افتراضي هو `json`، ويمكن تغييره إلى `ts`).
+- **`module`**: الوحدة المرتبطة بالملف (افتراضي هو `main`).
+
+#### **أمثلة:**
+
+##### إنشاء ملف JSON
+```bash copy
+npm run kawkab config:make example json master
+```
+
+##### إنشاء ملف TypeScript
+```bash copy
+npm run kawkab config:make example ts master
+```
+
+---
+
+### **استرجاع الإعدادات**
+
+#### **لاسترجاع جميع الإعدادات**
+```typescript showLineNumbers copy
+import { config } from "kawkab";
+
+config.all();
+```
+
+#### **لاسترجاع قيمة معينة**
+```typescript showLineNumbers copy
+import { config } from "kawkab";
+
+config.get("example.name");
+```
+
+---
+
+### **أفضل الممارسات**
+- تأكد من فصل الإعدادات الحساسة عن الكود باستخدام ملفات `.env`.
+- استخدم الإعدادات لتجنب تكرار الكود وتبسيط التخصيص.
+- نظم ملفات الإعدادات بناءً على الوحدات لتحسين قابلية القراءة والصيانة.
+
+---
+
+### **الخلاصة**
+توفر الإعدادات في إطار **كوكب** طريقة فعالة لإدارة مختلف الإعدادات بطريقة منظمة ومرنة. من خلال الاستفادة من الوظائف المتاحة، يمكنك تحسين عملية تطوير التطبيق وضمان استدامته مع مرور الوقت.

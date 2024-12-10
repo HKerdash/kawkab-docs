@@ -1,0 +1,182 @@
+---
+title: Controllers in Kawkab Framework
+description: A comprehensive guide to understanding Controllers in Kawkab, how to create a new controller and manage it.
+---
+
+# **Controllers in Kawkab Framework**
+
+Controllers are a fundamental part of the **Kawkab** framework architecture.  
+Controllers are used to manage incoming **HTTP Requests** and interact with services and models to provide appropriate responses.
+
+## **Creating a New Controller**
+
+You can create a new controller using the following command:
+
+```bash
+npm run kawkab controller:make [path] [module]
+```
+
+### **Variables:**
+- **`path`**: The path where the controller will be created within the module.
+- **`module`**: The name of the module where the controller will be added, defaults to **`main`**.
+
+---
+
+## **Practical Example**
+
+### **Command to Create a Controller**
+```bash
+npm run kawkab controller:make /
+```
+
+### **Resulting Structure**
+```
+modules/
+├── users/
+│   ├── controllers/
+│   │   └── index.ts
+```
+
+### **Controller Content**
+
+```ts
+import { BaseController, inherit } from "kawkab";
+
+export default class extends inherit(BaseController) {
+    /**
+     * Handle GET requests.
+     */
+    get() {
+        return {
+            status: true,
+            message: "Welcome to Kawkab Framework 🚀",
+        };
+    }
+}
+```
+
+---
+
+## **Special Functions in Controller**
+
+The controller supports several functions representing **HTTP Methods** such as:
+- **`get()`**: To handle GET requests.
+- **`post()`**: To handle POST requests.
+- **`put()`**: To handle PUT requests.
+- **`patch()`**: To handle PATCH requests.
+- **`delete()`**: To handle DELETE requests.
+
+### **Example Using All Functions:**
+
+```ts
+import { BaseController, inherit } from "kawkab";
+
+export default class extends inherit(BaseController) {
+    get() {
+        return { status: true, message: "This is a GET request." };
+    }
+
+    post() {
+        return { status: true, message: "This is a POST request." };
+    }
+
+    put() {
+        return { status: true, message: "This is a PUT request." };
+    }
+
+    patch() {
+        return { status: true, message: "This is a PATCH request." };
+    }
+
+    delete() {
+        return { status: true, message: "This is a DELETE request." };
+    }
+}
+```
+
+---
+
+## **The `middleware` Function**
+
+The `middleware` function in the controller is used to specify middleware for each type of request.  
+You can specify a custom function for each **HTTP Method**.
+
+### **Example Using `middleware`:**
+
+```ts
+import { BaseController, inherit } from "kawkab";
+
+export default class extends inherit(BaseController) {
+    middleware() {
+        return {
+            get: () => {
+                console.log("Middleware for GET");
+            },
+            post: () => {
+                console.log("Middleware for POST");
+            },
+        };
+    }
+
+    get() {
+        return { status: true, message: "GET request passed middleware." };
+    }
+
+    post() {
+        return { status: true, message: "POST request passed middleware." };
+    }
+}
+```
+
+---
+
+## **Usage Guide**
+
+### **Creating a New Controller in the `users` Module:**
+```bash
+npm run kawkab controller:make users/profile users
+```
+
+### **Adding Logic Inside the Controller**
+
+```ts
+import { BaseController, inherit } from "kawkab";
+
+export default class extends inherit(BaseController) {
+    middleware() {
+        return {
+            get: () => {
+                console.log("Middleware for Profile GET");
+            },
+        };
+    }
+
+    get() {
+        return {
+            status: true,
+            message: "Welcome to Profile Page!",
+        };
+    }
+}
+```
+
+### **Accessing the Controller:**
+By default, the controller can be accessed via the following path:
+```
+http://localhost:3000/api/users/profile
+```
+
+---
+
+## **Summary**
+
+### **Key Features of Controllers in Kawkab:**
+1. **HTTP Method Functions:** Each controller contains functions representing requests (GET, POST, PUT, PATCH, DELETE).
+2. **`middleware` Function:** Add custom middleware for each type of request.
+3. **Easy Creation:** Create new controllers easily using commands.
+
+---
+
+## **Conclusion**
+
+Controllers in **Kawkab** provide high flexibility for managing requests and organizing code. Using custom functions for each **HTTP Method** and the ability to customize **Middleware**, you can easily build powerful and scalable applications.

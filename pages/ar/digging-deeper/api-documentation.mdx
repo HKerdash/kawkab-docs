@@ -1,0 +1,561 @@
+---
+title: توثيق واجهة برمجة التطبيقات (API)
+---
+
+# توثيق واجهة برمجة التطبيقات في Kawkab
+
+يوفر إطار عمل Kawkab نظام توثيق مدمج لواجهة برمجة التطبيقات (API) يساعدك في توثيق نقاط النهاية (endpoints) الخاصة بك بشكل احترافي وسهل الاستخدام.
+
+## إعدادات التوثيق
+
+يمكنك تخصيص إعدادات التوثيق في ملف `app/configuration.ts`:
+
+```typescript
+// إعدادات توثيق API
+docs: {
+  // تفعيل أو تعطيل توثيق API
+  enable: true,
+
+  // عنوان توثيق API
+  title: "API Documentation",
+
+  // وصف توثيق API
+  description: "Documentation for API endpoints.",
+
+  // مسار تخزين الوثائق المُنشأة
+  path: "storage/private/docs",
+},
+```
+
+## إنشاء الوثائق
+
+لإنشاء وثائق API، قم بتنفيذ الأمر التالي:
+
+```bash
+npm run kawkab docs:make
+```
+
+بعد إنشاء الوثائق، سيتم توليدها في المجلد المحدد:
+```
+/storage/private/docs
+```
+
+## خصائص التوثيق المتاحة
+
+### @api
+تُستخدم لتحديد نقطة نهاية API وطريقة الوصول إليها.
+
+```typescript
+/**
+ * @api {method} path [title]
+ */
+```
+
+- **method**: طريقة الطلب HTTP (GET, POST, PUT, DELETE, etc.)
+- **path**: المسار للوصول إلى نقطة النهاية
+- **title**: وصف مختصر لنقطة النهاية (اختياري)
+
+مثال:
+```typescript
+/**
+ * @api {get} /users/:id Get User Information
+ */
+```
+
+### @apiName
+تُستخدم لتعريف اسم فريد لنقطة النهاية.
+
+```typescript
+/**
+ * @apiName GetUserProfile
+ */
+```
+
+- يجب أن يكون الاسم فريداً ضمن المجموعة
+- يُفضل استخدام نمط الكتابة CamelCase
+- يمكن استخدام نفس الاسم مع إصدارات مختلفة
+
+مثال:
+```typescript
+/**
+ * @apiName GetUserProfile
+ */
+```
+
+### @apiGroup
+تُستخدم لتنظيم نقاط النهاية في مجموعات منطقية.
+
+```typescript
+/**
+ * @apiGroup Users
+ */
+```
+
+- تساعد في تنظيم الوثائق
+- تظهر كعناوين رئيسية في التوثيق المُنشأ
+
+مثال:
+```typescript
+/**
+ * @apiGroup Users
+ */
+```
+
+### @apiVersion
+تُستخدم لتحديد إصدار نقطة النهاية.
+
+```typescript
+/**
+ * @apiVersion 1.2.0
+ */
+```
+
+- يتبع نمط الإصدارات الدلالي (Semantic Versioning)
+- يمكن مقارنة الإصدارات المختلفة في التوثيق
+
+مثال:
+```typescript
+/**
+ * @apiVersion 1.2.0
+ */
+```
+
+### @apiDescription
+تُستخدم لإضافة وصف تفصيلي لنقطة النهاية.
+
+```typescript
+/**
+ * @apiDescription This endpoint allows you to get complete user information.
+ * You can use it to retrieve:
+ * - Personal Information
+ * - Settings
+ * - Preferences
+ */
+```
+
+- يمكن أن يكون متعدد الأسطر
+- يدعم تنسيق Markdown
+
+مثال:
+```typescript
+/**
+ * @apiDescription This endpoint allows you to get complete user information.
+ * You can use it to retrieve:
+ * - Personal Information
+ * - Settings
+ * - Preferences
+ */
+```
+
+### @apiParam
+تُستخدم لتوثيق المعلمات المطلوبة في الطلب.
+
+```typescript
+/**
+ * @apiParam [(المجموعة)] {النوع} الاسم [=القيمة_الافتراضية] [الوصف]
+ */
+```
+
+- **المجموعة**: لتجميع المعلمات (اختياري)
+- **النوع**: نوع البيانات (String, Number, Boolean, etc.)
+- **الاسم**: اسم المعلمة
+- **القيمة_الافتراضية**: القيمة الافتراضية (اختياري)
+- **الوصف**: وصف المعلمة (اختياري)
+
+مثال:
+```typescript
+/**
+ * @apiParam {String} username Username (3-20 characters)
+ * @apiParam {String} [email] Email address
+ * @apiParam {Number} [age=18] Age
+ * @apiParam (Authentication) {String} api_key API Key
+ */
+```
+
+### @apiSuccess
+تُستخدم لتوثيق الاستجابة الناجحة.
+
+```typescript
+/**
+ * @apiSuccess [(المجموعة)] {النوع} الحقل الوصف
+ */
+```
+
+مثال:
+```typescript
+/**
+ * @apiSuccess {Boolean} status Operation status
+ * @apiSuccess {Object} data User data
+ * @apiSuccess {Number} data.id User ID
+ * @apiSuccess {String} data.username Username
+ */
+```
+
+### @apiError
+تُستخدم لتوثيق حالات الخطأ المحتملة.
+
+```typescript
+/**
+ * @apiError [(المجموعة)] {النوع} الحقل الوصف
+ */
+```
+
+مثال:
+```typescript
+/**
+ * @apiError UserNotFound User was not found
+ * @apiError (Authentication) InvalidAPIKey Invalid API key
+ */
+```
+
+### @apiHeader
+تُستخدم لتوثيق ترويسات HTTP المطلوبة.
+
+```typescript
+/**
+ * @apiHeader [(المجموعة)] {النوع} الحقل الوصف
+ */
+```
+
+مثال:
+```typescript
+/**
+ * @apiHeader {String} Authorization Bearer token
+ * @apiHeader {String} [Accept-Language] Response language
+ */
+```
+
+### @apiExample
+تُستخدم لتقديم أمثلة على كيفية استخدام نقطة النهاية.
+
+```typescript
+/**
+ * @apiExample {النوع} العنوان
+ *    المثال
+ */
+```
+
+مثال:
+```typescript
+/**
+ * @apiExample {curl} Example usage:
+ *    curl -X POST \
+ *      http://api.example.com/users \
+ *      -H 'Authorization: Bearer token' \
+ *      -d '{"username":"john","email":"john@example.com"}'
+ */
+```
+
+### @apiSuccessExample و @apiErrorExample
+تُستخدم لتقديم أمثلة على الاستجابات الناجحة وحالات الخطأ.
+
+```typescript
+/**
+ * @apiSuccessExample {النوع} العنوان
+ *    المثال
+ *
+ * @apiErrorExample {النوع} العنوان
+ *    المثال
+ */
+```
+
+مثال:
+```typescript
+/**
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "status": true,
+ *       "data": {
+ *         "id": 1,
+ *         "username": "john",
+ *         "email": "john@example.com"
+ *       }
+ *     }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *       "status": false,
+ *       "error": "UserNotFound",
+ *       "message": "User not found"
+ *     }
+ */
+```
+
+### @apiDefine و @apiUse
+تُستخدم لتعريف وإعادة استخدام الأجزاء المتكررة في التوثيق.
+
+```typescript
+/**
+ * @apiDefine اسم_الكتلة
+ *    محتوى_الكتلة
+ */
+
+/**
+ * @apiUse اسم_الكتلة
+ */
+```
+
+مثال:
+```typescript
+/**
+ * @apiDefine CommonErrors
+ * @apiError NotFound Resource not found
+ * @apiError Unauthorized Unauthorized access
+ */
+
+/**
+ * @api {get} /users/:id
+ * @apiUse CommonErrors
+ */
+```
+
+### @apiDeprecated
+تُستخدم للإشارة إلى أن نقطة النهاية قديمة وسيتم إيقافها.
+
+```typescript
+/**
+ * @apiDeprecated [الرسالة]
+ */
+```
+
+مثال:
+```typescript
+/**
+ * @apiDeprecated Use /api/v2/users instead
+ */
+```
+
+## كيفية توثيق نقاط النهاية (Endpoints)
+
+يستخدم Kawkab نمط JSDoc لتوثيق نقاط النهاية. إليك مثال على كيفية توثيق متحكم (controller):
+
+```typescript
+import { BaseController, inherit } from "kawkab";
+
+export default class extends inherit(BaseController) {
+  /**
+   * @api {get} / الحصول على رسالة الترحيب
+   * @apiName GetWelcomeMessage
+   * @apiGroup Kawkab
+   * @apiVersion 1.0.0
+   *
+   * @apiSuccess {Boolean} status حالة استجابة API.
+   * @apiSuccess {String} message رسالة الترحيب لإطار عمل Kawkab.
+   *
+   * @apiSuccessExample {json} مثال الاستجابة الناجحة:
+   *     HTTP/1.1 200 OK
+   *     {
+   *       "status": true,
+   *       "message": "مرحباً بك في إطار عمل Kawkab 🚀 - رفيقك السريع لإنشاء APIs بأناقة وبساطة لا مثيل لها. دعنا نبني شيئاً استثنائياً معاً!"
+   *     }
+   */
+  async get() {
+    return {
+      status: true,
+      message:
+        "مرحباً بك في إطار عمل Kawkab 🚀 - رفيقك السريع لإنشاء APIs بأناقة وبساطة لا مثيل لها. دعنا نبني شيئاً استثنائياً معاً!",
+    };
+  }
+}
+```
+
+## العناصر الأساسية للتوثيق
+
+### @api
+يحدد طريقة الطلب (GET, POST, etc.) ومسار نقطة النهاية.
+```typescript
+@api {method} /path وصف نقطة النهاية
+```
+
+### @apiName
+اسم فريد لنقطة النهاية.
+```typescript
+@apiName اسم_الدالة
+```
+
+### @apiGroup
+المجموعة التي تنتمي إليها نقطة النهاية.
+```typescript
+@apiGroup اسم_المجموعة
+```
+
+### @apiVersion
+إصدار نقطة النهاية.
+```typescript
+@apiVersion 1.0.0
+```
+
+### @apiParam
+توثيق المعلمات المطلوبة.
+```typescript
+@apiParam {النوع} الاسم الوصف
+```
+
+### @apiSuccess
+توثيق الاستجابة الناجحة.
+```typescript
+@apiSuccess {النوع} الاسم الوصف
+```
+
+### @apiError
+توثيق حالات الخطأ.
+```typescript
+@apiError {النوع} الاسم الوصف
+```
+
+## أمثلة متقدمة
+
+### توثيق نقطة نهاية مع معلمات
+
+```typescript
+/**
+ * @api {post} /user Create New User
+ * @apiName CreateUser
+ * @apiGroup Users
+ * @apiVersion 1.0.0
+ *
+ * @apiParam {String} username Username (3-20 characters)
+ * @apiParam {String} email Email address
+ * @apiParam {String{6..}} password Password (minimum 6 characters)
+ *
+ * @apiSuccess {Boolean} status Operation status
+ * @apiSuccess {Object} user Created user data
+ * @apiSuccess {Number} user.id User ID
+ * @apiSuccess {String} user.username Username
+ * @apiSuccess {String} user.email Email address
+ *
+ * @apiError UserExists User already exists
+ * @apiError InvalidInput Invalid input data
+ */
+```
+
+### توثيق نقطة نهاية مع مثال للطلب والاستجابة
+
+```typescript
+/**
+ * @api {get} /products Search Products
+ * @apiName SearchProducts
+ * @apiGroup Products
+ * @apiVersion 1.0.0
+ *
+ * @apiParam {String} [query] Search query
+ * @apiParam {Number} [page=1] Page number
+ * @apiParam {Number} [limit=10] Results per page
+ *
+ * @apiParamExample {json} Request example:
+ *     {
+ *       "query": "phone",
+ *       "page": 1,
+ *       "limit": 10
+ *     }
+ *
+ * @apiSuccess {Boolean} status Operation status
+ * @apiSuccess {Object[]} products Product list
+ * @apiSuccess {Number} total Total results
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "status": true,
+ *       "products": [
+ *         {
+ *           "id": 1,
+ *           "name": "Smartphone",
+ *           "price": 999.99
+ *         }
+ *       ],
+ *       "total": 1
+ *     }
+ */
+```
+
+## مثال متكامل
+
+هنا مثال يجمع العديد من الخصائص معاً:
+
+```typescript
+/**
+ * @api {post} /users Create New User
+ * @apiVersion 1.0.0
+ * @apiName CreateUser
+ * @apiGroup Users
+ * @apiDescription Create a new user account in the system
+ *
+ * @apiHeader {String} Authorization Bearer token
+ *
+ * @apiParam {String} username Username (3-20 characters)
+ * @apiParam {String} email Email address
+ * @apiParam {String{6..}} password Password (minimum 6 characters)
+ * @apiParam {Object} [profile] User profile information
+ * @apiParam {String} [profile.fullName] Full name
+ * @apiParam {Number} [profile.age] Age
+ *
+ * @apiSuccess {Boolean} status Operation status
+ * @apiSuccess {Object} data Created user data
+ * @apiSuccess {Number} data.id User ID
+ * @apiSuccess {String} data.username Username
+ * @apiSuccess {String} data.email Email address
+ * @apiSuccess {Object} data.profile Profile information
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 201 Created
+ *     {
+ *       "status": true,
+ *       "data": {
+ *         "id": 1,
+ *         "username": "john",
+ *         "email": "john@example.com",
+ *         "profile": {
+ *           "fullName": "John Doe",
+ *           "age": 25
+ *         }
+ *       }
+ *     }
+ *
+ * @apiError ValidationError Input validation failed
+ * @apiError UserExists User already exists
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "status": false,
+ *       "error": "ValidationError",
+ *       "message": "Invalid email format"
+ *     }
+ */
+```
+
+## نصائح وأفضل الممارسات
+
+1. **التنظيم**: قم بتنظيم نقاط النهاية في مجموعات منطقية باستخدام `@apiGroup`.
+2. **الإصدارات**: استخدم `@apiVersion` لتتبع التغييرات في واجهة API.
+3. **الأمثلة**: قم دائماً بتضمين أمثلة للطلبات والاستجابات لتسهيل الفهم.
+4. **الوصف**: اكتب أوصافاً واضحة ومفصلة لكل معلمة واستجابة.
+5. **التحقق**: تأكد من تحديث الوثائق عند إجراء تغييرات على نقاط النهاية.
+
+## نصائح متقدمة
+
+1. **التنظيم المنطقي**
+   - قم بتجميع النقاط المتشابهة في نفس المجموعة
+   - استخدم أسماء واضحة ومعبرة للمجموعات
+
+2. **إدارة الإصدارات**
+   - وثّق التغييرات بين الإصدارات
+   - استخدم @apiDeprecated عند الحاجة
+   - حافظ على توافقية الإصدارات القديمة
+
+3. **الأمثلة**
+   - قدم أمثلة واقعية وشاملة
+   - اشرح السيناريوهات المختلفة
+   - وثّق حالات النجاح والفشل
+
+4. **التحديث المستمر**
+   - حدّث الوثائق مع كل تغيير في API
+   - راجع الوثائق بشكل دوري
+   - تأكد من دقة المعلومات
+
+## الخاتمة
+
+يوفر نظام التوثيق في Kawkab طريقة منظمة وفعالة لتوثيق واجهة برمجة التطبيقات الخاصة بك. باتباع هذه الإرشادات، يمكنك إنشاء وثائق احترافية وسهلة الفهم لمطوري API.

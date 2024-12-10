@@ -1,0 +1,93 @@
+# Pagination
+
+Kawkab has built-in support for pagination. You can paginate query results by chaining the `paginate` method.
+
+The `paginate` method takes the page number as the first argument and the number of rows to fetch as the second argument. Internally, we execute an additional query to calculate the total number of rows.
+
+### Basic Usage
+
+```js
+const users = await db.table('users')
+  .where('vote', '>', 1)
+  .paginate(2, 15); // instanceof Paginator
+
+const users = await User.query()
+  .where('vote', '>', 1)
+  .paginate(1, 15); // instanceof Paginator
+
+const users = await db.table('users')
+  .where('vote', '>', 1)
+  .forPage(2, 15)
+  .get(); // instanceof Array
+
+const users = await User.query()
+  .where('vote', '>', 1)
+  .forPage(1, 15)
+  .get(); // instanceof Collection
+
+users.map(user => {
+  //
+});
+```
+
+If not specified, the number of rows per page defaults to 15. If you are using models, you can also set the `perPage` attribute as the default number of rows per page for each model.
+
+```js
+class Post extends Model {}
+class User extends Model {
+  perPage = 20;
+}
+
+const posts = await Post.query().paginate();
+console.log(posts.perPage()); // 15
+
+const users = await User.query().paginate();
+console.log(users.perPage()); // 20
+```
+
+The `paginate` method returns an instance of `Paginator`. It contains pagination metadata along with the rows that were fetched.
+
+Each instance of `Paginator` provides additional pagination information via the following methods:
+
+| Method                     | Description                                                |
+| -------------------------- | ---------------------------------------------------------- |
+| `paginator.count()`         | Get the number of items for the current page.              |
+| `paginator.currentPage()`   | Get the current page number.                               |
+| `paginator.hasMorePages()`  | Check if there are more items in the data store.           |
+| `paginator.items()`         | Get the items for the current page.                        |
+| `paginator.lastPage()`      | Get the last available page number.                        |
+| `paginator.perPage()`       | The number of items to display per page.                   |
+| `paginator.total()`         | Get the total number of matching items in the data store. |
+
+### Conversions to Object/JSON
+
+You can also serialize the paginated results to an object/JSON by calling the `toData` or `toJson` method. By default, it returns the keys in snake_case format. However, you can pass a naming strategy to override the default convention.
+
+```JSON
+{
+  "total": 45,
+  "per_page": 15,
+  "current_page": 1,
+  "last_page": 3,
+  "count": 15,
+  "data": [
+    {
+      // Record...
+    },
+    {
+      // Record...
+    }
+  ]
+}
+```
+
+The paginator will automatically convert it to JSON when serialized to a string, so it can be used directly in your application's route or controller. Your express/Koa application will automatically serialize JSON:
+
+```js
+const users = await User.query().paginate(req.query.page || 1);
+
+return res.ok({
+    "status": true,
+    "users": users
+});
+```

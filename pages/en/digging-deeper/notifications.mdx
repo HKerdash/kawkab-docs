@@ -1,0 +1,76 @@
+---
+title: Notification System in Kawkab
+description: A comprehensive guide to using the notification system in your app with the Kawkab framework.
+---
+
+# Notification System in Kawkab
+
+The **notification system** in the **Kawkab** framework provides a simple yet powerful API for sending and managing notifications in your app. The system supports sending notifications through multiple channels such as email, SMS, and in-app notifications.
+
+## Getting Started with the Notification System
+
+### Creating a New Notification
+
+You can create a new notification using the built-in CLI command in Kawkab:
+
+```bash
+npm run kawkab notification:make SendWelcomeNotification
+```
+
+### **Parameter Details:**
+
+- **`<name>`**: The name of the Notification you want to create.
+- **`[module]`**: The name of the module containing the Action (optional, default is `main`).
+
+---
+
+Example:
+
+```bash
+npm run kawkab notification:make <name> [module]
+```
+
+This command will generate a new notification file in the `notifications` folder with the required basic structure.
+
+### Basic Notification Structure
+
+```typescript
+import { BaseNotification, mail } from "kawkab";
+
+export class SendOtpCodeNotification extends BaseNotification {
+  static async via() {
+    await this.email();
+  }
+
+  static async email() {
+    await mail.send({
+      to: this.data.email,
+      subject: "Hello!",
+      body: "Welcome to our app!",
+    });
+  }
+}
+```
+
+## Key Features
+
+### Defining Delivery Channels
+
+You can define one or more channels for sending the notification through the `via()` function:
+
+```typescript
+static async via() {
+    await this.email();
+}
+```
+
+## Best Practices
+
+1. **Separation of Logic**: Ensure you separate the notification logic from the rest of the application logic.
+2. **Use Templates**: Use templates for recurring messages to simplify maintenance and updates.
+3. **Error Handling**: Implement appropriate error handling and log important events.
+4. **Test Notifications**: Write tests to ensure the notification system works correctly.
+
+## Conclusion
+
+The notification system in Kawkab provides a flexible and powerful solution for managing and sending notifications in your app. With support for multiple channels and custom templates, you can easily implement any specific notification requirements for your application.

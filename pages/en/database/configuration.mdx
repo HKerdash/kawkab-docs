@@ -1,0 +1,137 @@
+---
+title: Database Configuration
+description: A comprehensive guide to setting up and configuring supported databases in the Kawkab framework.
+---
+
+# Database Configuration
+
+## Overview
+
+Kawkab supports many popular database management systems. You can configure database settings through the `.env` file in the main project folder.
+
+## Supported Databases
+
+### MySQL
+The most popular relational database system, ideal for small to medium-sized applications.
+
+```env
+DATABASE_CLIENT=mysql
+DATABASE_HOST=127.0.0.1
+DATABASE_PORT=3306
+DATABASE_USER=root
+DATABASE_PASSWORD=your_password
+DATABASE_NAME=your_database
+```
+
+#### MySQL Features
+- Easy to use and set up
+- Good read performance
+- Extensive community support
+- Suitable for traditional web applications
+
+### PostgreSQL
+An advanced database system with additional features, perfect for complex applications.
+
+```env
+DATABASE_CLIENT=pgsql
+DATABASE_HOST=127.0.0.1
+DATABASE_PORT=5432
+DATABASE_USER=postgres
+DATABASE_PASSWORD=your_password
+DATABASE_NAME=your_database
+```
+
+#### PostgreSQL Features
+- Support for advanced data types
+- Advanced text search capabilities
+- Better handling of concurrency
+- Suitable for enterprise-level applications
+
+### SQLite
+A lightweight database that operates as a single file, ideal for development and small applications.
+
+```env
+DATABASE_CLIENT=sqlite
+DATABASE_NAME=database/database.sqlite
+```
+
+#### SQLite Features
+- No need for a separate server
+- Easy to transfer and back up
+- Ideal for development and testing
+- Suitable for mobile applications
+
+## Connection Settings
+
+### Basic Settings
+
+```env
+# Database type
+DATABASE_CLIENT=mysql
+
+# Connection details
+DATABASE_HOST=127.0.0.1
+DATABASE_PORT=3306
+DATABASE_USER=root
+DATABASE_PASSWORD=your_password
+DATABASE_NAME=your_database
+```
+
+### Settings Explanation
+
+| Setting             | Description                 | Possible Values         |
+|---------------------|-----------------------------|-------------------------|
+| `DATABASE_CLIENT`    | Database type               | `mysql`, `pgsql`, `sqlite` |
+| `DATABASE_HOST`      | Server address              | IP or domain name       |
+| `DATABASE_PORT`      | Connection port             | Port number             |
+| `DATABASE_USER`      | Username                    | String                  |
+| `DATABASE_PASSWORD`  | Password                    | String                  |
+| `DATABASE_NAME`      | Database name               | String                  |
+
+## Best Practices
+
+### 1. Security
+- Do not store passwords in version control
+- Use a database user with limited privileges
+- Encrypt connections in the production environment
+
+### 2. Performance
+- Adjust the connection pool size based on your app's needs
+- Use indexes appropriately
+- Monitor query performance
+
+### 3. Backups
+- Set up regular backups
+- Test backup restoration
+- Keep backups in different locations
+
+## Common Issues and Solutions
+
+### Connection Issue
+```bash
+# Ensure the database server is running
+sudo service mysql status
+
+# Verify connection details
+mysql -u root -p
+```
+
+### Permission Issue
+```sql
+-- Grant privileges to the user
+GRANT ALL PRIVILEGES ON database_name.* TO 'user'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+## Conclusion
+
+Database setup in Kawkab:
+- Flexible and supports multiple systems
+- Easy to configure via the `.env` file
+- Customizable based on project needs
+
+Final Tips:
+- Choose the right database type for your project
+- Follow security best practices
+- Document your database settings
+- Keep regular backups

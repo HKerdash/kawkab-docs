@@ -1,0 +1,227 @@
+---
+title: "Welcome to Kawkab Planet"
+description: "The integrated framework for developing backend applications with ease and power!"
+---
+
+# 🌟 **Welcome to Kawkab Planet**
+
+**Kawkab Planet** is a modern, free, and open-source framework designed to empower developers to build high-performance backend applications with ease and efficiency. We focus on providing a flexible, secure, and user-friendly development environment, making **Kawkab Planet** the ideal choice for developers aiming to build **APIs** efficiently and effectively.
+
+---
+
+## **What is Kawkab Planet?**
+**Kawkab Planet** is a framework based on **TypeScript**, primarily targeting the rapid and secure building of **APIs**. Whether you are building a simple application or a complex system, the framework provides you with the necessary tools to achieve your goals quickly and professionally.
+
+### **How to Get Started Quickly with Kawkab?**
+Here is a quick example of how to set up your first API using **Kawkab Planet**:
+
+```typescript showLineNumbers copy {6-9}
+import { BaseController } from "kawkab";
+
+export default class extends BaseController
+ {
+    get() {
+        return {
+            status: true,
+            message: "Welcome to Kawkab Framework 🚀!",
+        }
+    }
+}
+```
+
+### **Key Features of Kawkab Planet**
+
+#### 🏗️ **Advanced HMVC Structure**
+Kawkab Planet is based on **Hierarchical Model-View-Controller (HMVC)**, a robust structure that provides hierarchical organization of code, making it easy to manage large applications and achieve effective maintenance.
+
+#### 📂 **File-Based Routing**
+Easily organize routes based on the file structure, increasing the speed and ease of application development.
+
+#### ✨ **Full TypeScript Support**
+With TypeScript, you can write safer and more organized code, with type-checking support during development, improving code accuracy and helping you avoid errors.
+
+#### 🚀 **Batteries-Included Framework**
+Kawkab Planet provides a comprehensive set of tools that include:
+- Route and controller management.
+- Automatic API documentation.
+- Database support and management.
+- Built-in performance optimization.
+- Testing tools for code quality.
+- And much more!
+
+#### 🔒 **Strong Security**
+Kawkab Planet comes equipped with advanced security tools to protect your application from common attacks such as **SQL Injection** and **XSS**, along with an integrated authentication and authorization system.
+
+#### ✅ **Integrated Validation System**
+The framework provides powerful tools for validating inputs, helping to ensure data quality and security.
+
+#### 🌍 **Multilingual Support**
+Kawkab Planet makes it easy to create applications that support multiple languages, facilitating expansion to cover multiple markets.
+
+#### 💾 **Database Management**
+Kawkab Planet supports a powerful **ORM**, making it easy to handle complex queries and simplify data management.
+
+#### 🚀 **Flexibility and Scalability**
+The framework is designed to be flexible and scalable, allowing you to build small applications or large systems while maintaining high performance.
+
+---
+
+## **Contribute to Kawkab Planet!**
+**Kawkab Planet** was developed by **@Hassan Kerdash**, with the goal of providing an open-source tool that makes it easy for developers to build high-quality backend applications. We are grateful to the contributors who help develop the framework and make it a powerful tool for developers worldwide.
+To follow the development and contribute to the project, you can visit the [Kawkab Planet GitHub repository](https://github.com/HassanKerdash/kawkab).
+
+### **How to Contribute?**
+- **Add New Features**: Come up with new ideas to improve the framework's performance.
+- **Report Bugs**: Help improve the framework by pointing out issues you encounter.
+- **Improve Documentation**: Write clear guides for new developers.
+
+**Practical Steps to Contribute**:
+1. Fork the repository.
+2. Add the modifications or features you want to include.
+3. Open a **Pull Request** for review of the changes.
+
+### **Prominent Contributors and Developers**
+
+<div style={{
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+  gap: '20px',
+  textAlign: 'center',
+  marginTop: '16px',
+  padding: '20px',
+}}>
+  {[
+    { name: 'Nermin Gad', img: '/contributors/1446-05-21-22-12-00-5b2f8138.jpg' },
+    { name: 'Mahmoud ElSayed', img: '/contributors/555656543454465434544.png' },
+    { name: 'Ahmed Alnamr', img: '/contributors/555454465656543544.png' },
+    { name: 'Waheed Wael', img: '/contributors/556565434544.png' },
+  ].map((contributor, index) => (
+    <div key={index} style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      transition: 'transform 0.3s, opacity 0.3s',
+    }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'scale(1.05)';
+        e.currentTarget.style.opacity = '0.9';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'scale(1)';
+        e.currentTarget.style.opacity = '1';
+      }}
+    >
+      <div style={{
+        width: '100px',
+        height: '100px',
+        borderRadius: '50%',
+        overflow: 'hidden',
+        marginBottom: '10px',
+        border: '4px solid #007BFF',
+      }}>
+        <img
+          src={contributor.img}
+          alt={contributor.name}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          }}
+        />
+      </div>
+      <p style={{
+        fontSize: '16px',
+        fontWeight: 'bold',
+        marginTop: '8px',
+      }}>{contributor.name}</p>
+    </div>
+  ))}
+</div>
+
+### **Supporters**
+
+<div style={{
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+  gap: '30px',
+  textAlign: 'center',
+  marginTop: '20px',
+  padding: '20px',
+}}>
+  {[
+    { name: 'Tiqniaat', img: '/brands/tiqniaat.png' },
+  ].map((company, index) => (
+    <div key={index} style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+    }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'scale(1.05)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'scale(1)';
+      }}
+    >
+      <div style={{
+        width: '120px',
+        height: '120px',
+        overflow: 'hidden',
+        marginBottom: '12px',
+        border: '2px solid #007BFF',
+        borderRadius: '16px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#f5f5f5',
+      }}>
+        <img
+          src={company.img}
+          alt={company.name}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+          }}
+        />
+      </div>
+      <p style={{
+        fontSize: '16px',
+        fontWeight: 'bold',
+        marginTop: '8px',
+      }}>{company.name}</p>
+    </div>
+  ))}
+</div>
+
+---
+
+## **Financial Support**
+If you wish to financially support **Kawkab Planet**, this helps us:
+- Improve the framework and develop new features.
+- Enhance the framework's security and provide continuous updates.
+- Cover hosting costs and services related to the project.
+
+### **Ways to Support**:
+- [**Donate via PayPal**](#) - Direct financial support.
+- [**Support us on Patreon**](#) - Join the community and support us in developing the framework.
+- **Promotional Support**: Share Kawkab Planet with your developer friends and colleagues.
+
+---
+
+## **Get Started Now!**
+**Start your journey with Kawkab Planet today** and enjoy an easy and advanced development experience!
+
+- 🌟 [**Give us a star on GitHub**](#) if you like the framework to support our efforts.
+- 🌍 Share the framework with your developer friends and colleagues and help them discover it.
+- 🤝 Join the Kawkab Planet community and contribute to building the future of development!
+
+---
+
+### **Special Thanks**
+We extend our thanks to everyone who has contributed, shared, or promoted Kawkab Planet. Every contribution is valuable and appreciated, and the contributor's name is mentioned in the project's honor list.
+
+- Thank you
+
+> **Start with Kawkab Planet today and make your applications and API building more powerful and professional!** 🚀

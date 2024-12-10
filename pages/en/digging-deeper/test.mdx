@@ -1,0 +1,284 @@
+---
+title: Tests in Kawkab Kawkab  
+description: A comprehensive guide to writing and executing tests in the Kawkab Kawkab framework, covering unit and integration tests with best practices and practical examples.  
+---
+
+# Tests in Kawkab Kawkab
+
+**Tests** are a vital part of software development in the **Kawkab Kawkab** framework. They help ensure the quality and reliability of the code and facilitate early bug detection during the development cycle.
+
+---
+
+## Types of Tests
+
+In Kawkab Kawkab, there are two main types of tests:
+
+### 1. **Unit Tests**
+
+- Test small units of code in isolation
+- Focus on a single function or class
+- Fast to execute and easy to maintain
+
+### 2. **Integration Tests**
+
+- Test the interaction between multiple components
+- Verify the entire workflow
+- More comprehensive than unit tests
+
+---
+
+## Test Structure
+
+### **File Structure**
+
+```
+/app
+  /main
+    /test
+      /unit          # Unit Tests
+      /integration   # Integration Tests
+```
+
+---
+
+## Writing Unit Tests
+
+### **Example of a Unit Test**
+
+```typescript
+import { BasicMath } from "../BasicMath";
+
+describe("BasicMath", () => {
+  let math: BasicMath;
+
+  beforeEach(() => {
+    math = new BasicMath();
+  });
+
+  test("should add two numbers correctly", () => {
+    expect(math.add(2, 3)).toBe(5);
+  });
+
+  test("should subtract two numbers correctly", () => {
+    expect(math.subtract(5, 3)).toBe(2);
+  });
+});
+```
+
+### **Explanation of Components:**
+
+1. **`describe`**: Groups related tests together
+2. **`beforeEach`**: Executes before each test
+3. **`test`**: Defines a single test case
+4. **`expect`**: Verifies the expected outcome
+
+---
+
+## Writing Integration Tests
+
+### **Example of an Integration Test**
+
+```typescript
+describe("User Registration Flow", () => {
+  let connectToDatabase: () => Promise<void>;
+  let disconnectFromDatabase: () => Promise<void>;
+  let registerUser: (user: {
+    username: string;
+    email: string;
+  }) => Promise<{
+    status: boolean;
+    user?: { username: string; email: string };
+  }>;
+
+
+  beforeAll(async () => {
+    // Set up database connection functions
+    connectToDatabase = async () => {
+      // Simulate database connection
+      console.log("Database connected");
+    };
+
+    disconnectFromDatabase = async () => {
+      // Simulate disconnecting from the database
+      console.log("Database disconnected");
+    };
+
+    registerUser = async (user) => {
+      // Simulate registration process
+      if (user.username && user.email) {
+        return { status: true, user };
+      }
+      return { status: false };
+    };
+
+    // Connect to the database
+    await connectToDatabase();
+  });
+
+  afterAll(async () => {
+    // Disconnect from the database
+    await disconnectFromDatabase();
+  });
+
+  test("should register a new user successfully", async () => {
+    const user = {
+      username: "test_user",
+      email: "test@example.com",
+    };
+
+    const response = await registerUser(user);
+    expect(response.status).toBe(true);
+    expect(response.user).toBeDefined();
+    expect(response.user?.username).toBe(user.username);
+    expect(response.user?.email).toBe(user.email);
+  });
+});
+```
+
+### **Explanation of Components:**
+
+1. **`beforeAll`**: Executes once before all tests
+2. **`afterAll`**: Executes once after all tests
+3. **`async/await`**: Used for handling asynchronous operations
+
+---
+
+## Running Tests
+
+### **Run All Tests**
+
+```bash
+npm run test
+```
+
+### **Run Specific Tests**
+
+```bash
+npm run test -- path/to/test
+```
+
+### **Run in Watch Mode**
+
+```bash
+npm run test -- --watch
+```
+
+---
+
+## Test Creation Commands
+
+### **Create a New Integration Test**
+
+```bash
+npm run kawkab test:integration <name> [module]
+```
+
+### **Create a New Unit Test**
+
+```bash
+npm run kawkab test:unit <name> [module]
+```
+
+### **Parameter Details:**
+
+- **`<name>`**: The name of the test you want to create.
+- **`[module]`**: The name of the module containing the action (optional, default is `main`).
+
+---
+
+## Best Practices
+
+### 1. **Naming Tests**
+
+- Use clear and descriptive names
+- Follow the "should do something" pattern
+
+```typescript
+test("should return user details when valid ID is provided", () => {
+  // ...
+});
+```
+
+### 2. **Organizing Tests**
+
+- Group related tests within a single `describe` block
+- Use nested `describe` for better organization
+
+### 3. **Test Setup**
+
+- Use `beforeEach` to set up initial state
+- Clean up data after each test using `afterEach`
+
+### 4. **Coverage**
+
+- Test both positive and negative cases
+- Ensure all logical paths are covered
+
+---
+
+## Handling Errors
+
+### **Test for Exceptions**
+
+```typescript
+test("should throw error for invalid input", () => {
+  expect(() => {
+    math.divide(1, 0);
+  }).toThrow("Cannot divide by zero");
+});
+```
+
+### **Test for Promises**
+
+```typescript
+test("should resolve with user data", async () => {
+  const data = await userService.fetch(1);
+  expect(data).toBeDefined();
+});
+```
+
+---
+
+## Mocks
+
+### **Create a Mock Object**
+
+```typescript
+const mockDatabase = {
+  query: jest.fn().mockResolvedValue({ rows: [] }),
+};
+```
+
+### **Verify Calls**
+
+```typescript
+test("should call database once", async () => {
+  await userService.getUsers();
+  expect(mockDatabase.query).toHaveBeenCalledTimes(1);
+});
+```
+
+---
+
+## Coverage Reports
+
+### **Run Coverage Report**
+
+```bash
+npm run test:coverage
+```
+
+### **Interpreting Results**
+
+- **Statements**: Percentage of statements covered
+- **Branches**: Percentage of logical branches covered
+- **Functions**: Percentage of functions tested
+- **Lines**: Percentage of lines covered
+
+---
+
+## Conclusion
+
+Tests in Kawkab Kawkab provide an organized and efficient way to ensure code quality. By following these guidelines and best practices, you can build a robust test suite that helps in confidently developing and maintaining your application.
+
+💡 **Remember: Good tests lead to better code and more reliable applications!**

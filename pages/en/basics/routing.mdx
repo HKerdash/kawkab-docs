@@ -1,0 +1,200 @@
+---
+title: Routing in Kawkab Framework
+description: A comprehensive guide to understanding routing in the Kawkab framework and how to create static, dynamic, and optional routes.
+---
+
+# **Routing in Kawkab Framework**
+
+The **Kawkab Framework** provides a flexible file-based routing system. You can easily create static, dynamic, and optional routes using a simple and clear file structure.
+
+---
+
+## **Types of Routes**
+
+### **1. Static Routes**
+Static routes are used for fixed paths that don't contain variables.  
+**Example:**
+
+```plaintext
+main/controllers/
+├── index.ts       // Route: /
+├── settings.ts    // Route: /settings
+```
+
+### **2. Dynamic Routes**
+Dynamic routes represent paths containing variables defined using square brackets:
+```plaintext
+main/controllers/
+├── blog/
+│   ├── index.ts   // Route: /blog
+│   └── [slug].ts  // Route: /blog/:slug
+```
+- **`[slug].ts`:** Handles dynamic requests like `/blog/my-post`.
+
+### **3. Optional Routes**
+Optional routes are created using curly braces `{}`. The variable inside the braces is dynamic but optional, meaning the path can be left empty.
+  
+```plaintext
+main/controllers/
+├── {id}.ts        // Route: /:id (optional)
+```
+- **`{id}.ts`:** Handles requests like `/123` or `/profile` or even `/` without an ID value.
+
+### **4. Fallback Routes**
+Used to handle all requests that don't match other routes.
+```plaintext
+main/controllers/
+└── [...].ts       // Route: /*
+```
+
+---
+
+## **Retrieving Variables in Kawkab**
+
+When using dynamic routes like `[slug].ts` or optional routes like `{id}.ts`, variables can be retrieved using the `req.var()` or `req.vars()` methods.
+
+### **Example with Dynamic Route:**
+
+```ts
+import { BaseController, res, req } from "kawkab";
+
+export default class Controller extends BaseController {
+    async get() {
+        const slug = req.var('slug');  // Get variable from dynamic route
+        if (slug) {
+            return res.ok({ status: true, message: `Article found: ${slug}` });
+        } else {
+            return res.ok({ status: true, message: "Article not found." });
+        }
+    }
+}
+```
+
+- **`req.var('slug')`:** Retrieves the variable named `slug` from the path `/blog/:slug`.
+
+### **Example with Optional Route:**
+
+```ts
+import { BaseController, res, req } from "kawkab";
+
+export default class Controller extends BaseController {
+    async get() {
+        const { id } = req.vars();  // Get all variables or specify a particular one
+        if (id) {
+            return res.ok({ status: true, message: `ID found: ${id}` });
+        } else {
+            return res.ok({ status: true, message: "No ID specified." });
+        }
+    }
+}
+```
+
+- **`req.vars()`:** Returns all variables as an object, and you can access variables using `id` or any other name.
+
+### **Retrieving Variables in Fallback Routes**
+
+When using fallback routing to handle all unmatched requests, we can also retrieve variables using the `req.var()` method. In this case, the available values will be an array where all unmatched path segments are passed as a single value.
+
+#### **Example with Fallback Route:**
+
+```ts
+import { BaseController, res, route, req } from "kawkab";
+
+export default class Controller extends BaseController {
+    static fallback() {
+        route.setFallback(() => {
+            const wildcard = req.var("wildcard");  // Get variable from fallback route
+            return res.ok({
+                status: true,
+                message: `Handled unmatched request. Values: ${wildcard}`
+            });
+        });
+    }
+}
+```
+
+- **`req.var("wildcard")`:** Retrieves the variable containing all unmatched path segments. This variable will be an array containing the segments that didn't match any static or dynamic route.
+
+### **Expected Results:**
+- In dynamic and optional routes:
+    - When requesting `/blog/my-post`, the `slug` variable will be retrieved and routed to the appropriate handler.
+    - When requesting `/profile/123`, it will retrieve the `id` variable if available.
+- In fallback routes:
+    - When requesting `/random/path/to/resource`, it will retrieve the `wildcard` variable containing all unmatched segments, like `["random", "path", "to", "resource"]`.
+
+---
+
+## **Fallback Routing**
+
+### **Purpose**
+Fallback routing is used to handle requests that don't match any other routes, such as displaying a 404 error page.
+
+### **How to Set Up Fallback Routing**
+```ts
+import { BaseController, res, route } from "kawkab";
+
+export default class Controller extends BaseController {
+    static fallback() {
+        route.setFallback(() => {
+            return res.notFound({
+                status: false,
+                message: "Page not found!"
+            });
+        });
+    }
+}
+```
+
+---
+
+## **Error Settings in `configuration.ts`**
+
+### **1. Server Error Settings**
+Server errors in the application are managed using the following settings:
+```ts
+app: {
+    serverError: {
+        enable: true,  // Enable or disable server error handling
+        debug: env.bool('APP_DEBUG'),  // Enable debug mode for errors
+        code: "server_error",  // Custom error code
+        message: env.bool('APP_DEBUG') ? 'Server Error' : 'An unexpected error occurred',  // Error message
+    }
+}
+```
+
+- **`serverError.enable`**: Enable or disable server error handling.
+- **`serverError.debug`**: Determine whether to show error details in debug mode (typically during development).
+- **`serverError.code`**: Set custom error code (e.g., `server_error`).
+- **`serverError.message`**: Set error message to display, changing based on debug mode.
+
+### **2. 404 Error Settings**
+404 errors (path not found) in the application are managed using the following settings:
+```ts
+app: {
+    notFound: {
+        enable: true,  // Enable or disable 404 error display
+        code: "not_found",  // Custom error code
+        message: 'Not found',  // Error message
+    }
+}
+```
+
+- **`notFound.enable`**: Enable or disable 404 error display.
+- **`notFound.code`**: Set custom error code (like `not_found`).
+- **`notFound.message`**: Set 404 error message, such as "Not found".
+
+---
+
+## **Summary of Routes in Kawkab**
+
+### **File Structure and Their Routes**
+
+```plaintext
+main/controllers/
+├── index.ts         // Route: /
+├── settings.ts      // Route: /settings
+├── blog/
+│   ├── index.ts     // Route: /blog
+│   └── [slug].ts    // Route: /blog/:slug
+├── {id}.ts          // Route: /:id (optional)
+└── [...].ts         // Route: /* (fallback)

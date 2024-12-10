@@ -1,0 +1,182 @@
+# التعامل مع الأرقام في كوكب Kawkab
+
+يمكنك استيراد كلاس `Number` من كوكب Kawkab كما يلي:
+
+```javascript
+import { number } from "kawkab";
+```
+
+تحتوي كلاس `Number` على العديد من الدوال التي تسهل التعامل مع الأرقام. فيما يلي توثيق لكل دالة مع أمثلة على كيفية استخدامها:
+
+### 1. `add(a: number, b: number): number`
+يضيف رقمين معًا.
+**مثال:**
+```javascript
+const result = number.add(5, 3);
+console.log(result); // النتيجة: 8
+```
+
+### 2. `subtract(a: number, b: number): number`
+يطرح رقمًا من آخر.
+**مثال:**
+```javascript
+const result = number.subtract(10, 4);
+console.log(result); // النتيجة: 6
+```
+
+### 3. `multiply(a: number, b: number): number`
+يضاعف رقمين.
+**مثال:**
+```javascript
+const result = number.multiply(3, 4);
+console.log(result); // النتيجة: 12
+```
+
+### 4. `divide(a: number, b: number): number`
+يقسم رقمًا على آخر. إذا كان المقسوم عليه صفرًا، سيتم طرح خطأ.
+**مثال:**
+```javascript
+const result = number.divide(20, 5);
+console.log(result); // النتيجة: 4
+```
+**مثال في حال كان المقسوم عليه صفر:**
+```javascript
+try {
+    number.divide(10, 0);
+} catch (error) {
+    console.error(error.message); // "Division by zero."
+}
+```
+
+### 5. `remainder(a: number, b: number): number`
+يحسب باقي القسمة.
+**مثال:**
+```javascript
+const result = number.remainder(17, 5);
+console.log(result); // النتيجة: 2
+```
+
+### 6. `isEven(num: number): boolean`
+يتحقق ما إذا كان الرقم زوجيًا.
+**مثال:**
+```javascript
+console.log(number.isEven(4)); // النتيجة: true
+console.log(number.isEven(7)); // النتيجة: false
+```
+
+### 7. `isOdd(num: number): boolean`
+يتحقق ما إذا كان الرقم فرديًا.
+**مثال:**
+```javascript
+console.log(number.isOdd(3)); // النتيجة: true
+console.log(number.isOdd(8)); // النتيجة: false
+```
+
+### 8. `isPositive(num: number): boolean`
+يتحقق ما إذا كان الرقم موجبًا.
+**مثال:**
+```javascript
+console.log(number.isPositive(5)); // النتيجة: true
+console.log(number.isPositive(-2)); // النتيجة: false
+```
+
+### 9. `isNegative(num: number): boolean`
+يتحقق ما إذا كان الرقم سالبًا.
+**مثال:**
+```javascript
+console.log(number.isNegative(-3)); // النتيجة: true
+console.log(number.isNegative(1)); // النتيجة: false
+```
+
+### 10. `isZero(num: number): boolean`
+يتحقق ما إذا كان الرقم صفرًا.
+**مثال:**
+```javascript
+console.log(number.isZero(0)); // النتيجة: true
+console.log(number.isZero(1)); // النتيجة: false
+```
+
+### 11. `abs(num: number): number`
+يحسب القيمة المطلقة للرقم.
+**مثال:**
+```javascript
+console.log(number.abs(-5)); // النتيجة: 5
+console.log(number.abs(3)); // النتيجة: 3
+```
+
+### 12. `round(num: number): number`
+يقرب الرقم إلى أقرب عدد صحيح.
+**مثال:**
+```javascript
+console.log(number.round(3.7)); // النتيجة: 4
+console.log(number.round(3.2)); // النتيجة: 3
+```
+
+### 13. `ceil(num: number): number`
+يقرب الرقم إلى أعلى عدد صحيح.
+**مثال:**
+```javascript
+console.log(number.ceil(3.1)); // النتيجة: 4
+console.log(number.ceil(3.9)); // النتيجة: 4
+```
+
+### 14. `floor(num: number): number`
+يقرب الرقم إلى أسفل عدد صحيح.
+**مثال:**
+```javascript
+console.log(number.floor(3.9)); // النتيجة: 3
+console.log(number.floor(3.1)); // النتيجة: 3
+```
+
+### 15. `min(a: number, b: number): number`
+يعيد أصغر رقم من بين رقمين.
+**مثال:**
+```javascript
+console.log(number.min(5, 3)); // النتيجة: 3
+console.log(number.min(-1, 1)); // النتيجة: -1
+```
+
+### 16. `max(a: number, b: number): number`
+يعيد أكبر رقم من بين رقمين.
+**مثال:**
+```javascript
+console.log(number.max(5, 3)); // النتيجة: 5
+console.log(number.max(-1, 1)); // النتيجة: 1
+```
+
+### 17. `random(min: number, max: number): number`
+ينشئ عددًا عشوائيًا بين قيمتين محددتين.
+**مثال:**
+```javascript
+console.log(number.random(1, 10)); // عدد عشوائي بين 1 و 10
+```
+
+### 18. `degToRad(degrees: number): number`
+يحويل الدرجات إلى راديان.
+**مثال:**
+```javascript
+console.log(number.degToRad(180)); // النتيجة: 3.141592653589793
+```
+
+### 19. `radToDeg(radians: number): number`
+يحويل الراديان إلى درجات.
+**مثال:**
+```javascript
+console.log(number.radToDeg(Math.PI)); // النتيجة: 180
+```
+
+### 20. `format(num: number, precision: number = 2): string`
+يُنسق الرقم بدقة معينة (الدقة الافتراضية هي 2).
+**مثال:**
+```javascript
+console.log(number.format(3.14159)); // النتيجة: "3.14"
+console.log(number.format(3.14159, 4)); // النتيجة: "3.1416"
+```
+
+### 21. `inRange(num: number, min: number, max: number): boolean`
+يتحقق ما إذا كان الرقم ضمن نطاق محدد.
+**مثال:**
+```javascript
+console.log(number.inRange(5, 1, 10)); // النتيجة: true
+console.log(number.inRange(15, 1, 10)); // النتيجة: false
+```

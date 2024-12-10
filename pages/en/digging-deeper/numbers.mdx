@@ -1,0 +1,187 @@
+---
+title: Handling Numbers in Kawkab
+description: A comprehensive guide to working with numbers using the Kawkab framework.
+---
+
+# Handling Numbers in Kawkab
+
+You can import the `Number` class from Kawkab as follows:
+
+```javascript
+import { number } from "kawkab";
+```
+
+The `Number` class includes many functions that simplify working with numbers. Below is the documentation for each function along with examples of how to use them:
+
+### 1. `add(a: number, b: number): number`
+Adds two numbers together.
+**Example:**
+```javascript
+const result = number.add(5, 3);
+console.log(result); // Output: 8
+```
+
+### 2. `subtract(a: number, b: number): number`
+Subtracts one number from another.
+**Example:**
+```javascript
+const result = number.subtract(10, 4);
+console.log(result); // Output: 6
+```
+
+### 3. `multiply(a: number, b: number): number`
+Multiplies two numbers.
+**Example:**
+```javascript
+const result = number.multiply(3, 4);
+console.log(result); // Output: 12
+```
+
+### 4. `divide(a: number, b: number): number`
+Divides one number by another. If the divisor is zero, it will throw an error.
+**Example:**
+```javascript
+const result = number.divide(20, 5);
+console.log(result); // Output: 4
+```
+**Example when the divisor is zero:**
+```javascript
+try {
+    number.divide(10, 0);
+} catch (error) {
+    console.error(error.message); // "Division by zero."
+}
+```
+
+### 5. `remainder(a: number, b: number): number`
+Calculates the remainder of the division.
+**Example:**
+```javascript
+const result = number.remainder(17, 5);
+console.log(result); // Output: 2
+```
+
+### 6. `isEven(num: number): boolean`
+Checks if a number is even.
+**Example:**
+```javascript
+console.log(number.isEven(4)); // Output: true
+console.log(number.isEven(7)); // Output: false
+```
+
+### 7. `isOdd(num: number): boolean`
+Checks if a number is odd.
+**Example:**
+```javascript
+console.log(number.isOdd(3)); // Output: true
+console.log(number.isOdd(8)); // Output: false
+```
+
+### 8. `isPositive(num: number): boolean`
+Checks if a number is positive.
+**Example:**
+```javascript
+console.log(number.isPositive(5)); // Output: true
+console.log(number.isPositive(-2)); // Output: false
+```
+
+### 9. `isNegative(num: number): boolean`
+Checks if a number is negative.
+**Example:**
+```javascript
+console.log(number.isNegative(-3)); // Output: true
+console.log(number.isNegative(1)); // Output: false
+```
+
+### 10. `isZero(num: number): boolean`
+Checks if a number is zero.
+**Example:**
+```javascript
+console.log(number.isZero(0)); // Output: true
+console.log(number.isZero(1)); // Output: false
+```
+
+### 11. `abs(num: number): number`
+Calculates the absolute value of a number.
+**Example:**
+```javascript
+console.log(number.abs(-5)); // Output: 5
+console.log(number.abs(3)); // Output: 3
+```
+
+### 12. `round(num: number): number`
+Rounds a number to the nearest integer.
+**Example:**
+```javascript
+console.log(number.round(3.7)); // Output: 4
+console.log(number.round(3.2)); // Output: 3
+```
+
+### 13. `ceil(num: number): number`
+Rounds a number up to the nearest integer.
+**Example:**
+```javascript
+console.log(number.ceil(3.1)); // Output: 4
+console.log(number.ceil(3.9)); // Output: 4
+```
+
+### 14. `floor(num: number): number`
+Rounds a number down to the nearest integer.
+**Example:**
+```javascript
+console.log(number.floor(3.9)); // Output: 3
+console.log(number.floor(3.1)); // Output: 3
+```
+
+### 15. `min(a: number, b: number): number`
+Returns the smaller of two numbers.
+**Example:**
+```javascript
+console.log(number.min(5, 3)); // Output: 3
+console.log(number.min(-1, 1)); // Output: -1
+```
+
+### 16. `max(a: number, b: number): number`
+Returns the larger of two numbers.
+**Example:**
+```javascript
+console.log(number.max(5, 3)); // Output: 5
+console.log(number.max(-1, 1)); // Output: 1
+```
+
+### 17. `random(min: number, max: number): number`
+Generates a random number between two specified values.
+**Example:**
+```javascript
+console.log(number.random(1, 10)); // Random number between 1 and 10
+```
+
+### 18. `degToRad(degrees: number): number`
+Converts degrees to radians.
+**Example:**
+```javascript
+console.log(number.degToRad(180)); // Output: 3.141592653589793
+```
+
+### 19. `radToDeg(radians: number): number`
+Converts radians to degrees.
+**Example:**
+```javascript
+console.log(number.radToDeg(Math.PI)); // Output: 180
+```
+
+### 20. `format(num: number, precision: number = 2): string`
+Formats a number to a specified precision (default is 2).
+**Example:**
+```javascript
+console.log(number.format(3.14159)); // Output: "3.14"
+console.log(number.format(3.14159, 4)); // Output: "3.1416"
+```
+
+### 21. `inRange(num: number, min: number, max: number): boolean`
+Checks if a number is within a specified range.
+**Example:**
+```javascript
+console.log(number.inRange(5, 1, 10)); // Output: true
+console.log(number.inRange(15, 1, 10)); // Output: false
+```

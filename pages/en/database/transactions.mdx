@@ -1,0 +1,65 @@
+# Handling Transactions (Transactions)
+
+You can use the `transaction` method available in the Sutando connection to execute a set of operations within a database transaction. If an exception occurs within the transaction's closure, the transaction will automatically be rolled back and the exception will be rethrown. If the closure is executed successfully, the transaction will be automatically committed. There is no need to worry about manually rolling back or committing when using the `transaction` method:
+
+```js
+import { db } from "kawkab";
+
+await db.transaction(async (trx) => {
+  await User.query().transacting(trx).create(/* ... */);
+
+  await db.table('users').transacting(trx).insert(/* ... */);
+
+  const user = new User;
+  user.name = 'Sally';
+
+  await user.save({
+    client: trx,
+  });
+});
+```
+
+#### Using Transactions Manually
+
+If you want to start a transaction manually and have full control over rolling back and committing, you can use the `beginTransaction` method available through `sutando`:
+
+```js
+import { db } from "kawkab";
+
+const trx = await db.beginTransaction();
+```
+
+You can roll back the transaction using the `rollback` method:
+
+```js
+await trx.rollback();
+```
+
+Finally, you can commit the transaction using the `commit` method:
+
+```js
+await trx.commit();
+```
+
+Here is a complete example:
+
+```js
+import { db } from "kawkab";
+
+const trx = await db.beginTransaction();
+
+try {
+  const user = new User;
+  user.name = 'Sally';
+
+  await user.save({
+    client: trx,
+  });
+
+  await trx.commit();
+} catch (e) {
+  await trx.rollback();
+
+  console.log(e.stack);
+}
+```

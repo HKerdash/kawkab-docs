@@ -1,0 +1,642 @@
+# إدارة طلبات HTTP في كوكب Kawkab
+
+كوكب **Kawkab** يقدم كائن `Request` الذي يتيح لك التعامل مع بيانات الطلبات HTTP بسهولة وفعالية. باستخدام هذا الكائن، يمكنك الوصول إلى مدخلات النموذج، قراءة الملفات المرفقة، وتحميلها إلى مجلدات مختلفة.
+
+## الوصول إلى البيانات
+
+### الوصول إلى مدخلات الطلب
+يمكنك استخدام `request.input` للحصول على قيمة أي مدخل من البيانات المرسلة عبر الطلب. أو يمكن استخدام `req` المختصرة أيضًا.
+
+#### مثال:
+
+```ts
+import { req } from "kawkab";
+
+// استرجاع قيمة المدخل "username"
+const username = req.input('username');
+console.log(username);
+```
+
+---
+
+## إدارة الملفات المرفقة
+
+### تحميل الملفات من الطلب
+يمكنك استخدام `request.file` لاسترجاع الملفات المرفقة في الطلب. عندما يكون لديك عدة ملفات، يمكنك الوصول إليها كصفيف من الملفات.
+
+#### مثال لرفع ملف واحد:
+
+```ts
+import { request } from "kawkab";
+
+// استرجاع الملف المرفق باسم "image"
+const imageFile = request.file('image');
+
+// التحقق إذا كان الملف موجودًا
+if (imageFile) {
+    // نقل الصورة إلى المجلد الخاص
+    const uploadedImage = imageFile.toPrivate();
+    console.log('تم تحميل الصورة بنجاح:', uploadedImage);
+} else {
+    console.log('لم يتم العثور على الملف.');
+}
+```
+
+#### مثال لرفع عدة ملفات:
+عندما يتم رفع عدة ملفات عبر حقل متعدد مثل `images[]`، يمكنك الوصول إليها باستخدام `request.file` كما يلي:
+
+```ts
+import { request } from "kawkab";
+
+// استرجاع الملفات المرفقة باسم "images[]"
+const images = await request.files('images[]');
+
+// التحقق من وجود الملفات
+if (images && images.length > 0) {
+    // نقل كل صورة إلى المجلد العام مع تغيير الاسم
+    images.forEach((image, index) => {
+        const uploadedImage = image.toPublic({
+            name: `image_${index}`,
+            extension: ".jpg"
+        });
+        console.log(`تم تحميل الصورة ${index + 1} بنجاح:`, uploadedImage);
+    });
+} else {
+    console.log('لم يتم العثور على أي ملفات.');
+}
+```
+
+### نقل الملفات إلى المجلدات المختلفة
+
+#### 1. نقل الملف إلى المجلد العام
+استخدم `toPublic` لنقل الملف إلى المجلد العام. يمكنك تخصيص الاسم والامتداد إذا كنت ترغب في تغييرهما.
+
+#### مثال:
+
+```ts
+import { request } from "kawkab";
+
+const imageFile = request.file('image');
+
+// التحقق إذا كان الملف موجودًا
+if (imageFile) {
+    // نقل الصورة إلى المجلد العام مع تغيير الاسم والامتداد
+    const uploadedImage = imageFile.toPublic({
+        name: "profile_picture",
+        extension: ".png"
+    });
+    console.log('تم تحميل الصورة بنجاح إلى المجلد العام:', uploadedImage);
+} else {
+    console.log('لم يتم العثور على الملف.');
+}
+```
+
+#### 2. نقل الملف إلى المجلد الخاص
+استخدم `toPrivate` لنقل الملف إلى المجلد الخاص. يمكنك أيضًا تخصيص اسم الملف عند نقله.
+
+#### مثال:
+
+```ts
+import { request } from "kawkab";
+
+const imageFile = request.file('image');
+
+// التحقق إذا كان الملف موجودًا
+if (imageFile) {
+    // نقل الصورة إلى المجلد الخاص مع تخصيص الاسم
+    const uploadedImage = imageFile.toPrivate({
+        name: "privateFileName"
+    });
+    console.log('تم تحميل الصورة بنجاح إلى المجلد الخاص:', uploadedImage);
+} else {
+    console.log('لم يتم العثور على الملف.');
+}
+```
+
+#### 3. رفع الملف إلى الجذر
+يمكنك استخدام `upload` لنقل الملف إلى الجذر. يمكنك أيضًا تخصيص اسم الملف وامتداده إذا كنت بحاجة إلى ذلك.
+
+#### مثال:
+
+```ts
+import { request } from "kawkab";
+
+const imageFile = request.file('image');
+
+// التحقق إذا كان الملف موجودًا
+if (imageFile) {
+    // رفع الصورة إلى الجذر مع تخصيص الاسم والامتداد
+    const uploadedImage = imageFile.upload({
+        name: "rootFileName",
+        extension: ".jpg"
+    });
+    console.log('تم رفع الصورة بنجاح إلى الجذر:', uploadedImage);
+} else {
+    console.log('لم يتم العثور على الملف.');
+}
+```
+
+---
+
+## تفاصيل الملف
+
+### عرض تفاصيل الملف
+باستخدام الطريقة `details()`, يمكنك الحصول على معلومات حول الملف مثل الاسم، الحجم، الامتداد، ونوع الملف.
+
+#### مثال:
+
+```ts
+import { request } from "kawkab";
+
+const imageFile = request.file('image');
+
+// الحصول على تفاصيل الملف
+if (imageFile) {
+    const details = imageFile.details();
+    console.log(details);
+    // Output: { name: 'example.jpg', baseName: 'example', size: 123456, type: 'image/jpeg', extension: 'jpg' }
+} else {
+    console.log('لم يتم العثور على الملف.');
+}
+```
+
+### الحصول على بيانات الملف كـ Blob
+لاسترجاع محتوى الملف كـ Blob، يمكنك استخدام `blob()`.
+
+#### مثال:
+
+```ts
+import { request } from "kawkab";
+
+const imageFile = request.file('image');
+
+// التحقق إذا كان الملف موجودًا
+if (imageFile) {
+    const fileBlob = imageFile.blob();
+    console.log(fileBlob);
+} else {
+    console.log('لم يتم العثور على الملف.');
+}
+```
+
+---
+
+## خيارات تخصيص نقل الملفات
+
+### واجهة MoveOptions
+توفر واجهة `MoveOptions` خيارات تخصيص متعددة عند نقل الملفات. يمكنك تخصيص المسار، الاسم، والامتداد.
+
+#### الخيارات المتاحة:
+- **`path?: string`**: المسار الذي سيتم نقل الملف إليه.
+- **`name?: string | null`**: اسم مخصص للملف.
+- **`extension?: string | null`**: امتداد مخصص للملف.
+
+---
+
+## أمثلة عملية
+
+### 1. تحميل صورة ونقلها للمجلد العام باسم جديد
+
+```ts
+import { request } from "kawkab";
+
+const imageFile = request.file('image');
+
+// التحقق إذا كان الملف موجودًا
+if (imageFile) {
+    // نقل الصورة مع تغيير الاسم والامتداد
+    const uploadedImage = imageFile.toPublic({
+        name: "profile_picture",
+        extension: ".png"
+    });
+    console.log('تم تحميل الصورة بنجاح إلى المجلد العام:', uploadedImage);
+} else {
+    console.log('لم يتم العثور على الملف.');
+}
+```
+
+### 2. رفع مستند وحفظه في مجلد خاص
+
+```ts
+import { request } from "kawkab";
+
+const documentFile = request.file('document');
+
+// التحقق إذا كان الملف موجودًا
+if (documentFile) {
+    // حفظ الملف في المجلد الخاص باسم مخصص
+    const uploadedDocument = documentFile.toPrivate({
+        name: "user_document"
+    });
+    console.log('تم رفع المستند بنجاح إلى المجلد الخاص:', uploadedDocument);
+} else {
+    console.log('لم يتم العثور على الملف.');
+}
+```
+
+### 3. استعراض بيانات ملف نصي
+
+```ts
+import { request } from "kawkab";
+
+const textFile = request.file('textFile');
+
+// التحقق إذا كان الملف موجودًا
+if (textFile) {
+    const details = textFile.details();
+    console.log(details);
+    // Output: { name: 'example.txt', baseName: 'example', size: 12345, type: 'text/plain', extension: 'txt' }
+} else {
+    console.log('لم يتم العثور على الملف.');
+}
+```
+
+---
+
+## التفاعل مع الرؤوس والبيانات
+
+### 1. الوصول إلى الرؤوس Headers
+
+#### عرض جميع الرؤوس
+يمكنك استرجاع جميع الرؤوس من الطلب باستخدام `request.headers()`.
+
+#### مثال:
+
+```ts
+import { request } from "kawkab";
+
+const allHeaders = request.headers();
+console.log(allHeaders);
+// Output: { 'content-type': 'application/json', 'authorization': 'Bearer ...', ... }
+```
+
+#### الوصول إلى رأس محدد
+باستخدام `request.header(name)`, يمكنك استرجاع رأس معين من الطلب.
+
+#### مثال:
+
+```ts
+import { request } from "kawkab";
+
+const contentType = request.header('content-type', 'text/plain');
+console.log(contentType);
+// Output: 'application/json' or 'text/plain' if not set
+```
+
+#### الوصول إلى رمز Bearer
+إذا كان الطلب يحتوي على رمز Bearer في رأس `Authorization`, يمكنك استرجاعه باستخدام `request.bearerToken()`.
+
+#### مثال:
+
+```ts
+import { request } from "kawkab";
+
+const token = request.bearerToken();
+console.log(token);
+// Output: 'your_token_here' or null if not present
+```
+
+---
+
+### 2. الحصول على عنوان IP للعميل
+
+#### عنوان IP للعميل
+يمكنك استرجاع عنوان IP الخاص بالعميل باستخدام `request.ip()`.
+
+#### مثال:
+
+```ts
+import { request } from "kawkab";
+
+const clientIp = request.ip();
+console.log(clientIp);
+// Output: '192.168.1.1' or null if not found
+```
+
+#### جميع التفاصيل حول طلب HTTP
+إذا كنت بحاجة إلى التفاصيل الكاملة للطلب، يمكن الحصول عليها عبر `request.details()`.
+
+--- 
+
+### التفاوض علي المحتوى Content Negotiation:
+#### 1. استرجاع أنواع المحتوى المقبولة (Get Acceptable Content Types)  
+الدالة: `getAcceptableContentTypes()`  
+الوصف: يسترجع أنواع المحتوى المقبولة من رأس "Accept".  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+const acceptableTypes = request.getAcceptableContentTypes();
+console.log(acceptableTypes);
+// الناتج: ['application/json', 'text/html']
+```
+
+#### 2. التحقق من قبول أنواع المحتوى (Check for Accepted Content Types)  
+الدالة: `accepts(types: string[])`  
+الوصف: يحدد ما إذا كانت الطلبية تقبل أيًا من أنواع المحتوى المحددة.  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+const acceptsJson = request.accepts(['application/json', 'text/html']);
+console.log(acceptsJson);
+// الناتج: 'application/json' أو `false`
+```
+
+#### 3. التحقق من توقع JSON (Check for Expected JSON Response)  
+الدالة: `expectsJson()`  
+الوصف: يتحقق من أن الطلبية تتوقع استجابة بتنسيق JSON.  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+const wantsJson = request.expectsJson();
+console.log(wantsJson);
+// الناتج: `true` أو `false`
+```
+
+#### 4. استرجاع مفاتيح محددة (Retrieve Specific Keys)  
+الدالة: `only(...keys: string[])`  
+الوصف: يسترجع فقط المفاتيح المحددة من الطلبية.  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+const userData = request.only('name', 'email');
+console.log(userData);
+// الناتج: { name: 'John Doe', email: 'john@example.com' }
+```
+
+#### 5. التحقق من وجود مفتاح (Check for Key Presence)  
+الدالة: `has(keys: string | string[])`  
+الوصف: يتحقق مما إذا كانت الطلبية تحتوي على المفتاح المحدد أو المفاتيح.  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+const hasName = request.has('name');
+console.log(hasName);
+// الناتج: `true` أو `false`
+```
+
+#### 6. التحقق من وجود أي مفتاح (Check for Any Key Presence)  
+الدالة: `hasAny(keys: string[])`  
+الوصف: يتحقق مما إذا كانت الطلبية تحتوي على أي من المفاتيح المحددة.  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+const hasNameOrEmail = request.hasAny(['name', 'email']);
+console.log(hasNameOrEmail);
+// الناتج: `true` أو `false`
+```
+
+#### 7. تنفيذ دالة عند وجود مفتاح (Execute Function When Key Exists)  
+الدالة: `whenHas(key: string, callback: (input: any) => void, fallback?: () => void)`  
+الوصف: ينفذ الدالة المُقدمة إذا كانت الطلبية تحتوي على المفتاح المحدد.  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+request.whenHas('email', email => {
+  console.log(`Email provided: ${email}`);
+}, () => {
+  console.log('No email provided');
+});
+```
+
+#### 8. التحقق من وجود قيمة في مفتاح (Check for Filled Key)  
+الدالة: `anyFilled(keys: string[])`  
+الوصف: يتحقق مما إذا كانت أي من المفاتيح المحددة تحتوي على قيمة.  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+const anyFieldFilled = request.anyFilled(['name', 'email']);
+console.log(anyFieldFilled);
+// الناتج: `true` أو `false`
+```
+
+#### 9. تنفيذ دالة عند وجود قيمة في مفتاح (Execute Function When Key is Filled)  
+الدالة: `whenFilled(key: string, callback: (input: any) => void, fallback?: () => void)`  
+الوصف: ينفذ الدالة المُقدمة إذا كانت المفتاح المحدد يحتوي على قيمة.  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+request.whenFilled('username', username => {
+  console.log(`Username is filled: ${username}`);
+}, () => {
+  console.log('Username is not filled');
+});
+```
+
+#### 10. تنفيذ دالة عند غياب مفتاح (Execute Function When Key is Missing)  
+الدالة: `whenMissing(key: string, callback: () => void, fallback?: () => void)`  
+الوصف: ينفذ الدالة المُقدمة إذا كان المفتاح المحدد غير موجود.  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+request.whenMissing('password', () => {
+  console.log('Password is missing');
+}, () => {
+  console.log('Password is present');
+});
+```
+
+#### 11. التحقق من غياب مفتاح (Check for Missing Key)  
+الدالة: `missing(key: string)`  
+الوصف: يتحقق مما إذا كان المفتاح المحدد مفقودًا من الطلب.  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+const isPasswordMissing = request.missing('password');
+console.log(isPasswordMissing);
+// الناتج: `true` أو `false`
+```
+
+#### 12. دمج البيانات عند غياب المفاتيح (Merge Data if Key is Missing)  
+الدالة: `mergeIfMissing(data: { [key: string]: any })`  
+الوصف: يدمج البيانات المقدمة إلى الطلبية فقط إذا كانت المفاتيح مفقودة.  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+request.mergeIfMissing({ role: 'guest' });
+```
+
+#### 13. استرجاع بيانات باستثناء مفاتيح معينة (Retrieve Data Except Specific Keys)  
+الدالة: `except(...keys: string[])`  
+الوصف: يسترجع جميع المفاتيح ما عدا المفاتيح المحددة.  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+const dataExceptPassword = request.except('password');
+console.log(dataExceptPassword);
+// الناتج: بيانات الطلبية بدون المفتاح 'password'
+```
+
+#### 14. استرجاع قيمة من الطلبية (Retrieve Value from Request)  
+الدالة: `input(key: string, defaultValue: any = null)`  
+الوصف: يسترجع قيمة المفتاح المحدد من الطلبية.  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+const username = request.input('username', 'Guest');
+console.log(username);
+// الناتج: قيمة 'username' أو القيمة الافتراضية 'Guest' إذا لم تكن موجودة
+```
+
+### دوال حول URL والروابط:
+
+#### 1. استرجاع URL الطلب (Get Request URL)  
+الدالة: `url()`  
+الوصف: يسترجع URL الطلب الحالي.  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+const currentUrl = request.url();
+console.log(currentUrl);
+// الناتج: '/current/path'
+```
+
+#### 2. استرجاع طريقة HTTP للطلب (Get HTTP Method)  
+الدالة: `method()`  
+الوصف: يسترجع طريقة HTTP للطلب.  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+const httpMethod = request.method();
+console.log(httpMethod);
+// الناتج: 'GET', 'POST', إلخ.
+```
+
+#### 3. استرجاع عنوان URL للمرجع (Get Referrer URL)  
+الدالة: `referrer()`  
+الوصف: يسترجع عنوان URL للمرجع للطلب.  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+const referrerUrl = request.referrer();
+console.log(referrerUrl);
+// الناتج: 'https://previous.page'
+```
+
+#### 4. استرجاع معلمات URL للطلب (Get URL Parameters)  
+الدالة: `params()`  
+الوصف: يسترجع معلمات URL للطلب.  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+const urlParams = request.params();
+console.log(urlParams);
+// الناتج: [ { "key": "username", "value": "Hassan" }, { "key": "age", "value": "1" } ]
+```
+
+#### 5. استرجاع معلمة استعلام من URL (Get Query Parameter)  
+الدالة: `query(key: string, defaultValue: any = null)`  
+الوصف: يسترجع معلمة استعلام من URL.  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+const page = request.query('page', 1);
+console.log(page);
+// الناتج: 1 أو قيمة المعلمة إذا كانت موجودة
+```
+
+#### 6. استرجاع نص الإستعلام من URL (Get Query String)  
+الدالة: `querystring()`  
+الوصف: يسترجع نص استعلام من URL.  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+const querystring = request.querystring();
+console.log(querystring);
+// الناتج مثاله : ?username=Hassan&role=developer
+```
+
+### دوال البروتوكول والاستضافة:
+
+#### 1. استرجاع بروتوكول الطلب (Get Request Protocol)  
+الدالة: `protocol()`  
+الوصف: يسترجع بروتوكول الطلب (على سبيل المثال: 'http', 'https').  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+const protocol = request.protocol();
+console.log(protocol);
+// الناتج: 'https'
+```
+
+#### 2. استرجاع الرابط الكامل للطلب (Get Full Request URL)  
+الدالة: `href()`  
+الوصف: يسترجع الرابط الكامل (href) للطلب.  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+const href = request.href(); 
+console.log(href);
+// الناتج: 'https://example.com/current/path'
+```
+
+او :  
+```typescript copy
+import { request } from "kawkab";
+
+const fullUrl = request.fullUrl(); 
+console.log(fullUrl);
+// الناتج: 'https://example.com/current/path'
+```
+
+#### 3. استرجاع منشأ الطلب (Get Request Origin)  
+الدالة:
+
+ `origin()`  
+الوصف: يسترجع منشأ الطلب (البروتوكول، المضيف، والمنفذ).  
+المثال:  
+```typescript copy
+import { request } from "kawkab";
+
+const origin = request.origin();
+console.log(origin);
+// الناتج: 'https://example.com'
+```
+#### 4. استرجاع المضيف للطلب (Get Request Host)  
+الدالة: `host()`  
+الوصف: يسترجع المضيف للطلب.  
+المثال:  
+```typescript copy
+import { request } from "kadi";
+
+const host = request.host();
+console.log(host);
+// الناتج: 'localhost:3000'
+```
+
+#### 5. استرجاع اسم المضيف للطلب (Get Request Hostname)  
+الدالة: `hostname()`  
+الوصف: يسترجع اسم المضيف للطلب.  
+المثال:  
+```typescript copy
+import { request } from "kadi";
+
+const hostname = request.hostname();
+console.log(hostname);
+// الناتج: 'localhost'
+```
+
+## خلاصة
+
+كوكب **Kawkab** يوفر لك الأدوات اللازمة للتعامل مع الطلبات HTTP بطريقة مرنة وقوية، مما يتيح لك إمكانية إدارة الملفات والبيانات بسهولة. من خلال استخدام هذه الأدوات، يمكنك بناء تطبيقات قوية وآمنة.

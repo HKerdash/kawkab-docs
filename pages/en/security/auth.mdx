@@ -1,0 +1,143 @@
+---
+title: JWT Service in Kawkab Kawkab
+description: A comprehensive guide to using the JWT service in the Kawkab framework for identity verification and access token management.
+---
+
+# **JWT Service in Kawkab Kawkab**
+
+The JWT service in the **Kawkab Kawkab** framework provides a complete solution for managing access tokens (**JSON Web Tokens**). This service allows for secure and efficient creation, verification, and renewal of access tokens.
+
+---
+
+## **Key Features**
+
+- Create access tokens and refresh tokens
+- Verify token validity
+- Renew access tokens
+- Extract tokens from the authorization header
+- Manage token validity
+
+---
+
+## **Using the Service**
+
+### **1. Import the Service**
+```typescript
+import { jwt as JWT } from 'kawkab';
+
+const jwt = new JWT('2h', '1h');
+```
+
+- The first parameter is the access token expiration time (e.g., "2h" means 2 hours), with a default of 2 hours. 
+- The second parameter is the refresh token expiration time (e.g., "1h" means 1 hour), with a default of 1 hour.
+
+- s: expiration time of the access token in seconds
+- m: expiration time of the access token in minutes
+- h: expiration time of the access token in hours
+- d: expiration time of the access token in days
+- w: expiration time of the access token in weeks
+- M: expiration time of the access token in months
+- y: expiration time of the access token in years
+
+### **2. Create Access Tokens**
+```typescript
+// Define user data
+const userData = {
+    userId: "123",
+    email: "user@example.com",
+    role: "admin"
+};
+
+// Create access and refresh tokens
+const tokens = jwt.generate(userData);
+
+console.log(tokens);
+// Result:
+// {
+//     accessToken: "eyJhbGciOiJIUzI1...",
+//     refreshToken: "eyJhbGciOiJIUzI1...",
+//     expiresIn: 86400  // Expiration time in seconds
+// }
+```
+
+### **3. Verify Access Token**
+```typescript
+try {
+    const token = "eyJhbGciOiJIUzI1..."; // Access token
+    const payload = jwt.verify(token);
+    
+    console.log(payload);
+    // Result:
+    // {
+    //     userId: "123",
+    //     email: "user@example.com",
+    //     role: "admin"
+    // }
+} catch (error) {
+    console.error('Invalid access token');
+}
+```
+
+### **4. Renew Access Token**
+```typescript
+try {
+    const refreshToken = "eyJhbGciOiJIUzI1..."; // Refresh token
+    const newTokens = jwt.refresh(refreshToken);
+    
+    console.log(newTokens);
+    // Result:
+    // {
+    //     accessToken: "eyJhbGciOiJIUzI1...", // New access token
+    //     refreshToken: "eyJhbGciOiJIUzI1...", // New refresh token
+    //     expiresIn: 86400
+    // }
+} catch (error) {
+    console.error('Invalid refresh token');
+}
+```
+
+### **5. Extract Token from Authorization Header**
+```typescript
+try {
+    const authHeader = "Bearer eyJhbGciOiJIUzI1...";
+    const token = jwt.extract(authHeader);
+    
+    console.log(token); // "eyJhbGciOiJIUzI1..."
+} catch (error) {
+    console.error('Invalid authorization header');
+}
+```
+
+---
+
+## **Best Practices**
+
+1. **Storing Tokens:**
+   - Store the access token in temporary browser memory
+   - Store the refresh token in a secure place (e.g., httpOnly cookie)
+
+2. **Renewing Tokens:**
+   - Renew the access token before it expires
+   - Use the refresh token only once
+
+3. **Security:**
+   - Always use HTTPS
+   - Set appropriate token expiration times
+   - Do not store sensitive information in the token
+
+---
+
+## **Service Settings**
+
+The service is preconfigured with the following settings:
+
+- **Access token expiration:** One day (`2d`)
+- **Refresh token expiration:** Seven days (`1d`)
+- **Secret key:** Encrypted and securely stored
+- **Refresh key:** Encrypted and securely stored
+
+---
+
+## **Conclusion**
+
+The JWT service in **Kawkab Kawkab** provides a comprehensive and secure solution for managing access tokens. With a simple and clear API, developers can fully control the authentication process and manage user sessions.

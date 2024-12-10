@@ -1,0 +1,110 @@
+# The Logger in Kawkab Kawkab
+
+## Introduction
+Logging is an essential part of any application, as it helps track the system's state and behavior. The **Kawkab Kawkab** framework provides a built-in logging system that allows you to log messages at multiple levels such as: `info`, `warn`, `error`, `verbose`, `debug`, and `silly`.
+
+---
+
+## Using the Logging System
+
+### Importing
+To start using the logging system in **Kawkab Kawkab**, you need to import `log` from the **kawkab** library:
+
+```ts
+import { log } from "kawkab";
+```
+
+---
+
+## Logging Messages
+
+### Logging a General Message
+To log a message at a specific level, use the `message` function and specify the desired log level.
+
+#### Example:
+```ts
+log.message('info', 'This is an informational message.');
+```
+
+---
+
+### Logging an Error Message
+To log an error message, use the `error` method:
+
+#### Example:
+```ts
+log.error('An error occurred in the system.');
+```
+
+---
+
+### Logging a Warning Message
+To log a warning message, use the `warn` method:
+
+#### Example:
+```ts
+log.warn('This is a warning message.');
+```
+
+---
+
+### Logging an Informational Message
+To log an informational message, use the `info` method:
+
+#### Example:
+```ts
+log.info('This is an informational message.');
+```
+
+---
+
+### Logging a Detailed Message
+To log a message with more details than an informational level, use the `verbose` method:
+
+#### Example:
+```ts
+log.verbose('This message contains additional details.');
+```
+
+---
+
+### Logging a Debug Message
+To log a debug message during development, use the `debug` method:
+
+#### Example:
+```ts
+log.debug('This is a debugging message.');
+```
+
+---
+
+### Logging a Very Detailed Message
+To log a message with the highest level of detail, use the `silly` method:
+
+#### Example:
+```ts
+log.silly('This is a highly detailed message.');
+```
+
+---
+
+## Storing Logs
+
+### Log File
+All logged messages are stored in a file named `app.log`.  
+This file contains all the logged events and can be used for reviewing logs and analyzing system performance.
+
+#### Example of Log File Contents:
+```
+[2024-11-28T14:32:00.000Z] [INFO] - The application started successfully.
+[2024-11-28T14:33:00.000Z] [ERROR] - An error occurred in the database.
+```
+
+---
+
+## Conclusion
+
+**Kawkab Kawkab** provides a comprehensive and easy-to-use logging system, allowing developers to log messages at multiple levels with ease.  
+You can use this system to track the system's state, identify potential issues, and analyze the application's performance.
+
+Start using the logging system today to make your application more stable and professional!

@@ -1,0 +1,96 @@
+---
+title: Managing Services in Kawkab Framework
+description: A guide to creating and using Services in the Kawkab framework to organize and reuse business logic.
+---
+
+# Managing Services in Kawkab Framework
+
+Services are components in the **Kawkab Framework** used to organize your application's core logic in a reusable way. Services allow you to group common functions and easily reuse them within Controllers or other components.
+
+---
+
+## Service Creation Command
+
+To create a new service, you can use the following command:
+
+```bash
+npm run kawkab service:make <n> [module]
+```
+
+### **Parameters:**
+- `<n>`: The name of the service to create (e.g., `login`).
+- `[module]` _(optional)_: The name of the module the service belongs to. If no module is specified, it will be placed in the default `main` module.
+
+### **Example:**
+```bash
+npm run kawkab service:make login
+```
+
+---
+
+## Basic Service File Structure
+
+When creating a new service, a file will be created containing the following structure:
+
+```typescript
+import { BaseService, Inject, inherit } from "kawkab";
+
+export class LoginService extends inherit(BaseService, Inject) {
+    login() {
+        console.log("Login Service!");
+    }
+}
+```
+
+### **Code Explanation:**
+1. **BaseService**: A base class that provides default functionality that services can utilize.
+2. **Inject**: Used for managing dependencies (Dependency Injection).
+3. **inherit**: Used to merge functionality from base classes.
+4. **LoginService**: An example service containing a simple `login` method that prints a message to the console.
+
+---
+
+## Using Service Inside a Controller
+
+After creating the service, it can be imported and used in Controllers. Here's an example of how to do this:
+
+```typescript
+import { BaseController, inherit } from "kawkab";
+import { LoginService } from "../services/login";
+
+export default class extends inherit(BaseController) {
+  constructor(private loginService = LoginService.inject()) {
+    super();
+  }
+
+  async post() {
+    this.loginService.login();
+
+    return {
+      status: true,
+      message: "Login Successful",
+    }
+  }
+}
+```
+
+### **Code Explanation:**
+1. **`LoginService.inject()`**: The service is automatically injected for use within the controller.
+3. **`post`**: Uses the `login` method from the service and executes the login logic.
+
+---
+
+## Benefits of Using Services
+
+1. **Code Reusability**: You can use services across multiple modules without duplicating logic.
+2. **Separation of Concerns**: Services separate core business logic from controllers.
+3. **Maintenance Flexibility**: Services can be updated independently without affecting the rest of the application.
+4. **Dependency Management**: Kawkab Framework supports easy dependency management using `Inject`.
+
+---
+
+## Conclusion
+
+Using **Kawkab Framework**, managing services and organizing code becomes easier and more efficient. Services provide a powerful way to manage business logic, making your application more organized and maintainable.
+
+🎉 **Start building amazing services in Kawkab Framework now!**

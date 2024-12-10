@@ -1,0 +1,128 @@
+# Using **Encryption** in Kawkab
+
+In the world of application development, encryption is an essential tool for ensuring the protection of sensitive data during transmission or storage. In **Kawkab**, we provide two main functions for handling encryption:
+
+- **`encryption.encrypt`**: For encrypting data and transforming it into an unreadable form.
+- **`encryption.decrypt`**: For decrypting data and converting it back to its original form.
+
+---
+
+## What is **Encryption**?
+
+Encryption is the process of converting data into an encoded form that can only be read by the person or system that possesses the decryption key. Encryption protects data during transmission or while stored, preventing any third party from accessing sensitive information.
+
+### Use Cases for Encryption:
+1. **Securing Data in Transit**: Protecting data while it's being sent over networks.
+2. **File Protection**: Encrypting files to ensure they are safeguarded from unauthorized access.
+
+---
+
+## How Does Encryption Work in **Kawkab**?
+
+### 1. Encrypting Data Using `encryption.encrypt`
+
+The **`encryption.encrypt`** function is used to encrypt data and protect it. It transforms plain text into an object containing two variables:
+- `iv` (short for **Initialization Vector**), which is crucial for the encryption process.
+- `content`, which is the encrypted text.
+
+#### Example:
+```ts
+import { encryption } from "kawkab";
+
+const data = "This is the secret text";
+const encryptedData = encryption.encrypt(data);
+
+console.log(encryptedData);
+// Output: { iv: "51dd15198b413f592bd7de00ecbaaf98", content: "1978033bb0e580694e93482e310ed812" }
+```
+
+---
+
+### 2. Decrypting Data Using `encryption.decrypt`
+
+The **`encryption.decrypt`** function is used to decrypt encrypted data and return it to its original text form.
+
+#### Example:
+```ts
+import { encryption } from "kawkab";
+
+const encryptedData = {
+    iv: "51dd15198b413f592bd7de00ecbaaf98",
+    content: "1978033bb0e580694e93482e310ed812"
+};
+const decryptedData = encryption.decrypt(encryptedData);
+
+console.log(decryptedData);
+// Output: original text like: "This is the secret text"
+```
+
+#### Usage Scenarios:
+- **Securing Data While Transmitting Over Networks**: Encrypting data before sending it and decrypting it when it arrives.
+- **Storing Passwords or Secret Keys**: Encrypting these details and storing them in a database.
+
+---
+
+## Practical Examples
+
+### A) Encrypting Data Before Sending Over the Network
+```ts
+import { encryption } from "kawkab";
+
+function sendDataOverNetwork(data: string) {
+    const encryptedData = encryption.encrypt(data);
+    // Send encrypted data over the network
+    console.log(`Encrypted data sent:`, encryptedData);
+}
+
+sendDataOverNetwork("This is the secret text");
+```
+
+---
+
+### B) Decrypting Data Upon Reception
+```ts
+import { encryption } from "kawkab";
+
+function receiveDataFromNetwork(encryptedData: { iv: string; content: string }) {
+    const decryptedData = encryption.decrypt(encryptedData);
+    // Use the decrypted data
+    console.log(`Decrypted data received: ${decryptedData}`);
+}
+
+receiveDataFromNetwork({
+    iv: "51dd15198b413f592bd7de00ecbaaf98",
+    content: "1978033bb0e580694e93482e310ed812"
+});
+```
+
+---
+
+### C) Storing Encrypted Data in a Database
+```ts
+import { encryption } from "kawkab";
+
+function storeEncryptedData(data: string) {
+    const encryptedData = encryption.encrypt(data);
+    // Save encrypted data in the database
+    console.log(`Encrypted data stored:`, encryptedData);
+}
+
+storeEncryptedData("Sensitive Information");
+```
+
+---
+
+## Tip
+- Never store secret keys in easily accessible locations.
+
+---
+
+## Comparison Between **encryption.encrypt** and **encryption.decrypt**
+| Function              | Purpose                                     | Inputs                          | Output                      |
+|-----------------------|---------------------------------------------|---------------------------------|-----------------------------|
+| **encryption.encrypt** | Encrypts data                              | Plain text + secret key (optional) | Object containing `iv` and `content` |
+| **encryption.decrypt** | Decrypts encrypted data                    | Object containing `iv` and `content` + secret key (optional) | Original text               |
+
+---
+
+With this approach, you can ensure data security in **Kawkab** using **Encryption**, whether it's for securing data in transit or for storage.

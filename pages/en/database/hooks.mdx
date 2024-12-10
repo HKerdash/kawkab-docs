@@ -1,0 +1,76 @@
+---
+title: Hooks
+description: A comprehensive guide to hooks in the Kawkab framework, explaining lifecycle events and how to use them in your models.
+---
+
+# Hooks
+
+Kawkab models trigger several events, allowing you to hook into the following moments in the model's lifecycle: `creating`, `created`, `updating`, `updated`, `saving`, `saved`, `deleting`, `deleted`, `restoring`, `restored`, `trashed`, `forceDeleting`, and `forceDeleted`.
+
+Events ending with `-ing` are fired before any changes are saved to the model, while events ending with `-ed` are fired after the changes are saved.
+
+## Available Hooks
+
+| Hook                             | Description                                                                                  |
+|----------------------------------|----------------------------------------------------------------------------------------------|
+| `creating`, `created`            | When a new model is saved for the first time                                                  |
+| `updating`, `updated`            | When an existing model is modified and the `save` method is called                            |
+| `saving`, `saved`                | When a model is being created or updated - even if no changes have occurred in the model      |
+| `deleting`, `deleted`            | When a model is being deleted, including soft deletes                                        |
+| `restoring`, `restored`          | When a model is restored (after a soft delete)                                                |
+| `trashed`                        | When a model is soft deleted                                                                  |
+| `forceDeleting`, `forceDeleted`  | When a model is permanently deleted                                                           |
+
+:::tip
+When executing a bulk update or delete query via Kawkab, the `saved`, `updated`, `deleting`, and `deleted` events will not be triggered for the affected models. This is because the models are not actually retrieved during bulk updates or deletes.
+:::
+
+## Declaring Hooks
+
+Currently, there are two ways to add hooks programmatically:
+
+```js
+class User extends Model {}
+
+User.creating(user => {
+  // logic to run before creating
+});
+```
+
+```js
+class User {
+  static booted() {
+    this.creating(user => {
+      // logic to run before creating
+    });
+
+    this.created(user => {
+      // logic to run after created
+    });
+  }
+}
+```
+
+## Hooks and Transactions
+
+```js
+User.deleted(async (user, { client }) => {
+  const query = user.related('posts');
+
+  if (client) {
+    query.transacting(client);
+  }
+
+  await query.delete();
+});
+
+const trx = await Kawkab.beginTransaction();
+
+await user.delete({
+  client: trx
+});
+
+await trx.commit();
+```
+
+In the example above, we handle related model deletions within the transaction, ensuring consistency and atomicity when deleting a user and their related posts.

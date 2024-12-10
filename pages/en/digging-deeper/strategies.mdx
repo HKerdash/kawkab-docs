@@ -1,0 +1,290 @@
+---
+
+title: Strategy Pattern in Kawkab
+description: A comprehensive guide to creating and using the Strategy Pattern in the Kawkab framework to organize and manage different algorithms flexibly and professionally.
+---
+
+# Strategy Pattern in Kawkab
+
+The **Strategy Pattern** is one of the behavioral design patterns that allows you to isolate different algorithms within independent, interchangeable objects. In the **Kawkab** framework, you can use this pattern to enhance application flexibility, separating algorithms from the objects that depend on them.
+
+---
+
+## What is the Strategy Pattern?
+
+Simply put, the Strategy Pattern allows you to:
+- **Define a family of algorithms** for a specific task.
+- **Switch the algorithm used** at runtime without affecting other objects.
+- **Reduce duplication** and make the code more extensible and maintainable.
+
+### **When to Use the Strategy Pattern?**
+- When you have multiple ways or algorithms to solve a problem.
+- When you need to switch the behavior of objects at runtime.
+- To avoid long conditional statements (such as `if-else` or `switch-case`).
+
+---
+
+## Creating a New Strategy in Kawkab
+
+### **Creation Command**
+
+To easily add a new strategy in Kawkab, a custom command is provided:
+
+```bash
+npm run kawkab strategy:make <name> [module]
+```
+
+### **Parameters:**
+- **`<name>`**: The name of the strategy (e.g., `payment`, `authentication`).
+- **`[module]` _(optional)_**: The module to which the strategy will be added. If not specified, the strategy will be placed within the default module `main`.
+
+### **Practical Example:**
+```bash
+npm run kawkab strategy:make payment
+```
+
+This example will generate:
+1. A strategy interface definition `IStrategy.ts`.
+2. A strategy management class `PaymentStrategy.ts`.
+3. An initial implementation of a specific strategy `StrategyA.ts`.
+
+---
+
+## **Generated File Structure**
+
+### 1. **Strategy Interface** (`IStrategy.ts`)
+
+Defines the contract that all strategies must adhere to:
+
+```typescript
+export interface IStrategy {
+    execute(): void;
+}
+```
+
+### 2. **Main Strategy Class** (`PaymentStrategy.ts`)
+
+Contains the logic responsible for determining and using the required strategy:
+
+```typescript
+import { IStrategy } from './IStrategy';
+import { StrategyA } from './StrategyA';
+
+export class PaymentStrategy {
+    private strategy: IStrategy;
+
+    constructor(strategy: IStrategy) {
+        this.strategy = strategy;
+    }
+
+    static StrategyA(): PaymentStrategy {
+        return new PaymentStrategy(new StrategyA());
+    }
+
+    execute(): void {
+        return this.strategy.execute();
+    }
+}
+```
+
+### 3. **Specific Strategy Implementation** (`StrategyA.ts`)
+
+Here, the specific algorithm logic for the strategy is written:
+
+```typescript
+import { IStrategy } from './IStrategy';
+
+export class StrategyA implements IStrategy {
+    execute(): void {
+        console.log('Executing Strategy A...');
+        // Strategy logic here
+    }
+}
+```
+
+---
+
+## How to Use the Strategy?
+
+### **Applying Strategies in a Controller**
+Let's assume we want to use a login strategy (`LoginStrategy`):
+
+```typescript
+import { BaseController, inherit } from "kawkab";
+import { LoginStrategy } from "../strategies/login/LoginStrategy";
+
+export default class extends inherit(BaseController) {
+    async post() {
+        // Apply Strategy A
+        const strategy = LoginStrategy.StrategyA();
+        strategy.execute();
+
+        return {
+            status: true,
+            message: "Strategy executed successfully!"
+        };
+    }
+}
+```
+
+### **Code Explanation:**
+1. **`LoginStrategy.StrategyA()`**: Creates an instance of the strategy using `StrategyA`.
+2. **`execute()`**: Executes the logic of the specified strategy.
+
+---
+
+## **Adding a New Strategy: StrategyB**
+
+### 1. **Create the New Strategy File**
+Create a new file within the same module folder (e.g., `strategies/login`) named `StrategyB.ts`.
+
+#### Content of `StrategyB.ts`:
+```typescript
+import { IStrategy } from './IStrategy';
+
+export class StrategyB implements IStrategy {
+    execute(): void {
+        console.log('Executing Strategy B...');
+        // Strategy B logic
+    }
+}
+```
+
+---
+
+### 2. **Update the Main Strategy Class**
+
+Update the **`LoginStrategy`** class to support the new `StrategyB`.
+
+#### Updated code for `LoginStrategy.ts`:
+```typescript
+import { IStrategy } from './IStrategy';
+import { StrategyA } from './StrategyA';
+import { StrategyB } from './StrategyB';
+
+export class LoginStrategy {
+    private strategy: IStrategy;
+
+    constructor(strategy: IStrategy) {
+        this.strategy = strategy;
+    }
+
+    // Add support for Strategy A
+    static StrategyA(): LoginStrategy {
+        return new LoginStrategy(new StrategyA());
+    }
+
+    // Add support for Strategy B
+    static StrategyB(): LoginStrategy {
+        return new LoginStrategy(new StrategyB());
+    }
+
+    execute(): void {
+        return this.strategy.execute();
+    }
+}
+```
+
+---
+
+### 3. **Use Strategy B**
+
+#### Within a Controller:
+You can now use **`StrategyB`** in the same way as other strategies:
+
+```typescript
+import { BaseController, inherit } from "kawkab";
+import { LoginStrategy } from "../strategies/login/LoginStrategy";
+
+export default class extends inherit(BaseController) {
+    async post() {
+        // Use Strategy B
+        const strategy = LoginStrategy.StrategyB();
+        strategy.execute();
+
+        return {
+            status: true,
+            message: "Strategy B executed successfully!"
+        };
+    }
+}
+```
+
+---
+
+## **How It Works?**
+
+- **`LoginStrategy.StrategyB()`**:
+  Creates a new instance of the strategy using the `StrategyB` class.
+
+- **`execute()`**:
+  Executes the algorithm logic defined within `StrategyB`.
+
+---
+
+## **File Structure After Addition**
+
+```
+/strategies
+  /login
+    - IStrategy.ts
+    - LoginStrategy.ts
+    - StrategyA.ts
+    - StrategyB.ts
+```
+
+---
+
+## **Adding More Algorithms in the Future**
+
+To add a new strategy, you can repeat the same steps:
+1. Create a new class for the algorithm.
+2. Modify the main `LoginStrategy` class to support the new strategy.
+
+---
+
+## Benefits of the Strategy Pattern
+
+1. **Flexibility and Runtime Switching**:
+   - Behavior can be changed without affecting the main code.
+
+2. **Reduce Long Conditional Statements**:
+   - Instead of using constructs like `if-else`, behaviors are managed by independent strategies.
+
+3. **Improved Extensibility**:
+   - Adding a new strategy simply means creating a new class adhering to the interface.
+
+4. **Separation of Responsibilities**:
+   - Each object is responsible for executing specific logic only.
+
+5. **Ease of Testing**:
+   - Each strategy can be tested individually without needing to test the entire system.
+
+---
+
+## Best Practices
+
+### **1. Organized Structure**
+Keep all strategies of a module in their own folder, for example:
+```
+/strategies
+  /login
+    - IStrategy.ts
+    - LoginStrategy.ts
+    - StrategyA.ts
+    - StrategyB.ts
+```
+
+### **2. Use Strong Interfaces**
+Using interfaces like `IStrategy` ensures consistency and interchangeability of strategies.
+
+### **3. Avoid Complex Logic Within Classes**
+Keep the strategy logic simple, clear, and separable.
+
+---
+
+## **Conclusion**
+
+The Strategy Pattern represents an ideal way to simplify handling multiple algorithms in your application. In the **Kawkab** framework, this pattern provides powerful tools that make creating and switching behaviors easier and more organized.
+
+💡 **Start applying the Strategy Pattern in your project and enjoy organized and flexible code!**

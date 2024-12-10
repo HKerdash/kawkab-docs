@@ -1,0 +1,167 @@
+---
+title: Test-Driven Development (TDD)
+description: A comprehensive guide to Test-Driven Development and its benefits in the Kawkab framework.
+---
+
+# Test-Driven Development (TDD)
+
+## What is Test-Driven Development?
+
+Test-Driven Development (TDD) is a software development methodology that follows a short, repeating cycle of steps:
+1. Write a failing test
+2. Write the simplest code to make the test pass
+3. Refactor the code while keeping the test passing
+
+## Why Use TDD?
+
+### 1. Improved Code Quality
+- Reduces software bugs
+- Leads to better code design
+- Provides automatic documentation for expected behavior
+
+### 2. Increased Confidence
+- Ensures the code works as expected
+- Makes it easier to detect errors
+- Reduces risks associated with changes
+
+### 3. Enhanced Productivity
+- Reduces debugging time
+- Speeds up the development process
+- Simplifies maintenance
+
+## TDD Cycle in Detail
+
+### Step 1: The Test (Red)
+- Write a test that describes the desired behavior
+- Ensure the test fails
+- Clearly define the requirements
+
+### Step 2: The Code (Green)
+- Write the simplest code to pass the test
+- Focus only on functionality
+- Do not worry about performance or elegance
+
+### Step 3: Refactoring (Refactor)
+- Refactor the code while ensuring tests still pass
+- Remove duplication
+- Improve readability and maintainability
+
+## Types of Tests in TDD
+
+### 1. Unit Tests
+Tests small, isolated parts of the code
+```typescript
+describe('Add function', () => {
+    test('adds two positive numbers', () => {
+        expect(add(2, 3)).toBe(5);
+    });
+});
+```
+
+### 2. Integration Tests
+Tests the interaction between multiple units
+```typescript
+describe('User service', () => {
+    test('register and login', async () => {
+        const user = await UserService.register(userData);
+        const login = await UserService.login(credentials);
+        expect(login.success).toBe(true);
+    });
+});
+```
+
+### 3. Behavioral Tests
+Tests behavior from a user's perspective
+```typescript
+describe('User registration', () => {
+    test('shows success message upon registration', async () => {
+        const response = await registerUser(validData);
+        expect(response.message).toBe('Registration successful');
+    });
+});
+```
+
+## Best Practices in TDD
+
+### 1. Test Design
+- Small, focused tests
+- Descriptive and clear names
+- Sufficient coverage for all cases
+
+### 2. Writing Code
+- Start with simple cases
+- Gradually move towards complexity
+- Stick to the TDD cycle
+
+### 3. Continuous Improvement
+- Regularly review the code
+- Update tests when necessary
+- Improve coverage
+
+## Practical Example in Kawkab
+
+### 1. Write the Test First
+```typescript
+// tests/services/auth.test.ts
+describe('AuthService', () => {
+    test('validates password', () => {
+        const auth = new AuthService();
+        expect(auth.validatePassword('123456')).toBe(false);
+        expect(auth.validatePassword('StrongPass123!')).toBe(true);
+    });
+});
+```
+
+### 2. Implement the Code
+```typescript
+// src/services/auth.ts
+export class AuthService {
+    validatePassword(password: string): boolean {
+        return password.length >= 8 &&
+               /[A-Z]/.test(password) &&
+               /[0-9]/.test(password) &&
+               /[!@#$%^&*]/.test(password);
+    }
+}
+```
+
+### 3. Refactor the Code
+```typescript
+// src/services/auth.ts
+export class AuthService {
+    private readonly MIN_LENGTH = 8;
+    private readonly PATTERNS = {
+        uppercase: /[A-Z]/,
+        numbers: /[0-9]/,
+        special: /[!@#$%^&*]/
+    };
+
+    validatePassword(password: string): boolean {
+        return this.hasMinLength(password) &&
+               this.meetsAllCriteria(password);
+    }
+
+    private hasMinLength(password: string): boolean {
+        return password.length >= this.MIN_LENGTH;
+    }
+
+    private meetsAllCriteria(password: string): boolean {
+        return Object.values(this.PATTERNS)
+            .every(pattern => pattern.test(password));
+    }
+}
+```
+
+## Conclusion
+
+Test-Driven Development in Kawkab:
+- Ensures code quality and reliability
+- Eases maintenance and development
+- Provides automatic documentation
+- Increases developer confidence in changes
+
+We recommend using TDD in Kawkab projects to ensure:
+- More robust code
+- Faster development
+- Easier maintenance
+- Better documentation

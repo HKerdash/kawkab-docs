@@ -1,0 +1,94 @@
+---
+title: Factories in Kawkab
+description: A comprehensive guide to creating and using factories in Kawkab with Faker for generating realistic test data.
+---
+
+# Factories in Kawkab
+
+## Overview
+Factories in Kawkab provide a simple and effective way to generate fake data for testing and development purposes. Factories use the Faker library to create realistic data.
+
+## Basic Usage
+
+### Creating a New Factory
+
+To create a new **Factory**, run the following command:
+
+```bash
+npm run kawkab factory:make <name> [module]
+```
+
+### **Parameter Details:**
+
+- **`<name>`**: The name of the factory you want to create (e.g., `User`).
+- **`[module]`**: The module that contains the factory (optional, default is `main`).
+
+### **Practical Example:**
+
+```bash
+npm run kawkab factory:make user
+```
+
+```typescript
+import { BaseFactory, faker } from 'kawkab';
+import { User } from "../models/user";
+
+export class UserFactory extends BaseFactory {
+    async handle() {
+        const data = {
+            username: faker.internet.userName(),
+            email: faker.internet.email()
+        };
+
+        await User.query().insert(data);
+    }
+}
+```
+
+### Using the Factory
+
+```typescript
+// Create 10 users
+new UserFactory(10);
+
+// Create a single user
+new UserFactory();
+```
+
+## Key Features
+
+1. **Simplicity**: Generate data with a single line of code.
+2. **Flexibility**: The generated data can be customized as needed.
+3. **Automation**: Data is automatically inserted into the database.
+4. **Scalability**: New factories can be added easily.
+
+## Best Practices
+
+1. **Organizing Factories**:
+   - Place all factories in the `factories` folder.
+   - Follow the naming convention `[ModelName]Factory`.
+
+2. **Data**:
+   - Use Faker to generate realistic data.
+   - Avoid hardcoded data unless necessary.
+   - Ensure all required fields are covered.
+
+3. **Relationships**:
+   - Create related records first.
+   - Use other factories to create related data.
+
+4. **Testing**:
+   - Use factories in your test files.
+   - Create diverse test data.
+   - Clean up the generated data after tests.
+
+## Important Notes
+
+1. Factories are designed for use in development and testing environments only.
+2. Do not use factories in a production environment.
+3. Make sure to use a compatible version of Faker.
+4. Clean up the generated data periodically.
+
+## Conclusion
+
+Factories in Kawkab provide a simple and effective way to generate test data. You can quickly generate realistic data for your application, making development and testing faster and easier.

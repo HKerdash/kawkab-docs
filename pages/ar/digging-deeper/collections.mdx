@@ -1,0 +1,1013 @@
+# دليل المجموعات (Collections) في كوكب Kawkab
+
+يوفر إطار العمل **كوكب Kawkab** واجهة برمجية قوية وسلسة للتعامل مع المجموعات. باستخدام وظيفة `collect`، يمكنك إنشاء مجموعات والتلاعب بها بسهولة وبأسلوب يعكس الاحترافية.
+
+في هذا الدليل، ستجد شرحًا تفصيليًا لكل الدوال المتوفرة في **كوكب Kawkab** عند التعامل مع المجموعات. لن يتم اختصار أي شيء لتضمن الحصول على فهم كامل لكيفية استخدامها.
+
+---
+## إنشاء مجموعة
+
+لإنشاء مجموعة، يمكنك استخدام دالة `collect` كما يلي:
+
+```javascript
+import { collect } from "kawkab";
+
+const collection = collect([1, 2, 3, 4, 5]);
+```
+
+## طرق العمل مع المجموعات
+
+### 1. `all()`
+تُرجع جميع العناصر في المجموعة.
+
+```javascript
+const items = collection.all();
+console.log(items); // [1, 2, 3, 4, 5]
+```
+
+---
+
+### 2. `average()`
+تحسب متوسط جميع العناصر في المجموعة.
+
+```javascript
+const average = collection.average();
+console.log(average); // 3
+```
+
+---
+
+### 3. `avg()`
+مرادف لطريقة `average()`.
+
+```javascript
+const avg = collection.avg();
+console.log(avg); // 3
+```
+
+---
+
+### 4. `chunk(size: number)`
+تقسّم المجموعة إلى أجزاء بحجم محدد.
+
+```javascript
+const chunks = collection.chunk(2);
+console.log(chunks.all()); // [[1, 2], [3, 4], [5]]
+```
+
+---
+
+### 5. `collapse()`
+تدمج مجموعة متعددة الأبعاد في بُعد واحد.
+
+```javascript
+const collapsed = collect([[1, 2], [3, 4]]).collapse();
+console.log(collapsed.all()); // [1, 2, 3, 4]
+```
+
+---
+
+### 6. `combine(keys: any[])`
+تدمج المجموعة مع مصفوفة المفاتيح المحددة.
+
+```javascript
+const combined = collection.combine(['a', 'b', 'c', 'd', 'e']);
+console.log(combined.all()); // { a: 1, b: 2, c: 3, d: 4, e: 5 }
+```
+
+---
+
+### 7. `concat(...items: any[])`
+تدمج العناصر المحددة مع المجموعة.
+
+```javascript
+const concatenated = collection.concat([6, 7]);
+console.log(concatenated.all()); // [1, 2, 3, 4, 5, 6, 7]
+```
+
+---
+
+### 8. `contains(value: any)`
+تتحقق مما إذا كانت المجموعة تحتوي على القيمة المحددة.
+
+```javascript
+const contains = collection.contains(3);
+console.log(contains); // true
+```
+
+---
+
+### 9. `containsOneItem()`
+تتحقق مما إذا كانت المجموعة تحتوي على عنصر واحد فقط.
+
+```javascript
+const containsOne = collection.containsOneItem();
+console.log(containsOne); // false
+```
+
+---
+
+### 10. `count()`
+تُرجع عدد العناصر في المجموعة.
+
+```javascript
+const count = collection.count();
+console.log(count); // 5
+```
+
+---
+
+### 11. `countBy(callback: Function)`
+تحسب عدد العناصر المجمعة بناءً على نتيجة دالة الاستدعاء.
+
+```javascript
+const countBy = collection.countBy(item => item % 2);
+console.log(countBy.all()); // { '1': 3, '0': 2 }
+```
+
+---
+
+### 12. `crossJoin(...arrays: any[][])`
+تُرجع حاصل ضرب المجموعة الديكارتي مع المصفوفات المحددة.
+
+```javascript
+const crossJoined = collection.crossJoin(['a', 'b']);
+console.log(crossJoined.all()); // [[1, 'a'], [1, 'b'], [2, 'a'], [2, 'b'], ...]
+```
+
+---
+
+### 13. `dd()`
+تعرض محتويات المجموعة وتوقف التنفيذ.
+
+```javascript
+collection.dd(); // يعرض المجموعة ثم يتوقف
+```
+
+---
+
+### 14. `diff(array: any[])`
+تُرجع العناصر الموجودة في المجموعة والتي ليست ضمن المصفوفة المحددة.
+
+```javascript
+const diff = collection.diff([3, 4]);
+console.log(diff.all()); // [1, 2, 5]
+```
+
+---
+
+### 15. `diffAssoc(array: any[])`
+تُرجع العناصر المختلفة بين المجموعة والمصفوفة مع الحفاظ على المفاتيح.
+
+```javascript
+const diffAssoc = collection.diffAssoc([{ id: 1 }, { id: 2 }]);
+console.log(diffAssoc.all()); // [{ id: 1 }, { id: 2 }]
+```
+
+---
+
+### 16. `diffKeys(array: any[])`
+تُرجع العناصر المختلفة بين المجموعة والمصفوفة بناءً على المفاتيح.
+
+```javascript
+const diffKeys = collection.diffKeys([{ id: 1 }, { id: 2 }]);
+console.log(diffKeys.all()); // [{ id: 1 }, { id: 2 }]
+```
+
+---
+
+### 17. `diffUsing(array: any[], comparator: Function)`
+تُرجع العناصر المختلفة باستخدام دالة المقارنة المحددة.
+
+```javascript
+const diffUsing = collection.diffUsing([3, 4], (a, b) => a - b);
+console.log(diffUsing.all()); // [1, 2, 5]
+```
+
+---
+
+### 18. `doesntContain(value: any)`
+تتحقق مما إذا كانت المجموعة لا تحتوي على القيمة المحددة.
+
+```javascript
+const doesntContain = collection.doesntContain(6);
+console.log(doesntContain); // true
+```
+
+---
+
+### 19. `dump()`
+تعرض المجموعة في وحدة التحكم وتعيدها.
+
+```javascript
+collection.dump(); // تعرض المجموعة في وحدة التحكم
+```
+
+---
+
+### 20. `duplicates()`
+تُرجع جميع العناصر المكررة في المجموعة.
+
+```javascript
+const duplicates = collection.duplicates();
+console.log(duplicates.all()); // []
+```
+
+#### 21. **`each(callback: Function)`**
+Iterates over each item in the collection and applies the provided callback function.
+
+```javascript
+collection.each(item => console.log(item)); 
+// Logs each item: 1, 2, 3, etc.
+```
+
+---
+
+#### 22. **`eachSpread(callback: Function)`**
+Iterates over the collection, passing each item as spread arguments to the callback. Useful for arrays of arrays.
+
+```javascript
+collection.eachSpread((item1, item2) => console.log(item1, item2)); 
+// Logs items in pairs if the structure allows.
+```
+
+---
+
+#### 23. **`every(callback: Function)`**
+Checks if every item in the collection satisfies the condition defined in the callback.
+
+```javascript
+const every = collection.every(item => item > 0);
+console.log(every); // true (if all items are > 0)
+```
+
+---
+
+#### 24. **`except(keys: any[])`**
+Returns all items except those corresponding to the specified keys.
+
+```javascript
+const except = collection.except([1, 2]);
+console.log(except.all()); // Remaining items: [3, 4, 5]
+```
+
+---
+
+#### 25. **`filter(callback: Function)`**
+Filters the collection, returning items that pass the test in the callback.
+
+```javascript
+const filtered = collection.filter(item => item > 3);
+console.log(filtered.all()); // [4, 5]
+```
+
+---
+
+#### 26. **`first()`**
+Returns the first item in the collection.
+
+```javascript
+const first = collection.first();
+console.log(first); // 1
+```
+
+---
+
+#### 27. **`firstOrFail()`**
+Returns the first item or throws an error if the collection is empty.
+
+```javascript
+const firstOrFail = collection.firstOrFail();
+console.log(firstOrFail); // 1
+```
+
+---
+
+#### 28. **`firstWhere(callback: Function)`**
+Returns the first item that matches the condition in the callback.
+
+```javascript
+const firstWhere = collection.firstWhere(item => item > 3);
+console.log(firstWhere); // 4
+```
+
+---
+
+#### 29. **`flatMap(callback: Function)`**
+Maps and flattens the collection into a single-level array.
+
+```javascript
+const flatMapped = collection.flatMap(item => [item, item * 2]);
+console.log(flatMapped.all()); // [1, 2, 2, 4, 3, 6, 4, 8, 5, 10]
+```
+
+---
+
+#### 30. **`flatten(depth: number = 1)`**
+Flattens a nested collection into a single dimension, with the option to specify depth.
+
+```javascript
+const flattened = collect([[1, 2], [3, [4, 5]]]).flatten(2);
+console.log(flattened.all()); // [1, 2, 3, 4, 5]
+```
+
+---
+
+#### 31. **`flip()`**
+Swaps the keys and values in the collection.
+
+```javascript
+const flipped = collect({ a: 1, b: 2 }).flip();
+console.log(flipped.all()); // { 1: 'a', 2: 'b' }
+```
+
+---
+
+#### 32. **`forPage(page: number, perPage: number)`**
+Slices the collection based on the given page and items per page.
+
+```javascript
+const paginated = collection.forPage(1, 2);
+console.log(paginated.all()); // [1, 2]
+```
+
+---
+
+#### 33. **`forget(key: any)`**
+Removes an item by its key from the collection.
+
+```javascript
+const forgotten = collection.forget(1);
+console.log(forgotten.all()); // Remaining items: [2, 3, 4, 5]
+```
+
+---
+
+#### 34. **`get(key: any)`**
+Retrieves an item by its key.
+
+```javascript
+const item = collection.get(2);
+console.log(item); // 3
+```
+
+---
+
+#### 35. **`groupBy(callback: Function)`**
+Groups items based on the result of the callback function.
+
+```javascript
+const grouped = collection.groupBy(item => item % 2);
+console.log(grouped.all()); // { '0': [2, 4], '1': [1, 3, 5] }
+```
+
+---
+
+#### 36. **`has(key: any)`**
+Checks if the collection contains the specified key.
+
+```javascript
+const has = collection.has(2);
+console.log(has); // true
+```
+
+---
+
+#### 37. **`implode(glue: string)`**
+Joins the items into a single string separated by the specified glue.
+
+```javascript
+const imploded = collection.implode(', ');
+console.log(imploded); // '1, 2, 3, 4, 5'
+```
+
+---
+
+#### 38. **`intersect(array: any[])`**
+Returns items present in both the collection and the given array.
+
+```javascript
+const intersected = collection.intersect([2, 3, 6]);
+console.log(intersected.all()); // [2, 3]
+```
+
+---
+
+#### 39. **`intersectByKeys(keys: any[])`**
+Returns items with matching keys between the collection and the given array.
+
+```javascript
+const intersectedByKeys = collection.intersectByKeys({ 0: 'a', 2: 'b' });
+console.log(intersectedByKeys.all()); // [1, 3]
+```
+
+---
+
+#### 40. **`isEmpty()`**
+Checks if the collection has no items.
+
+```javascript
+const isEmpty = collection.isEmpty();
+console.log(isEmpty); // false (if the collection has items)
+```
+
+### 41. **isNotEmpty()**
+يتحقق مما إذا كانت المجموعة غير فارغة.
+```javascript
+const isNotEmpty = collection.isNotEmpty();
+console.log(isNotEmpty); // true
+```
+
+---
+
+### 42. **join(glue: string)**
+يجمع العناصر في المجموعة في سلسلة نصوص باستخدام الفاصل المحدد.
+```javascript
+const joined = collection.join(', ');
+console.log(joined); // '1, 2, 3, 4, 5'
+```
+
+---
+
+### 43. **keyBy(callback: Function)**
+يفهرس العناصر في المجموعة بناءً على نتيجة وظيفة الاستدعاء.
+```javascript
+const keyBy = collection.keyBy(item => item * 2);
+console.log(keyBy.all()); // { 2: 1, 4: 2, 6: 3, 8: 4, 10: 5 }
+```
+
+---
+
+### 44. **keys()**
+يعيد مفاتيح المجموعة.
+```javascript
+const keys = collection.keys();
+console.log(keys.all()); // [0, 1, 2, 3, 4]
+```
+
+---
+
+### 45. **last()**
+يعيد العنصر الأخير في المجموعة.
+```javascript
+const last = collection.last();
+console.log(last); // 5
+```
+
+---
+
+### 46. **macro(name: string, callback: Function)**
+يسجل ماكرو يمكن استخدامه على جميع مثيلات المجموعة.
+```javascript
+collect().macro('customMethod', function() {
+    return this.all();
+});
+const custom = collection.customMethod();
+console.log(custom); // [1, 2, 3, 4, 5]
+```
+
+---
+
+### 47. **make(items: any[])**
+ينشئ مثيلًا جديدًا للمجموعة من العناصر المعطاة.
+```javascript
+const newCollection = collect.make([6, 7, 8]);
+console.log(newCollection.all()); // [6, 7, 8]
+```
+
+---
+
+### 48. **map(callback: Function)**
+يقوم بتطبيق وظيفة على عناصر المجموعة.
+```javascript
+const mapped = collection.map(item => item * 2);
+console.log(mapped.all()); // [2, 4, 6, 8, 10]
+```
+
+---
+
+### 49. **mapInto(className: Function)**
+يحُول عناصر المجموعة إلى مثيلات الفئة المحددة.
+```javascript
+class Item {
+    constructor(public value: number) {}
+}
+const mappedInto = collection.mapInto(Item);
+console.log(mappedInto.all()); // [Item, Item, Item, Item, Item]
+```
+
+---
+
+### 50. **mapSpread(callback: Function)**
+يقوم بتطبيق وظيفة على العناصر بتوسيعها.
+```javascript
+const mapSpread = collection.mapSpread((item1, item2) => [item1, item2]);
+console.log(mapSpread.all()); // [[1, 2], [3, 4], [5]]
+```
+
+---
+
+### 51. **mapToDictionary(callback: Function)**
+يحوّل عناصر المجموعة إلى قاموس باستخدام وظيفة.
+```javascript
+const dictionary = collection.mapToDictionary(item => [item, item * 2]);
+console.log(dictionary.all()); // { '1': 2, '2': 4, '3': 6, '4': 8, '5': 10 }
+```
+
+---
+
+### 52. **mapToGroups(callback: Function)**
+يقوم بتجميع العناصر بناءً على وظيفة معينة.
+```javascript
+const groups = collection.mapToGroups(item => [item % 2, item]);
+console.log(groups.all()); // { '1': [1, 3, 5], '0': [2, 4] }
+```
+
+---
+
+### 53. **mapWithKeys(callback: Function)**
+يُحوّل المجموعة إلى مجموعة جديدة بالمفاتيح باستخدام وظيفة.
+```javascript
+const mappedWithKeys = collection.mapWithKeys(item => [item, item * 2]);
+console.log(mappedWithKeys.all()); // { 1: 2, 2: 4, 3: 6, 4: 8, 5: 10 }
+```
+
+---
+
+### 54. **max()**
+يعيد أكبر قيمة في المجموعة.
+```javascript
+const max = collection.max();
+console.log(max); // 5
+```
+
+---
+
+### 55. **median()**
+يعيد القيمة الوسيطة في المجموعة.
+```javascript
+const median = collection.median();
+console.log(median); // 3
+```
+
+---
+
+### 56. **merge(...arrays: any[][])**
+يدمج المصفوفات المعطاة مع المجموعة.
+```javascript
+const merged = collection.merge([[6, 7], [8]]);
+console.log(merged.all()); // [1, 2, 3, 4, 5, 6, 7, 8]
+```
+
+---
+
+### 57. **mergeRecursive(...arrays: any[][])**
+يدمج المصفوفات مع المجموعة بشكل متكرر.
+```javascript
+const mergedRecursive = collection.mergeRecursive([{ a: 1 }, { b: 2 }]);
+console.log(mergedRecursive.all()); // [{ a: 1 }, { b: 2 }]
+```
+
+---
+
+### 58. **min()**
+يعيد أقل قيمة في المجموعة.
+```javascript
+const min = collection.min();
+console.log(min); // 1
+```
+
+---
+
+### 59. **mode()**
+يعيد القيم الأكثر تكرارًا في المجموعة.
+```javascript
+const mode = collection.mode();
+console.log(mode); // [1, 2, 3, 4, 5]
+```
+
+---
+
+### 60. **nth(n: number)**
+يعيد العنصر عند الفهرس المحدد.
+```javascript
+const nth = collection.nth(2);
+console.log(nth); // 3
+``` 
+
+**61. only(keys: any[])**  
+يعيد فقط العناصر ذات المفاتيح المحددة.  
+```javascript
+const only = collection.only([1, 2]);
+console.log(only.all()); // [1, 2]
+```
+
+**62. pad(size: number, value: any)**  
+يُضيف عناصر إلى المجموعة للوصول إلى الحجم المطلوب باستخدام القيمة المحددة.  
+```javascript
+const padded = collection.pad(7, 'x');
+console.log(padded.all()); // [1, 2, 3, 4, 5, 'x', 'x']
+```
+
+**63. partition(callback: Function)**  
+يقسم المجموعة إلى قسمين بناءً على شرط معين.  
+```javascript
+const [matches, nonMatches] = collection.partition(item => item % 2 === 0);
+console.log(matches.all()); // [2, 4]
+console.log(nonMatches.all()); // [1, 3, 5]
+```
+
+**64. pipe(callback: Function)**  
+يمرر المجموعة عبر الدالة المحددة.  
+```javascript
+const piped = collection.pipe(items => items.map(item => item * 2));
+console.log(piped.all()); // [2, 4, 6, 8, 10]
+```
+
+**65. pluck(key: string)**  
+يستخرج القيم من مجموعة بناءً على مفتاح معين.  
+```javascript
+const collection = collect([{ value: 1 }, { value: 2 }, { value: 3 }]);
+const plucked = collection.pluck('value');
+console.log(plucked.all()); // [1, 2, 3]
+```
+
+**66. pop()**  
+يحذف ويُعيد العنصر الأخير في المجموعة.  
+```javascript
+const lastItem = collection.pop();
+console.log(lastItem); // 5
+```
+
+**67. prepend(value: any)**  
+يُضيف القيمة المحددة إلى بداية المجموعة.  
+```javascript
+const prepended = collection.prepend(0);
+console.log(prepended.all()); // [0, 1, 2, 3, 4, 5]
+```
+
+**68. pull(key: any)**  
+يحذف ويُعيد العنصر بناءً على مفتاح معين.  
+```javascript
+const pulled = collection.pull(2);
+console.log(pulled); // 3
+```
+
+**69. push(value: any)**  
+يُضيف القيمة المحددة إلى نهاية المجموعة.  
+```javascript
+const pushed = collection.push(6);
+console.log(pushed.all()); // [1, 2, 3, 4, 5, 6]
+```
+
+**70. put(key: any, value: any)**  
+يُعيّن قيمة لمفتاح معين في المجموعة.  
+```javascript
+const collection = collect([1, 2, 3, 4, 5]);
+collection.put(5, 6);
+console.log(collection.all()); // [1, 2, 3, 4, 6]
+```
+
+**71. random()**  
+يعيد عنصرًا عشوائيًا من المجموعة.  
+```javascript
+const random = collection.random();
+console.log(random); // قيمة عشوائية
+```
+
+**72. reduce(callback: Function)**  
+يُخفض المجموعة إلى قيمة واحدة باستخدام دالة معينة.  
+```javascript
+const reduced = collection.reduce((carry, item) => carry + item, 0);
+console.log(reduced); // 15
+```
+
+**73. reject(callback: Function)**  
+يرشح العناصر بإزالة العناصر التي تحقق الشرطية المحددة.  
+```javascript
+const rejected = collection.reject(item => item % 2 === 0);
+console.log(rejected.all()); // [1, 3, 5]
+```
+
+**74. replace(search: any, replace: any)**  
+يستبدل العناصر المحددة في المجموعة.  
+```javascript
+const replaced = collection.replace(2, 10);
+console.log(replaced.all()); // [1, 10, 3, 4, 5]
+```
+
+**75. replaceRecursive(search: any, replace: any)**  
+يستبدل العناصر بشكل متكرر في المجموعة.  
+```javascript
+const collection = collect([{ a: 1 }, { a: 2 }]);
+const replacedRecursive = collection.replaceRecursive({ a: 1 }, { a: 3 });
+console.log(replacedRecursive.all()); // [{ a: 3 }, { a: 2 }]
+```
+
+**76. reverse()**  
+يعكس ترتيب العناصر في المجموعة.  
+```javascript
+const reversed = collection.reverse();
+console.log(reversed.all()); // [5, 4, 3, 2, 1]
+```
+
+**77. search(value: any)**  
+يبحث عن قيمة ويعيد الفهرس الخاص بها.  
+```javascript
+const searchIndex = collection.search(3);
+console.log(searchIndex); // 2
+```
+
+**78. shift()**  
+يحذف ويعيد العنصر الأول في المجموعة.  
+```javascript
+const firstItem = collection.shift();
+console.log(firstItem); // 1
+```
+
+**79. shuffle()**  
+يرتب العناصر بترتيب عشوائي.  
+```javascript
+const shuffled = collection.shuffle();
+console.log(shuffled.all()); // ترتيب عشوائي
+```
+
+**80. skip(amount: number)**  
+يتخطى عددًا معينًا من العناصر ويعيد العناصر المتبقية.  
+```javascript
+const skipped = collection.skip(2);
+console.log(skipped.all()); // [3, 4, 5]
+```
+
+**81. skipUntil(callback: Function)**  
+يتخطى العناصر حتى تُرجع الدالة `callback` قيمة صحيحة.  
+```javascript
+const skippedUntil = collection.skipUntil(item => item > 2);
+console.log(skippedUntil.all()); // [3, 4, 5]
+```
+
+**82. skipWhile(callback: Function)**  
+يتخطى العناصر طالما تُرجع الدالة `callback` قيمة صحيحة.  
+```javascript
+const skippedWhile = collection.skipWhile(item => item < 3);
+console.log(skippedWhile.all()); // [3, 4, 5]
+```
+
+**83. slice(start: number, end?: number)**  
+يعيد جزءًا من المجموعة بناءً على البداية والنهاية المحددتين.  
+```javascript
+const sliced = collection.slice(1, 4);
+console.log(sliced.all()); // [2, 3, 4]
+```
+
+**84. sole()**  
+يعيد العنصر الوحيد في المجموعة أو يُطلق استثناء إذا كان هناك أكثر من عنصر.  
+```javascript
+const sole = collect([1]).sole();
+console.log(sole); // 1
+```
+
+**85. some(callback: Function)**  
+يتحقق مما إذا كانت أي عناصر تحقق الشرط في الدالة `callback`.  
+```javascript
+const some = collection.some(item => item > 3);
+console.log(some); // true
+```
+
+**86. sort(callback?: Function)**  
+يرتب العناصر في المجموعة باستخدام الدالة `callback` إذا وُجدت.  
+```javascript
+const sorted = collection.sort((a, b) => a - b);
+console.log(sorted.all()); // [1, 2, 3, 4, 5]
+```
+
+**87. sortBy(callback: Function)**  
+يرتب العناصر بناءً على النتيجة التي تُرجعها الدالة `callback`.  
+```javascript
+const sortedBy = collection.sortBy(item => -item);
+console.log(sortedBy.all()); // [5, 4, 3, 2, 1]
+```
+
+**88. sortByDesc(callback: Function)**  
+يرتب العناصر تنازليًا بناءً على النتيجة التي تُرجعها الدالة `callback`.  
+```javascript
+const sortedByDesc = collection.sortByDesc(item => item);
+console.log(sortedByDesc.all()); // [5, 4, 3, 2, 1]
+```
+
+**89. sortDesc()**  
+يرتب العناصر في المجموعة ترتيبًا تنازليًا.  
+```javascript
+const sortedDesc = collection.sortDesc();
+console.log(sortedDesc.all()); // [5, 4, 3, 2, 1]
+```
+
+**90. sortKeys()**  
+يرتب المجموعة حسب المفاتيح.  
+```javascript
+const sortedKeys = collection.sortKeys();
+console.log(sortedKeys.all()); // Sorted keys
+```
+
+**91. sortKeysDesc()**  
+يرتب المجموعة حسب المفاتيح ترتيبًا تنازليًا.  
+```javascript
+const sortedKeysDesc = collection.sortKeysDesc();
+console.log(sortedKeysDesc.all()); // Sorted keys in descending order
+```
+
+**92. splice(start: number, deleteCount?: number, ...items: any[])**  
+يحذف ويُدخل عناصر في المجموعة بدءًا من الموقع المحدد.  
+```javascript
+collection.splice(2, 1, 10, 11);
+console.log(collection.all()); // [1, 2, 10, 11, 4, 5]
+```
+
+**93. split(size: number)**  
+يقسم المجموعة إلى أجزاء بحجم معين.  
+```javascript
+const split = collection.split(2);
+console.log(split.all()); // [[1, 2], [3, 4], [5]]
+```
+
+**94. sum()**  
+يعيد مجموع القيم في المجموعة.  
+```javascript
+const sum = collection.sum();
+console.log(sum); // 15
+```
+
+**95. take(amount: number)**  
+يعيد عددًا معينًا من العناصر الأولى من المجموعة.  
+```javascript
+const taken = collection.take(3);
+console.log(taken.all()); // [1, 2, 3]
+```
+
+**96. takeUntil(callback: Function)**  
+يعيد العناصر حتى تُرجع الدالة `callback` قيمة صحيحة.  
+```javascript
+const takenUntil = collection.takeUntil(item => item > 3);
+console.log(takenUntil.all()); // [1, 2, 3, 4]
+```
+
+**97. takeWhile(callback: Function)**  
+يعيد العناصر طالما تُرجع الدالة `callback` قيمة صحيحة.  
+```javascript
+const takenWhile = collection.takeWhile(item => item < 4);
+console.log(takenWhile.all()); // [1, 2, 3]
+```
+
+**98. tap(callback: Function)**  
+ينفذ الدالة `callback` على المجموعة ويعيد المجموعة نفسها.  
+```javascript
+const tapped = collection.tap(items => console.log('Tapped:', items));
+console.log(tapped.all()); // [1, 2, 3, 4, 5]
+```
+
+**99. times(n: number, callback: Function)**  
+ينفذ الدالة `callback` عددًا معينًا من المرات.  
+```javascript
+collect().times(3, i => console.log(i));
+// Output: 0 1 2
+```
+
+**100. toArray()**  
+يحول المجموعة إلى مصفوفة.  
+```javascript
+const array = collection.toArray();
+console.log(array); // [1, 2, 3, 4, 5]
+```
+
+**101. toJson()**  
+تحول المجموعة إلى صيغة JSON.  
+```javascript
+const json = collection.toJson();
+console.log(json); // '[1,2,3,4,5]'
+```
+
+**102. transform(callback: Function)**  
+تحول كل عنصر في المجموعة باستخدام الدالة `callback`.  
+```javascript
+const transformed = collection.transform(item => item * 2);
+console.log(transformed.all()); // [2, 4, 6, 8, 10]
+```
+
+**103. undot()**  
+يُزيل التداخل الناتج عن النقاط في عناصر المجموعة.  
+```javascript
+const undotted = collection.undot();
+console.log(undotted.all()); // Undotted items
+```
+
+**104. union(...arrays: any[][])**  
+يدمج المجموعة مع المصفوفات المعطاة، مع الحفاظ على المفاتيح.  
+```javascript
+const union = collection.union([[6, 7]]);
+console.log(union.all()); // [1, 2, 3, 4, 5, 6, 7]
+```
+
+**105. unique()**  
+يعيد مجموعة تحتوي فقط على العناصر الفريدة.  
+```javascript
+const unique = collection.unique();
+console.log(unique.all()); // [1, 2, 3, 4, 5]
+```
+
+**106. unless(callback: Function, defaultValue?: any)**  
+يعيد القيمة الافتراضية إذا لم تُرجع الدالة `callback` قيمة صحيحة.  
+```javascript
+const unless = collection.unless(collection.isEmpty(), 'Default');
+console.log(unless); // [1, 2, 3, 4, 5]
+```
+
+**107. unlessEmpty(defaultValue: any)**  
+يعيد القيمة الافتراضية إذا كانت المجموعة فارغة.  
+```javascript
+const unlessEmpty = collection.unlessEmpty('Default');
+console.log(unlessEmpty); // [1, 2, 3, 4, 5]
+```
+
+**108. unlessNotEmpty(defaultValue: any)**  
+يعيد القيمة الافتراضية إذا لم تكن المجموعة غير فارغة.  
+```javascript
+const unlessNotEmpty = collection.unlessNotEmpty('Default');
+console.log(unlessNotEmpty); // 'Default'
+```
+
+**109. values()**  
+يعيد القيم في المجموعة كـمجموعة جديدة.  
+```javascript
+const values = collection.values();
+console.log(values.all()); // [1, 2, 3, 4, 5]
+```
+
+**110. where(key: any, value: any)**  
+يُرشح المجموعة بناءً على القيمة والمفتاح المحددين.  
+```javascript
+const where = collection.where('key', 'value');
+console.log(where.all()); // Filtered items
+```
+
+**111. whereIn(key: any, values: any[])**  
+يُرشح المجموعة إذا كانت قيمة المفتاح ضمن القيم المحددة.  
+```javascript
+const whereIn = collection.whereIn('key', [1, 2]);
+console.log(whereIn.all()); // Filtered items
+```
+
+**112. whereNot(key: any, value: any)**  
+يُرشح المجموعة باستثناء العناصر التي تطابق المفتاح والقيمة.  
+```javascript
+const whereNot = collection.whereNot('key', 'value');
+console.log(whereNot.all()); // Filtered items
+```
+
+**113. whereNotIn(key: any, values: any[])**  
+يُرشح المجموعة إذا لم تكن قيمة المفتاح ضمن القيم المحددة.  
+```javascript
+const whereNotIn = collection.whereNotIn('key', [1, 2]);
+console.log(whereNotIn.all()); // Filtered items
+```
+
+**114. whereNull(key: any)**  
+يُرشح المجموعة باستثناء العناصر حيث المفتاح فارغ.  
+```javascript
+const whereNull = collection.whereNull('key');
+console.log(whereNull.all()); // Filtered items
+```
+
+**115. whereNotNull(key: any)**  
+يُرشح المجموعة باستثناء العناصر حيث المفتاح غير فارغ.  
+```javascript
+const whereNotNull = collection.whereNotNull('key');
+console.log(whereNotNull.all()); // Filtered items
+```
+
+**116. with(key: any, value: any)**  
+يُضيف عنصرًا إلى المجموعة مع المفتاح والقيمة المحددين.  
+```javascript
+const withItem = collection.with('key', 'value');
+console.log(withItem.all()); // Added item
+```
+
+**117. without(...keys: any[])**  
+يحذف العناصر التي تحتوي على المفاتيح المحددة من المجموعة.  
+```javascript
+const withoutKeys = collection.without('key');
+console.log(withoutKeys.all()); // Removed item
+```
+
+**118. wrap(value: any)**  
+يلف القيمة المحددة في مجموعة.  
+```javascript
+const wrapped = collection.wrap('value');
+console.log(wrapped.all()); // ['value']
+```
+
+**119. zip(...collections: Collection[])**  
+يجمع المجموعة مع المجموعات الأخرى المعطاة.  
+```javascript
+const zipped = collection.zip([[6, 7]]);
+console.log(zipped.all()); // [[1, 6], [2, 7]]
+```  

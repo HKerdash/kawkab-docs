@@ -1,0 +1,1216 @@
+
+---
+title: Collections Guide in Kawkab
+---
+
+The **Kawkab** framework provides a powerful and smooth API for handling collections. Using the `collect` function, you can create and manipulate collections easily and professionally.
+
+In this guide, you will find a detailed explanation of all the functions available in **Kawkab** for handling collections. Nothing will be abbreviated to ensure you get a complete understanding of how to use them.
+
+## Creating a Collection
+
+To create a collection, you can use the `collect` function as follows:
+
+```javascript
+import { collect } from "kawkab";
+
+const collection = collect([1, 2, 3, 4, 5]);
+```
+
+## Working with Collections
+
+### 1. `all()`
+Returns all items in the collection.
+
+```javascript
+const items = collection.all();
+console.log(items); // [1, 2, 3, 4, 5]
+```
+
+---
+
+### 2. `average()`
+Calculates the average of all items in the collection.
+
+```javascript
+const average = collection.average();
+console.log(average); // 3
+```
+
+---
+
+### 3. `avg()`
+Alias for the `average()` method.
+
+```javascript
+const avg = collection.avg();
+console.log(avg); // 3
+```
+
+---
+
+### 4. `chunk(size: number)`
+Splits the collection into chunks of a specified size.
+
+```javascript
+const chunks = collection.chunk(2);
+console.log(chunks.all()); // [[1, 2], [3, 4], [5]]
+```
+
+---
+
+### 5. `collapse()`
+Flattens a multi-dimensional collection into a single dimension.
+
+```javascript
+const collapsed = collect([[1, 2], [3, 4]]).collapse();
+console.log(collapsed.all()); // [1, 2, 3, 4]
+```
+
+---
+
+### 6. `combine(keys: any[])`
+Combines the collection with the specified array of keys.
+
+```javascript
+const combined = collection.combine(['a', 'b', 'c', 'd', 'e']);
+console.log(combined.all()); // { a: 1, b: 2, c: 3, d: 4, e: 5 }
+```
+
+---
+
+### 7. `concat(...items: any[])`
+Combines the specified items with the collection.
+
+```javascript
+const concatenated = collection.concat([6, 7]);
+console.log(concatenated.all()); // [1, 2, 3, 4, 5, 6, 7]
+```
+
+---
+
+### 8. `contains(value: any)`
+Checks if the collection contains the specified value.
+
+```javascript
+const contains = collection.contains(3);
+console.log(contains); // true
+```
+
+---
+
+### 9. `containsOneItem()`
+Checks if the collection contains only one item.
+
+```javascript
+const containsOne = collection.containsOneItem();
+console.log(containsOne); // false
+```
+
+---
+
+### 10. `count()`
+Returns the number of items in the collection.
+
+```javascript
+const count = collection.count();
+console.log(count); // 5
+```
+
+---
+
+### 11. `countBy(callback: Function)`
+Counts the number of items grouped by the result of the callback function.
+
+```javascript
+const countBy = collection.countBy(item => item % 2);
+console.log(countBy.all()); // { '1': 3, '0': 2 }
+```
+
+---
+
+### 12. `crossJoin(...arrays: any[][])`
+Returns the Cartesian product of the collection with the specified arrays.
+
+```javascript
+const crossJoined = collection.crossJoin(['a', 'b']);
+console.log(crossJoined.all()); // [[1, 'a'], [1, 'b'], [2, 'a'], [2, 'b'], ...]
+```
+
+---
+
+### 13. `dd()`
+Displays the contents of the collection and stops execution.
+
+```javascript
+collection.dd(); // Displays the collection and then stops
+```
+
+---
+
+### 14. `diff(array: any[])`
+Returns the items present in the collection but not in the specified array.
+
+```javascript
+const diff = collection.diff([3, 4]);
+console.log(diff.all()); // [1, 2, 5]
+```
+
+---
+
+### 15. `diffAssoc(array: any[])`
+Returns the differing items between the collection and the array, preserving keys.
+
+```javascript
+const diffAssoc = collection.diffAssoc([{ id: 1 }, { id: 2 }]);
+console.log(diffAssoc.all()); // [{ id: 1 }, { id: 2 }]
+```
+
+---
+
+### 16. `diffKeys(array: any[])`
+Returns the differing items between the collection and the array based on keys.
+
+```javascript
+const diffKeys = collection.diffKeys([{ id: 1 }, { id: 2 }]);
+console.log(diffKeys.all()); // [{ id: 1 }, { id: 2 }]
+```
+
+---
+
+### 17. `diffUsing(array: any[], comparator: Function)`
+Returns the differing items using the specified comparator function.
+
+```javascript
+const diffUsing = collection.diffUsing([3, 4], (a, b) => a - b);
+console.log(diffUsing.all()); // [1, 2, 5]
+```
+
+---
+
+### 18. `doesntContain(value: any)`
+Checks if the collection does not contain the specified value.
+
+```javascript
+const doesntContain = collection.doesntContain(6);
+console.log(doesntContain); // true
+```
+
+---
+
+### 19. `dump()`
+Displays the collection in the console and returns it.
+
+```javascript
+collection.dump(); // Displays the collection in the console
+```
+
+---
+
+### 20. `duplicates()`
+Returns all duplicate items in the collection.
+
+```javascript
+const duplicates = collection.duplicates();
+console.log(duplicates.all()); // []
+```
+
+---
+
+### 21. `each(callback: Function)`
+Iterates over each item in the collection and applies the provided callback function.
+
+```javascript
+collection.each(item => console.log(item));
+// Logs each item: 1, 2, 3, etc.
+```
+
+---
+
+### 22. `eachSpread(callback: Function)`
+Iterates over the collection, passing each item as spread arguments to the callback. Useful for arrays of arrays.
+
+```javascript
+collection.eachSpread((item1, item2) => console.log(item1, item2));
+// Logs items in pairs if the structure allows.
+```
+
+---
+
+### 23. `every(callback: Function)`
+Checks if every item in the collection satisfies the condition defined in the callback.
+
+```javascript
+const every = collection.every(item => item > 0);
+console.log(every); // true (if all items are > 0)
+```
+
+---
+
+### 24. `except(keys: any[])`
+Returns all items except those corresponding to the specified keys.
+
+```javascript
+const except = collection.except([1, 2]);
+console.log(except.all()); // Remaining items: [3, 4, 5]
+```
+
+---
+
+### 25. `filter(callback: Function)`
+Filters the collection, returning items that pass the test in the callback.
+
+```javascript
+const filtered = collection.filter(item => item > 3);
+console.log(filtered.all()); // [4, 5]
+```
+
+---
+
+### 26. `first()`
+Returns the first item in the collection.
+
+```javascript
+const first = collection.first();
+console.log(first); // 1
+```
+
+---
+
+### 27. `firstOrFail()`
+Returns the first item or throws an error if the collection is empty.
+
+```javascript
+const firstOrFail = collection.firstOrFail();
+console.log(firstOrFail); // 1
+```
+
+---
+
+### 28. `firstWhere(callback: Function)`
+Returns the first item that matches the condition in the callback.
+
+```javascript
+const firstWhere = collection.firstWhere(item => item > 3);
+console.log(firstWhere); // 4
+```
+
+---
+
+### 29. `flatMap(callback: Function)`
+Maps and flattens the collection into a single-level array.
+
+```javascript
+const flatMapped = collection.flatMap(item => [item, item * 2]);
+console.log(flatMapped.all()); // [1, 2, 2, 4, 3, 6, 4, 8, 5, 10]
+```
+
+---
+
+### 30. `flatten(depth: number = 1)`
+Flattens a nested collection into a single dimension, with the option to specify depth.
+
+```javascript
+const flattened = collect([[1, 2], [3, [4, 5]]]).flatten(2);
+console.log(flattened.all()); // [1, 2, 3, 4, 5]
+```
+
+---
+
+### 31. `flip()`
+Swaps the keys and values in the collection.
+
+```javascript
+const flipped = collect({ a: 1, b: 2 }).flip();
+console.log(flipped.all()); // { 1: 'a', 2: 'b' }
+```
+
+---
+
+### 32. `forPage(page: number, perPage: number)`
+Slices the collection based on the given page and items per page.
+
+```javascript
+const paginated = collection.forPage(1, 2);
+console.log(paginated.all()); // [1, 2]
+```
+
+---
+
+### 33. `forget(key: any)`
+Removes an item by its key from the collection.
+
+```javascript
+const forgotten = collection.forget(1);
+console.log(forgotten.all()); // Remaining items: [2, 3, 4, 5]
+```
+
+---
+
+### 34. `get(key: any)`
+Retrieves an item by its key.
+
+```javascript
+const item = collection.get(2);
+console.log(item); // 3
+```
+
+---
+
+### 35. `groupBy(callback: Function)`
+Groups items based on the result of the callback function.
+
+```javascript
+const grouped = collection.groupBy(item => item % 2);
+console.log(grouped.all()); // { '0': [2, 4], '1': [1, 3, 5] }
+```
+
+---
+
+### 36. `has(key: any)`
+Checks if the collection contains the specified key.
+
+```javascript
+const has = collection.has(2);
+console.log(has); // true
+```
+
+---
+
+### 37. `implode(glue: string)`
+Joins the items into a single string separated by the specified glue.
+
+```javascript
+const imploded = collection.implode(', ');
+console.log(imploded); // '1, 2, 3, 4, 5'
+```
+
+---
+
+### 38. `intersect(array: any[])`
+Returns items present in both the collection and the given array.
+
+```javascript
+const intersected = collection.intersect([2, 3, 6]);
+console.log(intersected.all()); // [2, 3]
+```
+
+---
+
+### 39. `intersectByKeys(keys: any[])`
+Returns items with matching keys between the collection and the given array.
+
+```javascript
+const intersectedByKeys = collection.intersectByKeys({ 0: 'a', 2: 'b' });
+console.log(intersectedByKeys.all()); // [1, 3]
+```
+
+---
+
+### 40. `isEmpty()`
+Checks if the collection has no items.
+
+```javascript
+const isEmpty = collection.isEmpty();
+console.log(isEmpty); // false (if the collection has items)
+```
+
+---
+
+### 41. `isNotEmpty()`
+Checks if the collection is not empty.
+
+```javascript
+const isNotEmpty = collection.isNotEmpty();
+console.log(isNotEmpty); // true
+```
+
+---
+
+### 42. `join(glue: string)`
+Joins the items in the collection into a string using the specified separator.
+
+```javascript
+const joined = collection.join(', ');
+console.log(joined); // '1, 2, 3, 4, 5'
+```
+
+---
+
+### 43. `keyBy(callback: Function)`
+Indexes the items in the collection based on the result of the callback function.
+
+```javascript
+const keyBy = collection.keyBy(item => item * 2);
+console.log(keyBy.all()); // { 2: 1, 4: 2, 6: 3, 8: 4, 10: 5 }
+```
+
+---
+
+### 44. `keys()`
+Returns the keys of the collection.
+
+```javascript
+const keys = collection.keys();
+console.log(keys.all()); // [0, 1, 2, 3, 4]
+```
+
+---
+
+### 45. `last()`
+Returns the last item in the collection.
+
+```javascript
+const last = collection.last();
+console.log(last); // 5
+```
+
+---
+
+### 46. `macro(name: string, callback: Function)`
+Registers a macro that can be used on all collection instances.
+
+```javascript
+collect().macro('customMethod', function() {
+    return this.all();
+});
+const custom = collection.customMethod();
+console.log(custom); // [1, 2, 3, 4, 5]
+```
+
+---
+
+### 47. `make(items: any[])`
+Creates a new collection instance from the given items.
+
+```javascript
+const newCollection = collect.make([6, 7, 8]);
+console.log(newCollection.all()); // [6, 7, 8]
+```
+
+---
+
+### 48. `map(callback: Function)`
+Applies a function to the items in the collection.
+
+```javascript
+const mapped = collection.map(item => item * 2);
+console.log(mapped.all()); // [2, 4, 6, 8, 10]
+```
+
+---
+
+### 49. `mapInto(className: Function)`
+Transforms the items in the collection into instances of the specified class.
+
+```javascript
+class Item {
+    constructor(public value: number) {}
+}
+const mappedInto = collection.mapInto(Item);
+console.log(mappedInto.all()); // [Item, Item, Item, Item, Item]
+```
+
+---
+
+### 50. `mapSpread(callback: Function)`
+Applies a function to the items, spreading them.
+
+```javascript
+const mapSpread = collection.mapSpread((item1, item2) => [item1, item2]);
+console.log(mapSpread.all()); // [[1, 2], [3, 4], [5]]
+```
+
+---
+
+### 51. `mapToDictionary(callback: Function)`
+Transforms the items in the collection into a dictionary using a function.
+
+```javascript
+const dictionary = collection.mapToDictionary(item => [item, item * 2]);
+console.log(dictionary.all()); // { '1': 2, '2': 4, '3': 6, '4': 8, '5': 10 }
+```
+
+---
+
+### 52. `mapToGroups(callback: Function)`
+Groups the items based on a specified function.
+
+```javascript
+const groups = collection.mapToGroups(item => [item % 2, item]);
+console.log(groups.all()); // { '1': [1, 3, 5], '0': [2, 4] }
+```
+
+---
+
+### 53. `mapWithKeys(callback: Function)`
+Transforms the collection into a new collection with keys using a function.
+
+```javascript
+const mappedWithKeys = collection.mapWithKeys(item => [item, item * 2]);
+console.log(mappedWithKeys.all()); // { 1: 2, 2: 4, 3: 6, 4: 8, 5: 10 }
+```
+
+---
+
+### 54. `max()`
+Returns the maximum value in the collection.
+
+```javascript
+const max = collection.max();
+console.log(max); // 5
+```
+
+---
+
+### 55. `median()`
+Returns the median value in the collection.
+
+```javascript
+const median = collection.median();
+console.log(median); // 3
+```
+
+---
+
+### 56. `merge(...arrays: any[][])`
+Merges the given arrays with the collection.
+
+```javascript
+const merged = collection.merge([[6, 7], [8]]);
+console.log(merged.all()); // [1, 2, 3, 4, 5, 6, 7, 8]
+```
+
+---
+
+### 57. `mergeRecursive(...arrays: any[][])`
+Merges the arrays with the collection recursively.
+
+```javascript
+const mergedRecursive = collection.mergeRecursive([{ a: 1 }, { b: 2 }]);
+console.log(mergedRecursive.all()); // [{ a: 1 }, { b: 2 }]
+```
+
+---
+
+### 58. `min()`
+Returns the minimum value in the collection.
+
+```javascript
+const min = collection.min();
+console.log(min); // 1
+```
+
+---
+
+### 59. `mode()`
+Returns the most frequent values in the collection.
+
+```javascript
+const mode = collection.mode();
+console.log(mode); // [1, 2, 3, 4, 5]
+```
+
+---
+
+### 60. `nth(n: number)`
+Returns the item at the specified index.
+
+```javascript
+const nth = collection.nth(2);
+console.log(nth); // 3
+```
+
+---
+
+### 61. `only(keys: any[])`
+Returns only the items with the specified keys.
+
+```javascript
+const only = collection.only([1, 2]);
+console.log(only.all()); // [1, 2]
+```
+
+---
+
+### 62. `pad(size: number, value: any)`
+Adds items to the collection to reach the desired size using the specified value.
+
+```javascript
+const padded = collection.pad(7, 'x');
+console.log(padded.all()); // [1, 2, 3, 4, 5, 'x', 'x']
+```
+
+---
+
+### 63. `partition(callback: Function)`
+Splits the collection into two parts based on a condition.
+
+```javascript
+const [matches, nonMatches] = collection.partition(item => item % 2 === 0);
+console.log(matches.all()); // [2, 4]
+console.log(nonMatches.all()); // [1, 3, 5]
+```
+
+---
+
+### 64. `pipe(callback: Function)`
+Passes the collection through the specified function.
+
+```javascript
+const piped = collection.pipe(items => items.map(item => item * 2));
+console.log(piped.all()); // [2, 4, 6, 8, 10]
+```
+
+---
+
+### 65. `pluck(key: string)`
+Extracts values from the collection based on a specified key.
+
+```javascript
+const collection = collect([{ value: 1 }, { value: 2 }, { value: 3 }]);
+const plucked = collection.pluck('value');
+console.log(plucked.all()); // [1, 2, 3]
+```
+
+---
+
+### 66. `pop()`
+Removes and returns the last item in the collection.
+
+```javascript
+const lastItem = collection.pop();
+console.log(lastItem); // 5
+```
+
+---
+
+### 67. `prepend(value: any)`
+Adds the specified value to the beginning of the collection.
+
+```javascript
+const prepended = collection.prepend(0);
+console.log(prepended.all()); // [0, 1, 2, 3, 4, 5]
+```
+
+---
+
+### 68. `pull(key: any)`
+Removes and returns the item based on the specified key.
+
+```javascript
+const pulled = collection.pull(2);
+console.log(pulled); // 3
+```
+
+---
+
+### 69. `push(value: any)`
+Adds the specified value to the end of the collection.
+
+```javascript
+const pushed = collection.push(6);
+console.log(pushed.all()); // [1, 2, 3, 4, 5, 6]
+```
+
+---
+
+### 70. `put(key: any, value: any)`
+Sets a value for a specified key in the collection.
+
+```javascript
+const collection = collect([1, 2, 3, 4, 5]);
+collection.put(5, 6);
+console.log(collection.all()); // [1, 2, 3, 4, 6]
+```
+
+---
+
+### 71. `random()`
+Returns a random item from the collection.
+
+```javascript
+const random = collection.random();
+console.log(random); // Random value
+```
+
+---
+
+### 72. `reduce(callback: Function)`
+Reduces the collection to a single value using the specified function.
+
+```javascript
+const reduced = collection.reduce((carry, item) => carry + item, 0);
+console.log(reduced); // 15
+```
+
+---
+
+### 73. `reject(callback: Function)`
+Filters the items, removing those that satisfy the specified condition.
+
+```javascript
+const rejected = collection.reject(item => item % 2 === 0);
+console.log(rejected.all()); // [1, 3, 5]
+```
+
+---
+
+### 74. `replace(search: any, replace: any)`
+Replaces the specified items in the collection.
+
+```javascript
+const replaced = collection.replace(2, 10);
+console.log(replaced.all()); // [1, 10, 3, 4, 5]
+```
+
+---
+
+### 75. `replaceRecursive(search: any, replace: any)`
+Replaces the items recursively in the collection.
+
+```javascript
+const collection = collect([{ a: 1 }, { a: 2 }]);
+const replacedRecursive = collection.replaceRecursive({ a: 1 }, { a: 3 });
+console.log(replacedRecursive.all()); // [{ a: 3 }, { a: 2 }]
+```
+
+---
+
+### 76. `reverse()`
+Reverses the order of the items in the collection.
+
+```javascript
+const reversed = collection.reverse();
+console.log(reversed.all()); // [5, 4, 3, 2, 1]
+```
+
+---
+
+### 77. `search(value: any)`
+Searches for a value and returns its index.
+
+```javascript
+const searchIndex = collection.search(3);
+console.log(searchIndex); // 2
+```
+
+---
+
+### 78. `shift()`
+Removes and returns the first item in the collection.
+
+```javascript
+const firstItem = collection.shift();
+console.log(firstItem); // 1
+```
+
+---
+
+### 79. `shuffle()`
+Randomizes the order of the items in the collection.
+
+```javascript
+const shuffled = collection.shuffle();
+console.log(shuffled.all()); // Random order
+```
+
+---
+
+### 80. `skip(amount: number)`
+Skips a specified number of items and returns the remaining items.
+
+```javascript
+const skipped = collection.skip(2);
+console.log(skipped.all()); // [3, 4, 5]
+```
+
+---
+
+### 81. `skipUntil(callback: Function)`
+Skips items until the callback returns true.
+
+```javascript
+const skippedUntil = collection.skipUntil(item => item > 2);
+console.log(skippedUntil.all()); // [3, 4, 5]
+```
+
+---
+
+### 82. `skipWhile(callback: Function)`
+Skips items while the callback returns true.
+
+```javascript
+const skippedWhile = collection.skipWhile(item => item < 3);
+console.log(skippedWhile.all()); // [3, 4, 5]
+```
+
+---
+
+### 83. `slice(start: number, end?: number)`
+Returns a portion of the collection based on the specified start and end.
+
+```javascript
+const sliced = collection.slice(1, 4);
+console.log(sliced.all()); // [2, 3, 4]
+```
+
+---
+
+### 84. `sole()`
+Returns the sole item in the collection or throws an exception if there is more than one item.
+
+```javascript
+const sole = collect([1]).sole();
+console.log(sole); // 1
+```
+
+---
+
+### 85. `some(callback: Function)`
+Checks if any items satisfy the condition in the callback.
+
+```javascript
+const some = collection.some(item => item > 3);
+console.log(some); // true
+```
+
+---
+
+### 86. `sort(callback?: Function)`
+Sorts the items in the collection using the specified callback function if provided.
+
+```javascript
+const sorted = collection.sort((a, b) => a - b);
+console.log(sorted.all()); // [1, 2, 3, 4, 5]
+```
+
+---
+
+### 87. `sortBy(callback: Function)`
+Sorts the items based on the result returned by the callback function.
+
+```javascript
+const sortedBy = collection.sortBy(item => -item);
+console.log(sortedBy.all()); // [5, 4, 3, 2, 1]
+```
+
+---
+
+### 88. `sortByDesc(callback: Function)`
+Sorts the items in descending order based on the result returned by the callback function.
+
+```javascript
+const sortedByDesc = collection.sortByDesc(item => item);
+console.log(sortedByDesc.all()); // [5, 4, 3, 2, 1]
+```
+
+---
+
+### 89. `sortDesc()`
+Sorts the items in the collection in descending order.
+
+```javascript
+const sortedDesc = collection.sortDesc();
+console.log(sortedDesc.all()); // [5, 4, 3, 2, 1]
+```
+
+---
+
+### 90. `sortKeys()`
+Sorts the collection by keys.
+
+```javascript
+const sortedKeys = collection.sortKeys();
+console.log(sortedKeys.all()); // Sorted keys
+```
+
+---
+
+### 91. `sortKeysDesc()`
+Sorts the collection by keys in descending order.
+
+```javascript
+const sortedKeysDesc = collection.sortKeysDesc();
+console.log(sortedKeysDesc.all()); // Sorted keys in descending order
+```
+
+---
+
+### 92. `splice(start: number, deleteCount?: number, ...items: any[])`
+Removes and inserts items in the collection starting from the specified position.
+
+```javascript
+collection.splice(2, 1, 10, 11);
+console.log(collection.all()); // [1, 2, 10, 11, 4, 5]
+```
+
+---
+
+### 93. `split(size: number)`
+Splits the collection into chunks of a specified size.
+
+```javascript
+const split = collection.split(2);
+console.log(split.all()); // [[1, 2], [3, 4], [5]]
+```
+
+---
+
+### 94. `sum()`
+Returns the sum of the values in the collection.
+
+```javascript
+const sum = collection.sum();
+console.log(sum); // 15
+```
+
+---
+
+### 95. `take(amount: number)`
+Returns a specified number of items from the beginning of the collection.
+
+```javascript
+const taken = collection.take(3);
+console.log(taken.all()); // [1, 2, 3]
+```
+
+---
+
+### 96. `takeUntil(callback: Function)`
+Returns items until the callback returns true.
+
+```javascript
+const takenUntil = collection.takeUntil(item => item > 3);
+console.log(takenUntil.all()); // [1, 2, 3, 4]
+```
+
+---
+
+### 97. `takeWhile(callback: Function)`
+Returns items while the callback returns true.
+
+```javascript
+const takenWhile = collection.takeWhile(item => item < 4);
+console.log(takenWhile.all()); // [1, 2, 3]
+```
+
+---
+
+### 98. `tap(callback: Function)`
+Executes the callback function on the collection and returns the collection itself.
+
+```javascript
+const tapped = collection.tap(items => console.log('Tapped:', items));
+console.log(tapped.all()); // [1, 2, 3, 4, 5]
+```
+
+---
+
+### 99. `times(n: number, callback: Function)`
+Executes the callback function a specified number of times.
+
+```javascript
+collect().times(3, i => console.log(i));
+// Output: 0 1 2
+```
+
+---
+
+### 100. `toArray()`
+Converts the collection to an array.
+
+```javascript
+const array = collection.toArray();
+console.log(array); // [1, 2, 3, 4, 5]
+```
+
+---
+
+### 101. `toJson()`
+Converts the collection to JSON format.
+
+```javascript
+const json = collection.toJson();
+console.log(json); // '[1,2,3,4,5]'
+```
+
+---
+
+### 102. `transform(callback: Function)`
+Transforms each item in the collection using the callback function.
+
+```javascript
+const transformed = collection.transform(item => item * 2);
+console.log(transformed.all()); // [2, 4, 6, 8, 10]
+```
+
+---
+
+### 103. `undot()`
+Removes dot notation from the items in the collection.
+
+```javascript
+const undotted = collection.undot();
+console.log(undotted.all()); // Undotted items
+```
+
+---
+
+### 104. `union(...arrays: any[][])`
+Merges the collection with the given arrays, preserving keys.
+
+```javascript
+const union = collection.union([[6, 7]]);
+console.log(union.all()); // [1, 2, 3, 4, 5, 6, 7]
+```
+
+---
+
+### 105. `unique()`
+Returns a collection containing only unique items.
+
+```javascript
+const unique = collection.unique();
+console.log(unique.all()); // [1, 2, 3, 4, 5]
+```
+
+---
+
+### 106. `unless(callback: Function, defaultValue?: any)`
+Returns the default value if the callback does not return true.
+
+```javascript
+const unless = collection.unless(collection.isEmpty(), 'Default');
+console.log(unless); // [1, 2, 3, 4, 5]
+```
+
+---
+
+### 107. `unlessEmpty(defaultValue: any)`
+Returns the default value if the collection is empty.
+
+```javascript
+const unlessEmpty = collection.unlessEmpty('Default');
+console.log(unlessEmpty); // [1, 2, 3, 4, 5]
+```
+
+---
+
+### 108. `unlessNotEmpty(defaultValue: any)`
+Returns the default value if the collection is not empty.
+
+```javascript
+const unlessNotEmpty = collection.unlessNotEmpty('Default');
+console.log(unlessNotEmpty); // 'Default'
+```
+
+---
+
+### 109. `values()`
+Returns the values in the collection as a new collection.
+
+```javascript
+const values = collection.values();
+console.log(values.all()); // [1, 2, 3, 4, 5]
+```
+
+---
+
+### 110. `where(key: any, value: any)`
+Filters the collection based on the specified key and value.
+
+```javascript
+const where = collection.where('key', 'value');
+console.log(where.all()); // Filtered items
+```
+
+---
+
+### 111. `whereIn(key: any, values: any[])`
+Filters the collection if the key's value is in the specified values.
+
+```javascript
+const whereIn = collection.whereIn('key', [1, 2]);
+console.log(whereIn.all()); // Filtered items
+```
+
+---
+
+### 112. `whereNot(key: any, value: any)`
+Filters the collection, excluding items that match the specified key and value.
+
+```javascript
+const whereNot = collection.whereNot('key', 'value');
+console.log(whereNot.all()); // Filtered items
+```
+
+---
+
+### 113. `whereNotIn(key: any, values: any[])`
+Filters the collection if the key's value is not in the specified values.
+
+```javascript
+const whereNotIn = collection.whereNotIn('key', [1, 2]);
+console.log(whereNotIn.all()); // Filtered items
+```
+
+---
+
+### 114. `whereNull(key: any)`
+Filters the collection, excluding items where the key is null.
+
+```javascript
+const whereNull = collection.whereNull('key');
+console.log(whereNull.all()); // Filtered items
+```
+
+---
+
+### 115. `whereNotNull(key: any)`
+Filters the collection, excluding items where the key is not null.
+
+```javascript
+const whereNotNull = collection.whereNotNull('key');
+console.log(whereNotNull.all()); // Filtered items
+```
+
+---
+
+### 116. `with(key: any, value: any)`
+Adds an item to the collection with the specified key and value.
+
+```javascript
+const withItem = collection.with('key', 'value');
+console.log(withItem.all()); // Added item
+```
+
+---
+
+### 117. `without(...keys: any[])`
+Removes the items with the specified keys from the collection.
+
+```javascript
+const withoutKeys = collection.without('key');
+console.log(withoutKeys.all()); // Removed item
+```
+
+---
+
+### 118. `wrap(value: any)`
+Wraps the specified value in a collection.
+
+```javascript
+const wrapped = collection.wrap('value');
+console.log(wrapped.all()); // ['value']
+```
+
+---
+
+### 119. `zip(...collections: Collection[])`
+Merges the collection with the given collections.
+
+```javascript
+const zipped = collection.zip([[6, 7]]);
+console.log(zipped.all()); // [[1, 6], [2, 7]]
+```

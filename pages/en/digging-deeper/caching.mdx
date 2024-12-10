@@ -1,0 +1,151 @@
+---
+title: Caching in Kawkab JS
+description: How to use caching in Kawkab JS to improve performance and reduce the number of queries to the database.
+---
+
+# Caching in Kawkab JS
+
+**Caching** is an important technique that helps improve the performance of applications by storing frequently used data in memory, reducing the need for repeated queries to the database or other sources. In Kawkab JS, a simple interface for using caching is provided through **Cache**.
+
+## How to Use Caching
+
+### 1. Storing Data in Memory
+
+You can store data in memory using `cache.set`. For example, if you need to store the initial settings of the application, you can use the following code:
+
+```typescript
+import { cache, Settings } from "kawkab";
+
+// Check if the settings are already in the cache
+if (!cache.has("settings")) {
+  // If not, store them in the cache
+  cache.set("settings", Settings.query().get());
+
+  console.log("Settings cached from database!");
+}
+
+// Retrieve the settings from the cache
+const settings = cache.get("settings");
+
+return {
+  status: true,
+  settings: settings,
+};
+```
+
+### 2. Using Available Caching Functions
+
+The caching code we added relies on **Cache**, which provides a simple interface for handling temporary memory. Here are the details of the **Cache** functions that can be used:
+
+#### 2.1. Retrieving Stored Data
+
+This function retrieves data stored in memory based on the specified **key**. If the data exists, the value is returned; if not, `undefined` is returned.
+
+```typescript
+const cachedData = cache.get("user_profile");
+if (cachedData) {
+  // Handle the cached data
+} else {
+  // Load data from the database
+}
+```
+
+#### 2.2. Storing Data in Memory
+
+This function stores data in memory under a specific key. You can specify **TTL** (Time To Live) in seconds. If not specified, the data will remain in memory indefinitely.
+
+```typescript
+cache.set("user_profile", { name: "Ali", age: 30 }, 3600);  // Data stored for 1 hour
+```
+
+#### 2.3. Deleting Stored Data
+
+To delete data stored in memory using a specific key, you can use this function.
+
+```typescript
+cache.delete("user_profile");  // Delete the stored data
+```
+
+#### 2.4. Clearing All Stored Data
+
+This function clears all data stored in memory.
+
+```typescript
+cache.clear();  // Clear all data from the cache
+```
+
+#### 2.5. Checking for Data in Memory
+
+This function checks if data exists in the cache. It returns `true` if the data exists and `false` if it does not.
+
+```typescript
+if (cache.has("user_profile")) {
+  console.log("Data found in cache");
+} else {
+  console.log("Data not found in cache");
+}
+```
+
+## How Cache Class Works
+
+### Creating a Cache Class
+
+You can create a cache class using the following command:
+
+```bash
+npm run kawkab cache:make <name> [module]
+```
+
+Example:
+
+```bash
+npm run kawkab cache:make setting
+```
+
+### Result
+
+**Cache setting** has been successfully created in the `main` module.
+
+1️⃣ **Your class is ready!** You can now import it like this:
+👉 `import { SettingCache } from "../cache/setting"`
+
+2️⃣ Use the cache class like this:
+👉 `SettingCache.cache()`
+
+3️⃣ You can pass data like this:
+👉 `SettingCache.cache({ id: 1, name: 'Hassan' })`
+
+4️⃣ To access the data within the cache class:
+👉 `this.data`
+
+### Example of the Class
+
+```typescript
+import { BaseCache } from "kawkab";
+import { Setting } from "../models";
+
+export class SettingCache extends BaseCache {
+    static key(): string {
+        return "setting"  // Specify the unique key for storing data
+    }
+
+    static handle() {
+        return Setting.query().get()
+    }
+
+    static time(): number {
+        return 60 * 60 // 1 hour default TTL
+    }
+}
+```
+
+## Conclusion
+
+**Caching** is a powerful tool for improving performance and reducing response times for applications. By storing frequently used data in memory, the application can avoid repeated queries to the database or other sources. With **Cache**, you can easily manage stored data, customizing TTL and data validation periods.
+
+### Benefits:
+- Improved response speed.
+- Reduced load on the database.
+- Customizable settings such as TTL and data validation periods.
+
+Using **caching** in your application will significantly increase efficiency and performance.

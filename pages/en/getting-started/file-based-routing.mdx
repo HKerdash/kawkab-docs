@@ -1,0 +1,142 @@
+---
+title: File-Based Routing  
+description: Explanation of how the file-based routing system works in the Kawkab framework
+---
+
+# File-Based Routing in Kawkab
+
+Kawkab uses a file-based routing system, a method that makes creating and managing application routes easier and more intuitive.
+
+## How does it work?
+
+In Kawkab, routes are automatically defined based on the file structure within the `controllers` folder. Each file in this folder represents a route in your application.
+
+### Simple Example
+
+```
+app/
+└── modules/
+    └── main/
+        └── controllers/
+            ├── index.ts         // represents "/"
+            ├── about.ts         // represents "/about"
+            └── users/
+                ├── index.ts     // represents "/users"
+                └── [id].ts      // represents "/users/:id"
+```
+
+## Types of Routes
+
+### 1. Static Routes
+```typescript
+// app/modules/main/controllers/about.ts
+export default class extends BaseController {
+    get() {
+        return {
+            message: "About Page"
+        }
+    }
+}
+```
+
+### 2. Dynamic Routes
+```typescript
+// app/modules/main/controllers/users/[id].ts
+export default class extends BaseController {
+    get() {
+        const userId = this.params.id;
+        return {
+            message: `Viewing user number ${userId}`
+        }
+    }
+}
+```
+
+### 3. Nested Routes
+```typescript
+// app/modules/main/controllers/blog/[category]/[post].ts
+export default class extends BaseController {
+    get() {
+        const { category, post } = this.params;
+        return {
+            category,
+            post
+        }
+    }
+}
+```
+
+## Supported HTTP Methods
+
+Kawkab supports all major HTTP methods:
+
+```typescript
+export default class extends BaseController {
+    // GET /users
+    get() {
+        return { message: "User list" }
+    }
+
+    // POST /users
+    post() {
+        return { message: "Create new user" }
+    }
+
+    // PUT /users
+    put() {
+        return { message: "Update user" }
+    }
+
+    // DELETE /users
+    delete() {
+        return { message: "Delete user" }
+    }
+}
+```
+
+## Best Practices
+
+1. **Organizing Routes**
+   - Use logical folders to group related routes
+   - Maintain a clear hierarchy
+
+2. **Naming Files**
+   - Use clear and descriptive names
+   - Use square brackets for variables `[id]`
+
+3. **Handling Errors**
+   - Handle exceptions properly
+   - Use appropriate HTTP status codes
+
+## Full Example
+
+```typescript
+// app/modules/main/controllers/api/products/[id]/reviews/[reviewId].ts
+export default class extends BaseController {
+    // GET /api/products/1/reviews/5
+    get() {
+        const { id, reviewId } = this.params;
+        return {
+            productId: id,
+            reviewId: reviewId,
+            message: "Viewing a specific review for a specific product"
+        }
+    }
+
+    // POST /api/products/1/reviews
+    post() {
+        const { id } = this.params;
+        return {
+            message: `Adding a new review for product ${id}`
+        }
+    }
+}
+```
+
+## Conclusion
+
+The file-based routing in Kawkab provides:
+- Better code organization
+- Easy understanding and maintenance
+- Flexibility in managing routes
+- Support for dynamic and nested routes

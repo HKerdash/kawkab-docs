@@ -1,0 +1,450 @@
+# النصوص Strings في كوكب Kawkab
+
+**النصوص Strings** هي مجموعة من القيم النصية التي يمكن استخدامها في مختلف أجزاء المشروع. يتم تخزين هذه النصوص في مكان مركزي بحيث يسهل إدارتها وتعديلها دون الحاجة لتكرارها في كود التطبيق. توفر كوكب Kawkab طريقة مرنة لتنظيم النصوص بشكل يجعل التعديل والترجمة أكثر سهولة.
+
+```javascript
+import { string } from "kawkab";
+```
+
+### الدوال المتاحة:
+
+#### `trim(value: string): string`
+يزيل الفراغات من بداية ونهاية السلسلة النصية.
+مثال:
+```typescript
+string.trim("  Hello, World!  "); // يرجع: "Hello, World!"
+```
+
+#### `lower(value: string): string`
+يحول السلسلة النصية إلى حروف صغيرة.
+مثال:
+```typescript
+string.lower("HELLO WORLD"); // يرجع: "hello world"
+```
+
+#### `upper(value: string): string`
+يحول السلسلة النصية إلى حروف كبيرة.
+مثال:
+```typescript
+string.upper("hello world"); // يرجع: "HELLO WORLD"
+```
+
+#### `length(value: string): number`
+يرجع طول السلسلة النصية.
+مثال:
+```typescript
+string.length("Hello"); // يرجع: 5
+```
+
+#### `contains(haystack: string, needle: string): boolean`
+يتحقق مما إذا كانت السلسلة النصية تحتوي على جزء معين.
+مثال:
+```typescript
+string.contains("Hello, World!", "World"); // يرجع: true
+```
+
+#### `startsWith(haystack: string, needle: string): boolean`
+يتحقق مما إذا كانت السلسلة النصية تبدأ بجزء معين.
+مثال:
+```typescript
+string.startsWith("Hello, World!", "Hello"); // يرجع: true
+```
+
+#### `endsWith(haystack: string, needle: string): boolean`
+يتحقق مما إذا كانت السلسلة النصية تنتهي بجزء معين.
+مثال:
+```typescript
+string.endsWith("Hello, World!", "World!"); // يرجع: true
+```
+
+#### `replaceFirst(haystack: string, search: string, replace: string): string`
+يستبدل أول حدوث لجزء معين بسلسلة نصية أخرى.
+مثال:
+```typescript
+string.replaceFirst("Hello, World!", "o", "0"); // يرجع: "Hell0, World!"
+```
+
+#### `replaceLast(haystack: string, search: string, replace: string): string`
+يستبدل آخر حدوث لجزء معين بسلسلة نصية أخرى.
+مثال:
+```typescript
+string.replaceLast("Hello, World!", "o", "0"); // يرجع: "Hello, W0rld!"
+```
+
+#### `random(length: number = 16): string`
+ينشئ سلسلة نصية عشوائية بالطول المحدد.
+مثال:
+```typescript
+string.random(8); // يرجع سلسلة عشوائية بطول 8، مثل: "a1B2c3D4"
+```
+
+#### `camel(value: string): string`
+يحول السلسلة النصية إلى camelCase.
+مثال:
+```typescript
+string.camel("hello_world"); // يرجع: "helloWorld"
+```
+
+#### `snake(value: string): string`
+يحول السلسلة النصية إلى snake_case.
+مثال:
+```typescript
+string.snake("helloWorld"); // يرجع: "hello_world"
+```
+
+#### `kebab(value: string): string`
+يحول السلسلة النصية إلى kebab-case.
+مثال:
+```typescript
+string.kebab("helloWorld"); // يرجع: "hello-world"
+```
+
+#### `slug(value: string): string`
+يحول السلسلة النصية إلى تنسيق مناسب لعنوان URL.
+مثال:
+```typescript
+string.slug("Hello, World!"); // يرجع: "hello-world"
+```
+
+#### `after(value: string, search: string): string`
+يرجع الجزء النصي الذي يلي جزء معين في السلسلة النصية.
+مثال:
+```typescript
+string.after("Hello, World!", ","); // يرجع: " World!"
+```
+
+#### `afterLast(value: string, search: string): string`
+يرجع الجزء النصي الذي يلي آخر حدوث لجزء معين في السلسلة النصية.
+مثال:
+```typescript
+string.afterLast("Hello, World, Again!", ","); // يرجع: " Again!"
+```
+
+#### `ascii(value: string): string`
+يزيل الأحرف غير ASCII من السلسلة النصية.
+مثال:
+```typescript
+string.ascii("Héllö Wörld"); // يرجع: "Hell Wrld"
+```
+
+#### `before(value: string, search: string): string`
+يرجع الجزء النصي الذي يسبق جزء معين في السلسلة النصية.
+مثال:
+```typescript
+string.before("Hello, World!", ","); // يرجع: "Hello"
+```
+
+#### `beforeLast(value: string, search: string): string`
+يرجع الجزء النصي الذي يسبق آخر حدوث لجزء معين في السلسلة النصية.
+مثال:
+```typescript
+string.beforeLast("Hello, World, Again!", ","); // يرجع: "Hello, World"
+```
+
+#### `between(value: string, start: string, end: string): string`
+يرجع الجزء النصي بين جزئين معينين في السلسلة النصية.
+مثال:
+```typescript
+string.between("Hello [World] Again", "[", "]"); // يرجع: "World"
+```
+
+#### `betweenFirst(value: string, start: string, end: string): string`
+يرجع الجزء النصي بين أول حدوث لجزئين معينين في السلسلة النصية.
+مثال:
+```typescript
+string.betweenFirst("Hello [World] [Again]", "[", "]"); // يرجع: "World"
+```
+
+#### `charAt(value: string, index: number): string`
+يرجع الحرف في فهرس معين من السلسلة النصية.
+مثال:
+```typescript
+string.charAt("Hello", 1); // يرجع: "e"
+```
+
+#### `chopStart(value: string, count: number): string`
+يزيل عدد محدد من الأحرف من بداية السلسلة النصية.
+مثال:
+```typescript
+string.chopStart("Hello", 2); // يرجع: "llo"
+```
+
+#### `chopEnd(value: string, count: number): string`
+يزيل عدد محدد من الأحرف من نهاية السلسلة النصية.
+مثال:
+```typescript
+string.chopEnd("Hello", 2); // يرجع: "Hel"
+```
+
+#### `containsAll(value: string, needles: string[]): boolean`
+يتحقق مما إذا كانت جميع الأجزاء المحددة موجودة في السلسلة النصية.
+مثال:
+```typescript
+string.containsAll("Hello, World!", ["Hello", "World"]); // يرجع: true
+```
+
+#### `excerpt(value: string, phrase: string, options: { radius?: number; omission?: string }): string | null`
+يستخرج مقتطف من السلسلة النصية حول عبارة معينة.
+مثال:
+```typescript
+string.excerpt("This is a long text with a specific phrase to find.", "specific phrase", { radius: 10 });
+// يرجع: "...text with a specific phrase to find..."
+``` 
+
+#### `finish(value: string, cap: string): string`  
+يضمن أن السلسلة النصية تنتهي بسلسلة معينة.  
+**مثال:**  
+```javascript
+string.finish("Hello", "!"); // النتيجة: "Hello!"
+string.finish("Hello!", "!"); // النتيجة: "Hello!"
+```
+
+#### `headline(value: string): string`  
+يحويل السلسلة النصية إلى صيغة عنوان (تتكبير أول حرف في كل كلمة).  
+**مثال:**  
+```javascript
+string.headline("hello world"); // النتيجة: "Hello World"
+```
+
+#### `inlineMarkdown(value: string): string`  
+يحويل التنسيق Markdown داخل السلسلة النصية إلى HTML.  
+**مثال:**  
+```javascript
+string.inlineMarkdown("This is **bold** and *italic*"); // النتيجة: "This is <strong>bold</strong> and <em>italic</em>"
+```
+
+#### `is(value: string, pattern: string): boolean`  
+يتحقق مما إذا كانت السلسلة النصية تتطابق مع نمط معين.  
+**مثال:**  
+```javascript
+string.is("foo", "f*"); // النتيجة: true
+```
+
+#### `isAscii(value: string): boolean`  
+يتحقق مما إذا كانت السلسلة النصية تحتوي على أحرف ASCII فقط.  
+**مثال:**  
+```javascript
+string.isAscii("Hello"); // النتيجة: true
+string.isAscii("Héllo"); // النتيجة: false
+```
+
+#### `isJson(value: string): boolean`  
+يتحقق مما إذا كانت السلسلة النصية بصيغة JSON صحيحة.  
+**مثال:**  
+```javascript
+string.isJson('{"name":"John", "age":30}'); // النتيجة: true
+string.isJson("Not JSON"); // النتيجة: false
+```
+
+#### `isUlid(value: string): boolean`  
+يتحقق مما إذا كانت السلسلة النصية بصيغة ULID صحيحة.  
+**مثال:**  
+```javascript
+string.isUlid("01ARZ3NDEKTSV4RRFFQ69G5FAV"); // النتيجة: true
+string.isUlid("not-ulid"); // النتيجة: false
+```
+
+#### `isUrl(value: string): boolean`  
+يتحقق مما إذا كانت السلسلة النصية بصيغة URL صحيحة.  
+**مثال:**  
+```javascript
+string.isUrl("https://www.example.com"); // النتيجة: true
+string.isUrl("not-url"); // النتيجة: false
+```
+
+#### `isUuid(value: string): boolean`  
+يتحقق مما إذا كانت السلسلة النصية بصيغة UUID صحيحة.  
+**مثال:**  
+```javascript
+string.isUuid("550e8400-e29b-41d4-a716-446655440000"); // النتيجة: true
+string.isUuid("not-uuid"); // النتيجة: false
+```
+
+#### `lcfirst(value: string): string`  
+يحول أول حرف في السلسلة النصية إلى حرف صغير.  
+**مثال:**  
+```javascript
+string.lcfirst("Hello"); // النتيجة: "hello"
+```
+
+#### `limit(value: string, limit: number = 100, end: string = '...'): string`  
+يحدد طول السلسلة النصية، مع إضافة ثلاث نقاط إذا تم تقصير النص.  
+**مثال:**  
+```javascript
+string.limit("This is a long text", 10); // النتيجة: "This is a..."
+```
+
+#### `padBoth(value: string, length: number, pad: string = ' '): string`  
+يضيف حشوًا على جانبي السلسلة النصية حتى يصل الطول إلى القيمة المحددة.  
+**مثال:**  
+```javascript
+string.padBoth("Hello", 10, "-"); // النتيجة: "--Hello---"
+```
+
+#### `padLeft(value: string, length: number, pad: string = ' '): string`  
+يضيف حشوًا على الجهة اليسرى للسلسلة النصية حتى يصل الطول إلى القيمة المحددة.  
+**مثال:**  
+```javascript
+string.padLeft("Hello", 10, "-"); // النتيجة: "-----Hello"
+```
+
+#### `padRight(value: string, length: number, pad: string = ' '): string`  
+يضيف حشوًا على الجهة اليمنى للسلسلة النصية حتى يصل الطول إلى القيمة المحددة.  
+**مثال:**  
+```javascript
+string.padRight("Hello", 10, "-"); // النتيجة: "Hello-----"
+```
+
+#### `plural(value: string, count: number = 2): string`  
+يحول السلسلة النصية إلى صيغة الجمع بناءً على العدد.  
+**مثال:**  
+```javascript
+string.plural("apple", 1); // النتيجة: "apple"
+string.plural("apple", 2); // النتيجة: "apples"
+```
+
+#### `removeWhitespace(value: string): string`  
+يزيل جميع المسافات البيضاء من السلسلة النصية.  
+**مثال:**  
+```javascript
+string.removeWhitespace("Hello World"); // النتيجة: "HelloWorld"
+```
+
+#### `repeat(value: string, times: number): string`  
+يكرر السلسلة النصية عددًا محددًا من المرات.  
+**مثال:**  
+```javascript
+string.repeat("Hello", 3); // النتيجة: "HelloHelloHello"
+```
+
+#### `reverse(value: string): string`  
+يعكس الحروف في السلسلة النصية.  
+**مثال:**  
+```javascript
+string.reverse("Hello"); // النتيجة: "olleH"
+```
+
+#### `rotate(value: string, positions: number): string`  
+يدير السلسلة النصية بعدد معين من المواقع (إيجابي لليمين، سلبي لليسار).  
+**مثال:**  
+```javascript
+string.rotate("Hello", 2); // النتيجة: "loHel"
+string.rotate("Hello", -1); // النتيجة: "elloH"
+```
+
+#### `simplifySlug(value: string): string`  
+يحول السلسلة النصية إلى صيغة مبسطة تناسب استخدامها كـ URL slug.  
+**مثال:**  
+```javascript
+string.simplifySlug("Hello, World!"); // النتيجة: "hello-world"
+```
+
+#### `sort(value: string): string`  
+يرتب الحروف في السلسلة النصية ترتيبًا أبجديًا.  
+**مثال:**  
+```javascript
+string.sort("hello"); // النتيجة: "ehllo"
+```
+
+#### `split(value: string, separator: string): string[]`  
+يفصل السلسلة النصية إلى مصفوفة من السلاسل الفرعية بناءً على فاصل معين.  
+**مثال:**  
+```javascript
+string.split("a,b,c", ","); // النتيجة: ["a", "b", "c"]
+```
+
+#### `shuffle(value: string): string`  
+يمزج الأحرف في السلسلة النصية بشكل عشوائي.  
+**مثال:**  
+```javascript
+string.shuffle("hello"); // النتيجة: ترتيب عشوائي مثل "lloeh"
+```
+
+#### `stripTags(value: string): string`  
+يزيل الوسوم HTML من السلسلة النصية.  
+**مثال:**  
+```javascript
+string.stripTags("<p>Hello <b>World</b></p>"); // النتيجة: "Hello World"
+```
+
+#### `title(value: string, exclusions: string[] = []): string`  
+يحويل السلسلة النصية إلى صيغة عنوان (تتكبير أول حرف في كل كلمة).  
+**مثال:**  
+```javascript
+string.title("hello world"); // النتيجة: "Hello World"
+string.title("a fire upon the deep", ["a", "the", "upon"]); // النتيجة: "A Fire upon the Deep"
+```
+
+#### `transform(value: string, callback: (char: string) => string): string`  
+يحول السلسلة النصية عبر تطبيق دالة رد نداء على كل حرف في النص.  
+**مثال:**  
+```javascript
+string.transform("hello", char => char.toUpperCase()); // النتيجة: "HELLO"
+```
+
+#### `trimLeft(value: string, char: string = ' '): string`  
+يزيل الحروف من الجهة اليسرى للسلسلة النصية.  
+**مثال:**  
+```javascript
+string.trimLeft("  Hello"); // النتيجة: "Hello"
+string.trimLeft("!!!Hello", "!"); // النتيجة: "Hello"
+```
+
+#### `trimRight(value: string, char: string = ' '): string`  
+يزيل الحروف من الجهة اليمنى للسلسلة النصية.  
+**مثال:**  
+```javascript
+string.trimRight("Hello  "); // النتيجة: "Hello"
+string.trimRight("Hello!!!", "!"); // النتيجة: "Hello"
+```
+
+#### `truncate(value: string, length: number, end: string = '...'): string`  
+يقصر السلسلة النص
+
+ية إلى طول معين، ويستبدل أي فائض بثلاث نقاط (...).  
+**مثال:**  
+```javascript
+string.truncate("This is a long text", 10); // النتيجة: "This is..."
+```
+
+#### `unescapeHtml(value: string): string`  
+يفك تشفير الكيانات HTML في السلسلة النصية.  
+**مثال:**  
+```javascript
+string.unescapeHtml("&lt;p&gt;Hello&lt;/p&gt;"); // النتيجة: "<p>Hello</p>"
+```
+
+#### `ucwords(value: string): string`  
+يحويل أول حرف في كل كلمة إلى حرف كبير.  
+**مثال:**  
+```javascript
+string.ucwords("hello world"); // النتيجة: "Hello World"
+```
+
+#### `urlencode(value: string): string`  
+يحول السلسلة النصية إلى صيغة URL-encoded.  
+**مثال:**  
+```javascript
+string.urlencode("Hello World!"); // النتيجة: "Hello%20World%21"
+```
+
+#### `urldecode(value: string): string`  
+يفك تشفير السلسلة النصية من صيغة URL-encoded.  
+**مثال:**  
+```javascript
+string.urldecode("Hello%20World%21"); // النتيجة: "Hello World!"
+```
+
+#### `uuid(value: string): string`  
+يحول السلسلة النصية إلى تنسيق UUID (32 حرفًا هكساديسمل، مفصولة بشرطات).  
+**مثال:**  
+```javascript
+string.uuid("550e8400e29b41d4a716446655440000"); // النتيجة: "550e8400-e29b-41d4-a716-446655440000"
+```
+
+#### `ucfirst(value: string): string`  
+يحول أول حرف في السلسلة النصية إلى حرف كبير.  
+**مثال:**  
+```javascript
+string.ucfirst("hello"); // النتيجة: "Hello"
+```

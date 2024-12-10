@@ -1,0 +1,92 @@
+---
+title: Managing Repositories in Kawkab Framework
+description: A guide to creating and using Repositories in the Kawkab framework to organize database interactions.
+---
+
+# Managing Repositories in Kawkab Framework
+
+Repositories are a fundamental component in the **Kawkab Framework** used to separate data access logic from Services and the rest of the application. This approach allows you to organize database-related operations and make the code cleaner and more reusable.
+
+---
+
+## Repository Creation Command
+
+To create a new repository, use the following command:
+
+```bash
+npm run kawkab repository:make <n> [module]
+```
+
+### **Parameters:**
+- `<n>`: The name of the repository to create (e.g., `user`).
+- `[module]` _(optional)_: The name of the module the repository belongs to. If no module is specified, it will be placed in the default `main` module.
+
+### **Example:**
+```bash
+npm run kawkab repository:make user
+```
+
+---
+
+## Basic Repository File Structure
+
+When creating a new repository, a file will be created containing the following structure:
+
+```typescript
+import { BaseRepository, Inject, inherit } from "kawkab";
+import { User } from "../models/user";
+
+export class UserRepository extends inherit(BaseRepository, Inject) {
+    findById(id: number) {
+        return User.query().find(id);
+    }
+}
+```
+
+### **Code Explanation:**
+1. **BaseRepository**: The base class containing default functions for working with databases.
+2. **Inject**: Used for managing dependencies (Dependency Injection).
+3. **inherit**: Used to merge functionality from base classes.
+4. **`findById`**: An example of a custom method to find a user based on their ID.
+
+---
+
+## Using Repository Inside a Service
+
+After creating the repository, it can be imported and used within Services. Here's an example:
+
+```typescript
+import { BaseService, Inject, inherit } from "kawkab";
+import { UserRepository } from "../repositories/user";
+
+export class UserService extends inherit(BaseService, Inject) {
+  constructor(private userRepository = UserRepository.inject()) {
+    super();
+  }
+  
+  findById(id: number) {
+    return this.userRepository.findById(id);
+  }
+}
+```
+
+### **Code Explanation:**
+1. **`UserRepository.inject()`**: The repository is automatically injected for use within the service.
+2. **`findById`**: A service that calls the `findById` function in the repository to execute database logic.
+
+---
+
+## Benefits of Using Repositories
+
+1. **Database Logic Separation**: Makes it easier to separate data access logic from the rest of the application.
+2. **Code Reusability**: Repositories can be used across multiple services.
+3. **Easier Testing**: Repositories make code testing easier thanks to the separation of data logic.
+4. **Code Organization**: Makes the code more organized and scalable.
+
+---
+
+## Conclusion
+
+Using Repositories in **Kawkab Framework**, you can better manage database logic and achieve a more organized structure for your application. 
+
+🎉 **Start creating amazing repositories in Kawkab Framework now!**

@@ -1,0 +1,121 @@
+# Settings in Kawkab Kawkab
+
+**Settings** provide an organized way to store values and keys used across the project to customize behaviors or enable/disable specific features. Kawkab Kawkab offers a powerful tool for easily and quickly creating settings files.
+
+---
+
+## Creating a Settings File
+
+To create a new settings file in Kawkab Kawkab, you can use the following command:
+
+```bash
+setting:make <name> [module]
+```
+
+### Parts:
+- **`<name>`**: The name of the settings file (e.g., `auth`).
+- **`[module]`**: The name of the module where the settings will be created. If no module is specified, the file is created in the default `main` module.
+
+---
+
+## Practical Example
+
+Suppose you want to create a settings file named `auth`, execute the following command:
+
+```bash
+npm run kawkab setting:make auth
+```
+
+### Result:
+The following message will appear after execution:
+
+```
+🆗 Setting file 'auth' created successfully in module 'main'.
+
+1️⃣  Your setting file is ready! You can now import it like this:
+👉 import { setting } from '../settings/auth'
+
+2️⃣  Use the setting like so:
+👉 const enable:boolean = setting.enable
+```
+
+### What happened?
+1. A new settings file named `auth` was created inside the default `main` module folder.
+2. The file contains ready-to-use settings.
+3. You can now import the settings and use them in your project.
+
+---
+
+## Using the Settings
+
+After creating the settings file, you can easily import and use it anywhere in your project.
+
+### Example:
+#### Settings file: `auth.ts`
+```ts
+export const setting = {
+    enable: true, // Enable or disable authentication
+    loginAttempts: 5, // Number of allowed login attempts
+    timeout: 300, // Session timeout duration in seconds
+};
+```
+
+#### Using the Settings:
+```ts
+import { setting } from '../settings/auth';
+
+// Read a specific setting
+const isAuthEnabled = setting.enable;
+console.log(`Authentication Enabled: ${isAuthEnabled}`);
+
+// Use another setting
+if (setting.enable) {
+    console.log(`Maximum Login Attempts: ${setting.loginAttempts}`);
+    console.log(`Session Timeout: ${setting.timeout} seconds`);
+}
+```
+
+---
+
+## Customizing the Module
+
+If you want to create a settings file within a specific module instead of the default `main` module, you can specify the module name during execution.
+
+### Example:
+```bash
+npm run kawkab setting:make database app
+```
+
+### Result:
+- A settings file named `database` will be created within the `app` module.
+- The resulting message:
+```
+🆗 Setting file 'database' created successfully in module 'app'.
+
+1️⃣  Your setting file is ready! You can now import it like this:
+👉 import { setting } from '../app/settings/database'
+
+2️⃣  Use the setting like so:
+👉 const maxConnections:number = setting.maxConnections
+```
+
+---
+
+## Benefits of Using Settings
+
+1. **Organizing core values**: Separating settings from core code to make them easier to manage.
+2. **Customizability**: Easily modify settings to change app behavior without altering code.
+3. **Reusability**: Unified settings can be used across different parts of the project.
+4. **Ease of maintenance**: Fewer changes needed when updating settings compared to modifying the core code.
+
+---
+
+## Practical Tips
+
+- **Use descriptive names for settings**: Ensure that setting names reflect their purpose.
+- **Organize settings by module**: If working on a large project, it’s better to split settings into modules for easier management.
+- **Easily update settings**: Use settings files to avoid repeating values or modifying the core code when settings change.
+
+---
+
+With this approach, you can easily and efficiently manage your project's settings in **Kawkab Kawkab** using the **Settings** tool.

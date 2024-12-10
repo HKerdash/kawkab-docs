@@ -1,0 +1,56 @@
+---
+title: Rate Limiter
+description: How to configure and control request rates using the Rate Limiter system in Kawkab JS.
+---
+
+# Rate Limiter in Kawkab JS
+
+A **Rate Limiter** is used to control the number of requests a client can send to the server within a specific time period. This helps prevent attacks like **Denial of Service (DoS)** and protects your application from excessive resource consumption due to repeated requests from the same client.
+
+### Configuring Rate Limiter
+
+You can configure the **Rate Limiter** settings through the main configuration file `app/configuration.ts`. This file provides full control over the maximum number of allowed requests and the time window for each client.
+
+#### Rate Limiter Settings
+
+```typescript
+import { env } from "kawkab";
+import { Provider } from "./provider";
+
+// Main configuration object for the application
+export const app = {
+  // Rate limiter configuration
+  rateLimiter: {
+    // Enable or disable the rate limiter
+    enable: true,
+
+    // Maximum number of requests allowed within the defined time window
+    maxRequests: 100,
+
+    // Time window (in milliseconds) for rate limiting, default is 1 minute (60 * 1000)
+    windowTime: 60 * 1000,
+
+    // Error code sent when rate limit is exceeded
+    code: "too-many-requests",
+
+    // Message displayed when rate limit is exceeded
+    message: "Too many requests. Please try again later.",
+  },
+};
+```
+
+### Explanation of Settings:
+
+- **`enable`**: Determines whether the Rate Limiter is enabled or not. If set to `true`, the system is activated. If set to `false`, it is disabled.
+- **`maxRequests`**: The maximum number of requests that a user can send within a specified time period (defined by the `windowTime`).
+- **`windowTime`**: The time window (in milliseconds) within which the request rate is limited. The default is 60 seconds (60,000 milliseconds).
+- **`code`**: The error code that will be sent as a response when the client exceeds the allowed request limit.
+- **`message`**: The message that will be displayed to the user when the request limit is exceeded.
+
+### Summary
+
+The **Rate Limiter** helps protect your application from attacks based on sending large numbers of requests in a short period. With customizable settings in `configuration.ts`, you can define the maximum number of requests and the time window during which requests are allowed. This improves server security and enhances the user experience.
+
+---
+
+**Note:** Ensure that the **Rate Limiter** settings align with your application’s needs and the volume of traffic you expect.

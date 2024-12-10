@@ -1,0 +1,128 @@
+---
+title: Creating Data Transfer Objects (DTOs) with Kawkab
+description: A comprehensive guide to creating and using Data Transfer Objects (DTOs) in your application using Kawkab.
+---
+
+# Data Transfer Objects (DTOs) with Kawkab
+
+A **Data Transfer Object (DTO)** is an object used to transfer data between different layers of your application in an organized and flexible way. With **Kawkab**, you can easily create DTOs and use them to manage incoming request data or data passed between different parts of your application.
+
+---
+
+## Creating a New DTO with Kawkab
+
+To create a new **DTO**, run the following command:
+
+```bash
+npm run kawkab dto:make <name> [module]
+```
+
+### **Parameter Details:**
+
+- **`<name>`**: The name of the DTO you want to create (e.g., `User`).
+- **`[module]`**: The name of the module that contains the DTO (optional, default is `main`).
+
+### **Practical Example:**
+
+```bash
+npm run kawkab dto:make user
+```
+
+### **Result of Execution:**
+
+- A DTO object named `UserDTO` will be created in the `main` module.
+- You can now easily use this DTO in your application.
+
+---
+
+## How to Use DTO in Your Application
+
+Once the DTO object is created, you can import and use it within your project files.
+
+### Importing the DTO:
+
+To use the DTO, import it as shown below:
+
+```javascript
+import { UserDTO } from "../dto/user";
+```
+
+### Creating a DTO Object:
+
+You can create a DTO object in three ways:
+
+#### 1. **Creating the Object Without Passing Data:**
+
+When no data is passed, the DTO object will automatically fetch the data from the request:
+
+```javascript
+const dto = new UserDTO();
+console.log(dto.data); // Contains data from the current request
+```
+
+#### 2. **Passing Data Directly When Creating the Object:**
+
+You can pass data manually when creating the object:
+
+```javascript
+const dto = new UserDTO({
+    email: "hassan@example.com",
+});
+console.log(dto.data); // Contains { email: "hassan@example.com" }
+```
+
+---
+
+## DTO File Content:
+
+The created `UserDTO` file will contain the following code:
+
+```javascript
+import { BaseDTO, rule as r, req } from "kawkab";
+
+export interface Item {
+    [key: string]: any;
+}
+
+export class UserDTO extends BaseDTO {
+    constructor(data: Item = req.inputs()) {
+        super();
+        this.dto(this, data);
+    }
+
+    static inject(data: Item = req.inputs()) {
+        return { ...new this(data) };
+    }
+
+    data(i: Item): object {
+        return {
+            email: i?.email,
+        };
+    }
+
+    rules() {
+        return {
+            email: r.string().email(),
+        };
+    }
+}
+```
+
+---
+
+## Additional Notes
+
+1. **Data Validation:**
+   - You can define validation rules using the `rules()` method. In the above example, a validation rule for the email field is defined.
+
+2. **Default Data Fetching:**
+   - If no data is passed during object creation, request data is automatically fetched using `req.inputs()`.
+
+3. **Organizing Data:**
+   - You can define the final structure of the data via the `data()` method.
+
+---
+
+## Conclusion
+
+Kawkab provides a flexible way to create Data Transfer Objects (DTOs) to organize and validate data easily. By using this approach, you can improve your application's code and separate data logic from business logic. Take advantage of this feature to build more stable and organized applications.

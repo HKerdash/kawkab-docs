@@ -1,0 +1,194 @@
+---
+title: Middleware in Kawkab Framework
+description: A comprehensive guide to understanding Middleware in the Kawkab framework and how to create and use it effectively.
+---
+
+# **Middleware in Kawkab Framework**
+
+**Middleware** is an intermediate layer used to process incoming requests before they reach the **Controllers** or to execute specific logic after the response.  
+Middleware is a powerful tool for implementing common tasks such as authentication, authorization, and error logging.
+
+---
+
+## **Creating New Middleware**
+
+To create new Middleware in Kawkab, use the following command:
+
+```bash
+npm run kawkab middleware:make <n> [module]
+```
+
+### **Variables:**
+- **`<n>`**: The name of the Middleware.
+- **`[module]`**: The module where the Middleware will be added (optional, defaults to `main`).
+
+### **Practical Example:**
+
+```bash
+npm run kawkab middleware:make auth main
+```
+
+Output:
+```plaintext
+🆗 Middleware auth created successfully in module main.
+
+1️⃣  Your middleware file is ready! You can now import it like this:
+👉 import { AuthMiddleware } from "../middleware/auth"
+
+2️⃣  Use the middleware like so:
+👉 new AuthMiddleware()
+
+3️⃣  You can pass the data like this:
+👉 new AuthMiddleware({id:1, name:'Hassan'})
+
+4️⃣  You can access the data in middleware class like this:
+👉 this.data
+```
+
+---
+
+## **Default Middleware Content**
+
+When creating new Middleware, a file is created containing the following basic structure:
+
+```ts
+import { BaseMiddleware, inherit } from "kawkab";
+
+export class AuthMiddleware extends BaseMiddleware {
+    /**
+     * Execute the main logic of the Middleware.
+     */
+    handle() {
+        console.log("Middleware executed with data:", this.data);
+    }
+}
+```
+
+---
+
+## **How to Use Middleware**
+
+### **Importing Middleware**
+After creating the Middleware, you can import it in the controller or any part of the application.
+
+```ts
+import { AuthMiddleware } from "../middleware/auth";
+```
+
+### **Applying Middleware**
+To utilize the Middleware, you can use it in the following way:
+
+```ts
+new AuthMiddleware();
+```
+
+### **Passing Data to Middleware**
+You can pass data when calling the Middleware:
+
+```ts
+new AuthMiddleware({ id: 1, name: "Hassan" });
+```
+
+### **Accessing Data Inside Middleware**
+You can access the passed data using the `this.data` property inside the Middleware class:
+
+```ts
+export class AuthMiddleware extends BaseMiddleware {
+    handle() {
+        console.log("User ID:", this.data.id);
+        console.log("User Name:", this.data.name);
+    }
+}
+```
+
+---
+
+## **Integrating Middleware with Controllers**
+
+You can bind Middleware to specific functions in the controller using the `middleware()` function.
+
+### **Practical Example:**
+```ts
+import { BaseController, inherit } from "kawkab";
+import { AuthMiddleware } from "../middleware/auth";
+
+export default class extends inherit(BaseController) {
+    middleware() {
+        return {
+            get: () => new AuthMiddleware({ role: "admin" }),
+        };
+    }
+
+    get() {
+        return { status: true, message: "Welcome, admin!" };
+    }
+}
+```
+
+- **`middleware()`**: Binds specific Middleware to methods like `get`, `post`, etc.
+- **`new AuthMiddleware({ role: "admin" })`**: Data is passed to Middleware during execution.
+
+---
+
+## **Practical Examples**
+
+### **User Authentication**
+Creating authentication-specific Middleware:
+
+```ts
+import { BaseMiddleware, inherit } from "kawkab";
+
+export class AuthMiddleware extends BaseMiddleware {
+    handle() {
+        if (!this.data || !this.data.token) {
+            throw new Error("Authentication failed!");
+        }
+
+        console.log("Authenticated user with token:", this.data.token);
+    }
+}
+```
+
+Using it in the controller:
+```ts
+import { BaseController, inherit } from "kawkab";
+import AuthMiddleware from "../middleware/auth";
+
+export default class extends inherit(BaseController) {
+    middleware() {
+        return {
+            get: () => new AuthMiddleware({ token: "valid-token" }),
+        };
+    }
+
+    get() {
+        return { status: true, message: "User is authenticated!" };
+    }
+}
+```
+
+---
+
+## **Summary**
+
+### **Steps to Use Middleware:**
+1. Create new Middleware using the command:
+   ```bash
+   npm run kawkab middleware:make <n> [module]
+   ```
+2. Import Middleware in the controller or elsewhere.
+3. Apply Middleware using `new MiddlewareName()`.
+4. Pass data when needed using `{}` and access it using `this.data`.
+5. Bind Middleware to controller functions via the `middleware()` function.
+
+### **Key Features of Middleware in Kawkab:**
+- **Easy Creation**: Using simple commands.
+- **Flexible Usage**: Can be applied at module or controller level.
+- **Data Passing**: Facilitates data transfer during execution.
+
+---
+
+## **Conclusion**
+
+Middleware in the **Kawkab Framework** provides a powerful tool for customizing request flow and executing common tasks.  
+You can use it to implement authentication, authorization, or even request logging, giving you complete control over the application workflow.

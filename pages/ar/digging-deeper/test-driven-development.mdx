@@ -1,0 +1,167 @@
+---
+title: التطوير الموجه بالاختبارات (TDD)
+description: دليل شامل للتطوير الموجه بالاختبارات وفوائده في إطار العمل كوكب Kawkab
+---
+
+# التطوير الموجه بالاختبارات (TDD)
+
+## ما هو التطوير الموجه بالاختبارات؟
+
+التطوير الموجه بالاختبارات (TDD) هو منهجية في تطوير البرمجيات تعتمد على تكرار دورة قصيرة من الخطوات:
+1. كتابة اختبار يفشل
+2. كتابة أبسط كود يجعل الاختبار ينجح
+3. تحسين الكود مع الحفاظ على نجاح الاختبار
+
+## لماذا نستخدم TDD؟
+
+### 1. تحسين جودة الكود
+- تقليل الأخطاء البرمجية
+- تصميم أفضل للكود
+- توثيق تلقائي للسلوك المتوقع
+
+### 2. زيادة الثقة
+- ضمان عمل الكود كما هو متوقع
+- سهولة اكتشاف الأخطاء
+- تقليل مخاطر التغييرات
+
+### 3. تحسين الإنتاجية
+- تقليل وقت التصحيح
+- تسريع عملية التطوير
+- تسهيل الصيانة
+
+## دورة TDD بالتفصيل
+
+### المرحلة الأولى: الاختبار (Red)
+- كتابة اختبار يصف السلوك المطلوب
+- التأكد من فشل الاختبار
+- تحديد المتطلبات بوضوح
+
+### المرحلة الثانية: التنفيذ (Green)
+- كتابة أبسط كود يجعل الاختبار ينجح
+- التركيز على الوظيفة فقط
+- عدم القلق بشأن الأداء أو الأناقة
+
+### المرحلة الثالثة: التحسين (Refactor)
+- تحسين الكود مع الحفاظ على نجاح الاختبارات
+- إزالة التكرار
+- تحسين القراءة والصيانة
+
+## أنواع الاختبارات في TDD
+
+### 1. اختبارات الوحدة
+تختبر أجزاء صغيرة من الكود بشكل منعزل
+```typescript
+describe('دالة الجمع', () => {
+    test('تجمع رقمين موجبين', () => {
+        expect(add(2, 3)).toBe(5);
+    });
+});
+```
+
+### 2. اختبارات التكامل
+تختبر تفاعل عدة وحدات مع بعضها
+```typescript
+describe('خدمة المستخدمين', () => {
+    test('تسجيل وتسجيل دخول', async () => {
+        const user = await UserService.register(userData);
+        const login = await UserService.login(credentials);
+        expect(login.success).toBe(true);
+    });
+});
+```
+
+### 3. اختبارات السلوك
+تختبر السلوك من منظور المستخدم
+```typescript
+describe('تسجيل المستخدم', () => {
+    test('يظهر رسالة نجاح عند التسجيل', async () => {
+        const response = await registerUser(validData);
+        expect(response.message).toBe('تم التسجيل بنجاح');
+    });
+});
+```
+
+## أفضل الممارسات في TDD
+
+### 1. تصميم الاختبارات
+- اختبارات صغيرة ومركزة
+- أسماء وصفية وواضحة
+- تغطية كافية للحالات
+
+### 2. كتابة الكود
+- البدء بالحالات البسيطة
+- التدرج نحو التعقيد
+- الالتزام بدورة TDD
+
+### 3. التحسين المستمر
+- مراجعة الكود بانتظام
+- تحديث الاختبارات
+- تحسين التغطية
+
+## مثال عملي في كوكب
+
+### 1. كتابة الاختبار أولاً
+```typescript
+// tests/services/auth.test.ts
+describe('خدمة المصادقة', () => {
+    test('التحقق من كلمة المرور', () => {
+        const auth = new AuthService();
+        expect(auth.validatePassword('123456')).toBe(false);
+        expect(auth.validatePassword('StrongPass123!')).toBe(true);
+    });
+});
+```
+
+### 2. تنفيذ الكود
+```typescript
+// src/services/auth.ts
+export class AuthService {
+    validatePassword(password: string): boolean {
+        return password.length >= 8 &&
+               /[A-Z]/.test(password) &&
+               /[0-9]/.test(password) &&
+               /[!@#$%^&*]/.test(password);
+    }
+}
+```
+
+### 3. تحسين الكود
+```typescript
+// src/services/auth.ts
+export class AuthService {
+    private readonly MIN_LENGTH = 8;
+    private readonly PATTERNS = {
+        uppercase: /[A-Z]/,
+        numbers: /[0-9]/,
+        special: /[!@#$%^&*]/
+    };
+
+    validatePassword(password: string): boolean {
+        return this.hasMinLength(password) &&
+               this.meetsAllCriteria(password);
+    }
+
+    private hasMinLength(password: string): boolean {
+        return password.length >= this.MIN_LENGTH;
+    }
+
+    private meetsAllCriteria(password: string): boolean {
+        return Object.values(this.PATTERNS)
+            .every(pattern => pattern.test(password));
+    }
+}
+```
+
+## الخاتمة
+
+التطوير الموجه بالاختبارات في كوكب:
+- يضمن جودة وموثوقية الكود
+- يسهل الصيانة والتطوير
+- يوفر توثيقاً تلقائياً
+- يزيد من ثقة المطورين في التغييرات
+
+نوصي باستخدام TDD في مشاريع كوكب لضمان:
+- كود أكثر متانة
+- تطوير أسرع
+- صيانة أسهل
+- توثيق أفضل

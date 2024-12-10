@@ -1,0 +1,128 @@
+# استخدام **التشفير Encryption** في كوكب Kawkab
+
+في عالم تطوير التطبيقات، يعد التشفير (Encryption) أداة أساسية لضمان حماية البيانات الحساسة عند نقلها أو تخزينها. في **كوكب Kawkab**، نقدم دالتين رئيسيتين لمعالجة التشفير:
+
+- **`encryption.encrypt`**: لتشفير البيانات وتحويلها إلى شكل غير قابل للقراءة.
+- **`encryption.decrypt`**: لفك تشفير البيانات وتحويلها إلى الشكل الأصلي.
+
+---
+
+## ما هو التشفير **Encryption**؟
+
+التشفير **Encryption** هو عملية تحويل البيانات إلى شكل مشفر لا يمكن قراءته إلا بواسطة الشخص أو النظام الذي يمتلك مفتاح فك التشفير. التشفير يحمي البيانات أثناء النقل أو عند التخزين، ويمنع أي طرف ثالث من الاطلاع على البيانات الحساسة.
+
+### استخدامات التشفير:
+1. **تأمين البيانات في النقل**: لحماية البيانات أثناء إرسالها عبر الشبكات.
+2. **حماية الملفات**: تشفير الملفات لضمان أنها محمية من الوصول غير المصرح به.
+
+---
+
+## كيف يعمل التشفير في **كوكب Kawkab**؟
+
+### 1. تشفير البيانات باستخدام `encryption.encrypt`
+
+الدالة **`encryption.encrypt`** تُستخدم لتشفير البيانات وحمايتها. يتم تحويل النص العادي إلى كائن يحتوي على متغيرين:
+- `iv` (اختصارًا لـ **Initialization Vector**) وهو عنصر ضروري لعملية التشفير.
+- `content` وهو النص المشفر.
+
+#### مثال:
+```ts
+import { encryption } from "kawkab";
+
+const data = "هذا هو النص السري";
+const encryptedData = encryption.encrypt(data);
+
+console.log(encryptedData);
+// الناتج: { iv: "51dd15198b413f592bd7de00ecbaaf98", content: "1978033bb0e580694e93482e310ed812" }
+```
+
+---
+
+### 2. فك تشفير البيانات باستخدام `encryption.decrypt`
+
+الدالة **`encryption.decrypt`** تُستخدم لفك تشفير البيانات المشفرة وإعادتها إلى النص الأصلي.
+
+#### مثال:
+```ts
+import { encryption } from "kawkab";
+
+const encryptedData = {
+    iv: "51dd15198b413f592bd7de00ecbaaf98",
+    content: "1978033bb0e580694e93482e310ed812"
+};
+const decryptedData = encryption.decrypt(encryptedData);
+
+console.log(decryptedData);
+// الناتج: النص الأصلي مثل: "هذا هو النص السري"
+```
+
+#### سيناريوهات الاستخدام:
+- **تأمين البيانات عند إرسالها عبر الشبكات**: تشفير البيانات قبل إرسالها وفك تشفيرها عند وصولها.
+- **تخزين كلمات المرور أو المفاتيح السرية**: تشفير هذه المعلومات وتخزينها في قاعدة البيانات.
+
+---
+
+## أمثلة عملية
+
+### أ) تشفير البيانات قبل إرسالها عبر الشبكة
+```ts
+import { encryption } from "kawkab";
+
+function sendDataOverNetwork(data: string) {
+    const encryptedData = encryption.encrypt(data);
+    // إرسال البيانات المشفرة عبر الشبكة
+    console.log(`تم إرسال البيانات المشفرة:`, encryptedData);
+}
+
+sendDataOverNetwork("هذا هو النص السري");
+```
+
+---
+
+### ب) فك تشفير البيانات عند الاستلام
+```ts
+import { encryption } from "kawkab";
+
+function receiveDataFromNetwork(encryptedData: { iv: string; content: string }) {
+    const decryptedData = encryption.decrypt(encryptedData);
+    // استخدام البيانات المفككة
+    console.log(`تم فك تشفير البيانات: ${decryptedData}`);
+}
+
+receiveDataFromNetwork({
+    iv: "51dd15198b413f592bd7de00ecbaaf98",
+    content: "1978033bb0e580694e93482e310ed812"
+});
+```
+
+---
+
+### ج) تخزين البيانات المشفرة في قاعدة البيانات
+```ts
+import { encryption } from "kawkab";
+
+function storeEncryptedData(data: string) {
+    const encryptedData = encryption.encrypt(data);
+    // حفظ البيانات المشفرة في قاعدة البيانات
+    console.log(`تم تخزين البيانات المشفرة:`, encryptedData);
+}
+
+storeEncryptedData("معلومات حساسة");
+```
+
+---
+
+## نصيحة
+- لا تحفظ المفاتيح السرية في مكان يمكن الوصول إليه بسهولة.
+
+---
+
+## مقارنة بين **encryption.encrypt** و **encryption.decrypt**
+| الدالة              | الوظيفة                                    | المدخلات                          | الناتج                      |
+|---------------------|--------------------------------------------|------------------------------------|-----------------------------|
+| **encryption.encrypt** | تشفير البيانات                           | نص عادي + مفتاح سري (اختياري)    | كائن يحتوي على `iv` و `content` |
+| **encryption.decrypt** | فك تشفير البيانات المشفرة               | كائن يحتوي على `iv` و `content` + مفتاح سري (اختياري) | النص الأصلي                 |
+
+---
+
+بهذا الشكل، يمكنك ضمان أمان البيانات في **كوكب Kawkab** باستخدام **التشفير Encryption**، سواء كان ذلك لتأمين البيانات أثناء النقل أو تخزينها.

@@ -1,0 +1,141 @@
+---
+title: التوجيه المبني على الملفات
+description: شرح كيفية عمل نظام التوجيه المبني على الملفات في إطار العمل كوكب Kawkab
+---
+
+# التوجيه المبني على الملفات في كوكب
+
+يستخدم كوكب نظام التوجيه المبني على الملفات (File-Based Routing)، وهو نهج يجعل إنشاء وإدارة مسارات التطبيق أكثر سهولة وبداهة.
+
+## كيف يعمل؟
+
+في كوكب، يتم تحديد المسارات تلقائياً بناءً على هيكل الملفات في مجلد `controllers`. كل ملف في هذا المجلد يمثل مساراً في تطبيقك.
+
+### مثال بسيط
+
+```
+app/
+└── modules/
+    └── main/
+        └── controllers/
+            ├── index.ts         // يمثل "/"
+            ├── about.ts         // يمثل "/about"
+            └── users/
+                ├── index.ts     // يمثل "/users"
+                └── [id].ts      // يمثل "/users/:id"
+```
+
+## أنواع المسارات
+
+### 1. المسارات الثابتة
+```typescript
+// app/modules/main/controllers/about.ts
+export default class extends BaseController {
+    get() {
+        return {
+            message: "صفحة حول"
+        }
+    }
+}
+```
+
+### 2. المسارات الديناميكية
+```typescript
+// app/modules/main/controllers/users/[id].ts
+export default class extends BaseController {
+    get() {
+        const userId = this.params.id;
+        return {
+            message: `عرض المستخدم رقم ${userId}`
+        }
+    }
+}
+```
+
+### 3. المسارات المتداخلة
+```typescript
+// app/modules/main/controllers/blog/[category]/[post].ts
+export default class extends BaseController {
+    get() {
+        const { category, post } = this.params;
+        return {
+            category,
+            post
+        }
+    }
+}
+```
+
+## طرق HTTP المدعومة
+
+يدعم كوكب جميع طرق HTTP الرئيسية:
+
+```typescript
+export default class extends BaseController {
+    // GET /users
+    get() {
+        return { message: "قائمة المستخدمين" }
+    }
+
+    // POST /users
+    post() {
+        return { message: "إنشاء مستخدم جديد" }
+    }
+
+    // PUT /users
+    put() {
+        return { message: "تحديث المستخدم" }
+    }
+
+    // DELETE /users
+    delete() {
+        return { message: "حذف المستخدم" }
+    }
+}
+```
+## أفضل الممارسات
+
+1. **تنظيم المسارات**
+   - استخدم مجلدات منطقية لتجميع المسارات المتعلقة
+   - حافظ على تسلسل هرمي واضح
+
+2. **تسمية الملفات**
+   - استخدم أسماء واضحة ووصفية
+   - استخدم الأقواس المربعة للمتغيرات `[id]`
+
+3. **التعامل مع الأخطاء**
+   - قم بمعالجة الحالات الاستثنائية
+   - استخدم رموز الحالة HTTP المناسبة
+
+## مثال متكامل
+
+```typescript
+// app/modules/main/controllers/api/products/[id]/reviews/[reviewId].ts
+export default class extends BaseController {
+    // GET /api/products/1/reviews/5
+    get() {
+        const { id, reviewId } = this.params;
+        return {
+            productId: id,
+            reviewId: reviewId,
+            message: "عرض مراجعة محددة لمنتج محدد"
+        }
+    }
+
+    // POST /api/products/1/reviews
+    post() {
+        const { id } = this.params;
+        return {
+            message: `إضافة مراجعة جديدة للمنتج ${id}`
+        }
+    }
+}
+```
+
+## الخاتمة
+
+التوجيه المبني على الملفات في كوكب يوفر:
+- تنظيم أفضل للكود
+- سهولة في الفهم والصيانة
+- مرونة في إدارة المسارات
+- دعم للمسارات الديناميكية والمتداخلة

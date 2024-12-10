@@ -1,0 +1,590 @@
+---
+
+title: Using Http in Kawkab
+description: A comprehensive guide to using HTTP requests to handle HTTP requests in your application using the Kawkab framework.
+---
+
+# Http Requests in Kawkab
+
+**HTTP** requests in the **Kawkab** framework provide a simple and efficient API for handling HTTP requests. They offer advanced tools for supporting authentication, sending data in various formats, with a flexible design to meet the needs of modern applications.
+
+## Getting Started with HTTP Requests
+
+To start using HTTP requests in Kawkab, first create a new model that includes a base URL (Base URL) used as the basis for executing requests.
+
+```typescript
+import { http as Http } from "kawkab";
+
+const http = new Http("https://api.example.com");
+```
+
+## Basic Features
+
+### Sending Basic Requests
+
+#### GET Request
+
+You can use a **GET** request to fetch data from the server:
+
+```typescript
+// Fetch a list of users
+
+// Using .data()
+const response = await http.get("/users");
+console.log(response.data());
+
+// Or using .body()
+console.log(response.body());
+```
+
+#### POST Request
+
+You can send data to the server using a **POST** request:
+
+```typescript
+// Create a new user
+const userData = {
+  name: "Ahmed",
+  email: "ahmed@example.com",
+};
+const response = await http.post("/users", userData);
+```
+
+### Managing Authentication
+
+#### Using Token Authentication
+
+You can use a **JWT Token** to access protected resources:
+
+```typescript
+http.withToken("your-jwt-token").get("/secure-endpoint");
+```
+
+#### Basic Authentication
+
+To perform authentication using a username and password:
+
+```typescript
+http.withBasicAuth("username", "password").get("/protected-resource");
+```
+
+#### Digest Authentication
+
+You can also use **Digest Authentication**:
+
+```typescript
+http.withDigestAuth("username", "password").get("/digest-protected-resource");
+```
+
+### Sending Data as Form-Data
+
+```typescript
+const formData = {
+  title: "New Title",
+  content: "Post content",
+};
+
+const response = await http.asForm().post("/posts", formData);
+```
+
+### Updating Data
+
+#### PUT Request
+
+To replace existing data:
+
+```typescript
+const updateData = {
+  name: "Updated Name",
+  age: 30,
+};
+const response = await http.put("/users/123", updateData);
+```
+
+#### PATCH Request
+
+For a partial update of data:
+
+```typescript
+const partialUpdate = {
+  status: "active",
+};
+const response = await http.patch("/users/123", partialUpdate);
+```
+
+### Deleting Data
+
+```typescript
+const response = await http.delete("/users/123");
+```
+
+## Error Handling
+
+### Handling Errors Using `.catch`
+
+```typescript
+http.get("/user/12345").catch(function (error) {
+  if (error.response) {
+    // The request was made and the server responded with a status code
+    // that falls out of the range of 2xx
+    console.log(error.response.data);
+    console.log(error.response.status);
+    console.log(error.response.headers);
+  } else if (error.request) {
+    // The request was made but no response was received
+    // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+    // http.ClientRequest in node.js
+    console.log(error.request);
+  } else {
+    // Something happened in setting up the request that triggered an Error
+    console.log("Error", error.message);
+  }
+  console.log(error.config);
+});
+```
+
+### Customizing Error State
+
+```typescript
+http.get("/user/12345", {
+  validateStatus: function (status) {
+    return status < 500; // Success if status code is less than 500
+  },
+});
+```
+
+### Getting Error Details
+
+```typescript
+http.get("/user/12345").catch(function (error) {
+  console.log(error.toJSON());
+});
+```
+
+## Handling Response on Success
+
+You can use **`.then`** to handle successful responses:
+
+```typescript
+http({
+  method: "get",
+  url: "/post",
+  responseType: "stream",
+}).then(function (response) {
+  console.log(error.toJSON());
+});
+```
+
+The function inside **`.then`** is executed upon successful request completion, allowing you to handle the received data in a customized manner.
+
+## Customizing Settings
+
+### Customizing Headers
+
+You can pass custom header settings when creating an HTTP model:
+
+```typescript
+const http = new Http("https://api.example.com", {}, {
+  "Accept-Language": "ar",
+  "Custom-Header": "custom-value",
+});
+```
+
+## Additional Options for Requests
+
+You can customize request settings using additional options. The options support various settings such as configuring **Headers**, setting timeout, managing authentication, and sending data in different formats.
+
+### Example of Using Options
+
+```typescript
+const response = await http.post(
+  "/posts",
+  {
+    title: "foo",
+    body: "bar",
+    userId: 1,
+  },
+  {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    timeout: 5000, // Request execution time 5 seconds
+    responseType: "json", // Response format JSON
+  }
+);
+```
+
+### Supported Options
+
+Here are all the options that can be customized with any HTTP request:
+
+```typescript
+{
+  url: "/user", // Request URL
+  method: "get", // Request method (GET, POST, PUT, etc.)
+  baseURL: "https://api.example.com", // Base URL for the request
+  headers: { "Custom-Header": "Value" }, // Custom headers
+  params: { ID: 12345 }, // Request parameters in the URL
+  paramsSerializer: (params) => Qs.stringify(params, { arrayFormat: "brackets" }), // URL parameter formatting
+  data: { key: "value" }, // Data sent in the request body
+  timeout: 1000, // Timeout (in milliseconds)
+  withCredentials: false, // Send cookies with the request
+  responseType: "json", // Format of the received data: json, text, stream, etc.
+  validateStatus: (status) => status < 500, // Validate response status
+  maxRedirects: 5, // Number of allowed redirects
+  proxy: {
+    protocol: "https",
+    host: "127.0.0.1",
+    port: 9000,
+    auth: { username: "user", password: "pass" },
+  }, // Proxy server settings
+  auth: { username: "user", password: "pass" }, // Basic authentication
+  onUploadProgress: (progressEvent) => console.log(progressEvent), // Monitor file uploads
+  onDownloadProgress: (progressEvent) => console.log(progressEvent), // Monitor file downloads
+}
+```
+
+### Using Multiple Options with Different Requests
+
+```typescript
+// GET request with custom options
+const response = await http.get("/users", {
+  headers: { "Authorization": "Bearer token" },
+  timeout: 3000,
+  params: { active: true },
+});
+
+// POST request with data and custom headers
+const response = await http.post(
+  "/login",
+  { username: "ahmed", password: "123456" },
+  { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+);
+```
+
+## Creating an HTTP Request Using CLI
+
+### Creating an HTTP Request Class
+
+Kawkab provides a tool to easily create an HTTP request class using CLI.
+
+#### Command
+
+```bash
+npm run kawkab http:make <name> [module]
+```
+
+#### Example
+
+```bash
+npm run kawkab http:make getUsers
+```
+
+#### Output
+
+```plaintext
+🆗 HTTP request getUsers created successfully in module main.
+
+1️⃣  Your HTTP request file is ready! You can now emit it like this:
+👉 import { GetUsersHttpRequest } from "../http/getUsers"
+👉 const response = await new GetUsersHttpRequest().send()
+
+2️⃣  You can pass the data like this:
+👉 const response = await new GetUsersHttpRequest().send({id:1, name:'Hassan'})
+
+3️⃣  You can access the data in HTTP request class like this:
+👉 this.data
+```
+
+### Generated Code
+
+```typescript
+import { BaseHttp, HttpMethodEnum } from "kawkab";
+
+export class GetUsersHttpRequest extends BaseHttp {
+  baseUrl(): string {
+    return "";
+  }
+
+  url(): string {
+    return "/";
+  }
+
+  method(): HttpMethodEnum {
+    return HttpMethodEnum.GET;
+  }
+
+  headers(): Record<string, string | string[]> {
+    return {
+      "Content-Type": "application/json",
+    };
+  }
+
+  body(): any {
+    return {};
+  }
+
+  asForm(): boolean {
+    return false;
+  }
+
+  then(response: any) {
+    return response;
+  }
+
+  catch(error: any) {
+    console.log(error);
+  }
+
+  finally() {
+    // ...
+  }
+}
+```
+
+#### Invoking the Request
+
+```typescript
+import { GetUsersHttpRequest } from "../http/getUsers";
+
+// Send request without additional data
+const response = await new GetUsersHttpRequest().send();
+
+// Send request with additional data
+const responseWithData = await new GetUsersHttpRequest().send({ id: 1, name: "Hassan" });
+```
+
+### Accessing Data Using `this.data` in Kawkab
+
+When creating an HTTP request using the **Kawkab** framework, you can pass additional data while invoking the request. This data becomes available inside the class through the **`this.data`** property.
+
+This allows you to customize the request based on the data passed with the request invocation. Here is a detailed explanation with examples:
+
+---
+
+### 1. **Creating an HTTP Request Class**
+
+When creating a request class, you can use **`this.data`** to access the data passed with the request. For example:
+
+```typescript
+import { BaseHttp, HttpMethodEnum } from "kawkab";
+
+export class GetUserHttpRequest extends BaseHttp {
+  baseUrl(): string {
+    return "https://api.example.com"; // Base URL for requests
+  }
+
+  url(): string {
+    // Use `this.data` to customize the URL based on the passed data
+    return `/users/${this.data.id}`;
+  }
+
+  method(): HttpMethodEnum {
+    return HttpMethodEnum.GET; // Request type (GET)
+  }
+
+  headers(): Record<string, string | string[]> {
+    return {
+      "Content-Type": "application/json", // Header settings
+    };
+  }
+
+  body(): any {
+    return {}; // No request body needed for GET
+  }
+
+  then(response: any) {
+    return response.data; // Handle successful response
+  }
+
+  catch(error: any) {
+    console.error("Error during request:", error); // Handle errors
+  }
+
+  finally() {
+    console.log("Request execution completed.");
+  }
+}
+```
+
+---
+
+### 2. **Invoking the Request and Passing Data**
+
+#### Example: Fetching Data for a Specific User
+```typescript
+import { GetUserHttpRequest } from "../http/GetUserHttpRequest";
+
+async function fetchUserData() {
+  try {
+    // Send the request and pass user ID data
+    const response = await new GetUserHttpRequest().send({ id: 123 });
+    console.log("User data:", response);
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+}
+
+fetchUserData();
+```
+
+- **Code Explanation:**
+  - The data (\{ id: 123 \}) is passed during the request invocation.
+  - The data is accessed inside the class via **`this.data`**, allowing URL customization.
+
+---
+
+### 3. **Using `this.data` in Multiple Scenarios**
+
+#### Request with Additional Data
+If you are sending additional data such as search parameters or filter factors, you can use **`this.data`** to customize the request body.
+
+#### Example: Sending Filter Data with a POST Request
+```typescript
+import { BaseHttp, HttpMethodEnum } from "kawkab";
+
+export class SearchUsersHttpRequest extends BaseHttp {
+  baseUrl(): string {
+    return "https://api.example.com";
+  }
+
+  url(): string {
+    return "/users/search";
+  }
+
+  method(): HttpMethodEnum {
+    return HttpMethodEnum.POST;
+  }
+
+  body(): any {
+    // Pass filter data in the request body
+    return {
+      name: this.data.name,
+      age: this.data.age,
+    };
+  }
+
+  then(response: any) {
+    return response.data;
+  }
+
+  catch(error: any) {
+    console.error("Error during search:", error);
+  }
+}
+```
+
+#### Invoking the Request:
+```typescript
+import { SearchUsersHttpRequest } from "../http/SearchUsersHttpRequest";
+
+async function searchUsers() {
+  try {
+    const filters = { name: "Ahmed", age: 30 };
+    const response = await new SearchUsersHttpRequest().send(filters);
+    console.log("Search results:", response);
+  } catch (error) {
+    console.error("An error occurred during search:", error);
+  }
+}
+
+searchUsers();
+```
+
+---
+
+### 4. **Best Practices When Using `this.data`**
+
+- **Validate Values:** Ensure to validate the data before using it inside the class.
+
+#### Example:
+```typescript
+url(): string {
+  if (!this.data.id) {
+    throw new Error("ID is not provided.");
+  }
+  return `/users/${this.data.id}`;
+}
+```
+
+- **Set Default Values:** You can set default values if data is not passed.
+
+#### Example:
+```typescript
+body(): any {
+  return {
+    page: this.data.page || 1, // Default page
+    limit: this.data.limit || 10, // Default limit
+  };
+}
+```
+
+---
+
+### 5. **Creating Dynamic, Multi-Purpose Code**
+
+#### Comprehensive Example: Executing Dynamic Requests
+```typescript
+import { BaseHttp, HttpMethodEnum } from "kawkab";
+
+export class DynamicHttpRequest extends BaseHttp {
+  baseUrl(): string {
+    return "https://api.example.com";
+  }
+
+  url(): string {
+    return this.data.endpoint || "/default";
+  }
+
+  method(): HttpMethodEnum {
+    return this.data.method || HttpMethodEnum.GET;
+  }
+
+  body(): any {
+    return this.data.body || {};
+  }
+
+  headers(): Record<string, string | string[]> {
+    return this.data.headers || {};
+  }
+
+  then(response: any) {
+    return response.data;
+  }
+
+  catch(error: any) {
+    console.error("Error:", error);
+  }
+}
+```
+
+#### Dynamic Invocation:
+```typescript
+import { DynamicHttpRequest } from "../http/DynamicHttpRequest";
+
+async function sendDynamicRequest() {
+  try {
+    const options = {
+      endpoint: "/users",
+      method: "POST",
+      body: { name: "Hassan", email: "hassan@example.com" },
+    };
+    const response = await new DynamicHttpRequest().send(options);
+    console.log("Response:", response);
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+}
+
+sendDynamicRequest();
+```
+
+## Best Practices
+
+1. **Use async/await**: Prefer using `async/await` for clearer and more maintainable code.
+2. **Organize Code into Services**: Group similar functions into independent units (Services).
+3. **Ensure Security**: Avoid storing tokens or authentication data directly in the code. Use environment variables to store sensitive values.
+
+## Conclusion
+
+HTTP requests in Kawkab provide powerful and easy-to-use tools, allowing you to focus on building applications without worrying about the details of HTTP requests. You can rely on them for high performance and great flexibility in application development.

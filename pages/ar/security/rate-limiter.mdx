@@ -1,0 +1,56 @@
+---
+title: Rate Limiter
+description: كيفية تكوين والتحكم في معدل الطلبات باستخدام نظام Rate Limiter في Kawkab JS.
+---
+
+# محدد المعدل للطلبات Rate Limiter في Kawkab JS
+
+يتم استخدام **Rate Limiter** للتحكم في عدد الطلبات التي يمكن أن يرسلها العميل إلى الخادم في فترة زمنية محددة. يساعد ذلك على منع الهجمات مثل **Denial of Service (DoS)** ويحمي تطبيقك من الإفراط في استخدام الموارد بسبب الطلبات المفرطة من نفس العميل.
+
+### تكوين Rate Limiter
+
+يمكنك تكوين إعدادات **Rate Limiter** من خلال ملف الإعدادات الرئيسي `app/configuration.ts`. يوفر هذا الملف التحكم الكامل في عدد الطلبات المسموح بها والفترة الزمنية لكل عميل.
+
+#### إعدادات Rate Limiter
+
+```typescript
+import { env } from "kawkab";
+import { Provider } from "./provider";
+
+// Main configuration object for the application
+export const app = {
+  // Rate limiter configuration
+  rateLimiter: {
+    // Enable or disable the rate limiter
+    enable: true,
+
+    // Maximum number of requests allowed within the defined time window
+    maxRequests: 100,
+
+    // Time window (in milliseconds) for rate limiting, default is 1 minute (60 * 1000)
+    windowTime: 60 * 1000,
+
+    // Error code sent when rate limit is exceeded
+    code: "too-many-requests",
+
+    // Message displayed when rate limit is exceeded
+    message: "Too many requests. Please try again later.",
+  },
+};
+```
+
+### شرح الإعدادات:
+
+- **`enable`**: يحدد ما إذا كان Rate Limiter مفعلًا أم لا. إذا كانت القيمة `true`، فسيتم تفعيل النظام. إذا كانت `false`، سيتم تعطيله.
+- **`maxRequests`**: الحد الأقصى لعدد الطلبات التي يمكن للمستخدم إرسالها في فترة زمنية معينة (تعرف بالفترة الزمنية `windowTime`).
+- **`windowTime`**: الفترة الزمنية (بالميلي ثانية) التي يتم خلالها تحديد معدل الطلبات. القيمة الافتراضية هي 60 ثانية (60,000 ميلي ثانية).
+- **`code`**: الرمز الذي سيتم إرساله كاستجابة عندما يتجاوز العميل الحد المسموح به للطلبات.
+- **`message`**: الرسالة التي سيتم عرضها للمستخدم عندما يتجاوز الحد المسموح به للطلبات.
+
+### الخلاصة
+
+يساعد **Rate Limiter** في حماية تطبيقك من الهجمات التي تعتمد على إرسال عدد كبير من الطلبات في وقت قصير. من خلال إعدادات قابلة للتخصيص في `configuration.ts`, يمكنك تحديد الحد الأقصى للطلبات وفترة التوقيت التي يمكن خلالها إرسال الطلبات. هذا يحسن من أمان الخادم ويحسن تجربة المستخدم.
+
+---
+
+**ملاحظة:** تأكد من أن إعدادات **Rate Limiter** متوافقة مع احتياجات تطبيقك ومع حجم حركة المرور التي تتوقعها.

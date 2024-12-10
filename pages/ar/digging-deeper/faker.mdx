@@ -1,0 +1,164 @@
+# إضافة بيانات وهمية لمشروع كوكب Kawkab
+
+## نظرة عامة
+يسهل كوكب Kawkab انشاء بينات وهمية بالإعتماد علي مكتبة Faker.js وهي مكتلة قوية لتوليد بيانات وهمية (ولكن واقعية) لأغراض الاختبار والتطوير. يشرح هذا المستند كيفية استخدام Faker داخل إطار عمل Kawkab.
+
+## الاستخدام الأساسي
+
+```typescript
+import { faker } from 'kawkab';
+
+// مثال أساسي لتوليد بيانات وهمية
+const user = {
+  id: faker.string.uuid(),
+  name: faker.person.fullName(),
+  email: faker.internet.email(),
+  avatar: faker.image.avatar(),
+  createdAt: faker.date.past()
+};
+```
+
+## حالات الاستخدام الشائعة
+
+### توليد بيانات المستخدم
+```typescript
+const generateUser = () => ({
+  id: faker.string.uuid(),
+  username: faker.internet.userName(),
+  email: faker.internet.email(),
+  password: faker.internet.password(),
+  firstName: faker.person.firstName(),
+  lastName: faker.person.lastName(),
+  phone: faker.phone.number(),
+  address: {
+    street: faker.location.street(),
+    city: faker.location.city(),
+    country: faker.location.country(),
+    zipCode: faker.location.zipCode()
+  }
+});
+```
+
+### توليد بيانات المنتج
+```typescript
+const generateProduct = () => ({
+  id: faker.string.uuid(),
+  name: faker.commerce.productName(),
+  price: faker.commerce.price(),
+  description: faker.commerce.productDescription(),
+  category: faker.commerce.department(),
+  image: faker.image.url()
+});
+```
+
+### التاريخ والوقت
+```typescript
+const generateTimeData = () => ({
+  past: faker.date.past(),
+  future: faker.date.future(),
+  recent: faker.date.recent(),
+  timestamp: faker.date.timestamp()
+});
+```
+
+## أفضل الممارسات
+
+1. **البذرة للاتساق**: استخدم faker.seed() للحصول على نتائج متسقة عبر عمليات الاختبار
+   ```typescript
+   faker.seed(123);
+   ```
+
+2. **إنشاء دوال المصنع**: تنظيم توليد البيانات الوهمية في دوال مصنع
+   ```typescript
+   export const userFactory = (overrides = {}) => ({
+     ...generateUser(),
+     ...overrides
+   });
+   ```
+
+3. **سلامة النوع**: استخدم واجهات TypeScript مع المصانع الخاصة بك
+   ```typescript
+   interface User {
+     id: string;
+     username: string;
+     email: string;
+   }
+
+   const userFactory = (overrides: Partial<User> = {}): User => ({
+     ...generateUser(),
+     ...overrides
+   });
+   ```
+
+## الفئات الشائعة
+
+- **الشخص**: `faker.person.*` - توليد الأسماء والألقاب، إلخ
+- **الإنترنت**: `faker.internet.*` - توليد البريد الإلكتروني وأسماء المستخدمين وعناوين URL، إلخ
+- **التاريخ**: `faker.date.*` - توليد التواريخ والطوابع الزمنية
+- **التجارة**: `faker.commerce.*` - توليد بيانات المنتج والسعر
+- **الشركة**: `faker.company.*` - توليد أسماء وبيانات الشركات
+- **الصورة**: `faker.image.*` - توليد روابط الصور
+- **الموقع**: `faker.location.*` - توليد العناوين والإحداثيات
+
+## مثال على تنفيذ الاختبار
+
+```typescript
+import { faker } from 'kawkab';
+
+describe('اختبارات خدمة المستخدم', () => {
+  it('يجب إنشاء مستخدم جديد', async () => {
+    const mockUser = {
+      username: faker.internet.userName(),
+      email: faker.internet.email(),
+      password: faker.internet.password()
+    };
+
+    // تنفيذ الاختبار الخاص بك هنا
+  });
+});
+```
+
+## نصائح للاختبار
+
+1. استخدم `beforeEach` لإعادة تعيين بيانات faker إذا لزم الأمر
+2. إنشاء مصانع محددة لسيناريوهات اختبار مختلفة
+3. استخدم ميزة البذر في faker للاختبارات القابلة للتكرار
+4. دمج طرق faker المتعددة لهياكل البيانات المعقدة
+
+## ملاحظات مهمة
+
+1. تأكد من استخدام البيانات الوهمية المستدمة في حقولك.
+2. قم بتحديث البيانات الوهمية بانتظام لتعكس التغييرات في نموذج البيانات الخاص بك
+3. استخدم التعليقات التوضيحية لشرح الغرض من البيانات الوهمية
+4. تجنب استخدام البيانات الوهمية في بيئة الإنتاج
+
+## أمثلة إضافية للاستخدام
+
+### توليد بيانات المقالات
+```typescript
+const generateArticle = () => ({
+  id: faker.string.uuid(),
+  title: faker.lorem.sentence(),
+  content: faker.lorem.paragraphs(),
+  author: faker.person.fullName(),
+  tags: Array.from({ length: 3 }, () => faker.lorem.word()),
+  publishDate: faker.date.recent()
+});
+```
+
+### توليد بيانات التعليقات
+```typescript
+const generateComment = () => ({
+  id: faker.string.uuid(),
+  content: faker.lorem.paragraph(),
+  author: faker.person.fullName(),
+  createdAt: faker.date.recent(),
+  likes: faker.number.int({ min: 0, max: 100 })
+});
+```
+
+## موارد إضافية
+
+- [التوثيق الرسمي لـ Faker](https://fakerjs.dev/)
+- [مستودع GitHub](https://github.com/faker-js/faker)
+- [مرجع API](https://fakerjs.dev/api/)

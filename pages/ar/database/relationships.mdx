@@ -1,0 +1,818 @@
+
+# العلاقات
+
+تُعرّف علاقات Kawkab كطرق على فئات نموذج Kawkab الخاصة بك. نظرًا لأن العلاقات تخدم أيضًا كأدوات استعلام قوية، فإن تعريف العلاقات كطرق يوفر قدرات سلسلة طرق قوية واستعلام. على سبيل المثال، يمكننا سلسلة قيود استعلام إضافية على هذه العلاقة `posts`:
+
+```js
+await user.related('posts').where('active', 1).get();
+```
+
+ولكن، قبل الغوص بعمق في استخدام العلاقات، دعونا نتعلم كيفية تعريف كل نوع من أنواع العلاقات التي يدعمها Kawkab.
+
+### علاقة واحد إلى واحد
+
+العلاقة واحد إلى واحد هي نوع أساسي جدًا من علاقات قاعدة البيانات. على سبيل المثال، يمكن أن يكون نموذج `User` مرتبطًا بنموذج `Phone` واحد. لتعريف هذه العلاقة، سنضع طريقة الهاتف على نموذج `User`. يجب أن تستدعي طريقة `relationPhone` الطريقة `hasOne` وتقوم بإرجاع نتيجتها. طريقة `hasOne` متاحة لنموذجك من خلال فئة الأساس `Model` للنموذج:
+
+```js
+import { BaseModel } from "kawkab";
+
+class Phone extends Model {}
+
+class User extends Model {
+  relationPhone() {
+    return this.hasOne(Phone);
+  }
+}
+```
+
+المعامل الأول الممرر إلى طريقة `hasOne` هو اسم فئة نموذج العلاقة. بمجرد تعريف العلاقة، يمكننا استرجاع السجل المرتبط باستخدام طريقة `getRelated`:
+
+```js
+const user = await User.query().find(1);
+const phone = await user.getRelated('phone');
+```
+
+يحدد Kawkab المفتاح الأجنبي للعلاقة بناءً على اسم نموذج الأصل. في هذه الحالة، يُفترض أن نموذج `Phone` يحتوي تلقائيًا على مفتاح أجنبي `user_id`. إذا كنت ترغب في تجاوز هذا الاتفاق، يمكنك تمرير معامل ثانٍ إلى طريقة `hasOne`:
+
+```js
+return this.hasOne(Phone, 'foreign_key');
+```
+
+بالإضافة إلى ذلك، يفترض Kawkab أن المفتاح الأجنبي يجب أن يكون له قيمة تطابق العمود الأساسي للمفتاح الأولي للأصل. بمعنى آخر، سيبحث Kawkab عن قيمة عمود `id` للمستخدم في عمود `user_id` لسجل `Phone`. إذا كنت ترغب في أن تستخدم العلاقة قيمة مفتاح أولي أخرى غير id أو خاصية `primaryKey` للنموذج، يمكنك تمرير معامل ثالث إلى طريقة `hasOne`:
+
+```js
+return this.hasOne(Phone, 'foreign_key', 'local_key');
+```
+
+#### تعريف عكس العلاقة
+
+لذا، يمكننا الوصول إلى نموذج `Phone` من نموذج `User` الخاص بنا. الآن، دعونا نعرّف علاقة على نموذج `Phone` تتيح لنا الوصول إلى المستخدم الذي يملك الهاتف. يمكننا تعريف عكس علاقة `hasOne` باستخدام طريقة `belongsTo`:
+
+```js
+import { BaseModel } from "kawkab";
+
+class User extends Model {
+  relationPhone() {
+    return this.hasOne(Phone);
+  }
+}
+
+class Phone extends Model {
+  relationUser() {
+    return this.belongsTo(User);
+  }
+}
+```
+
+عند استدعاء `related('user')`، سيحاول Kawkab العثور على نموذج `User` يحتوي على `id` يطابق عمود `user_id` على نموذج `Phone`.
+
+يحدد Kawkab اسم المفتاح الأجنبي عن طريق فحص اسم طريقة العلاقة وإلحاق اسم الطريقة بـ `_id`. لذا، في هذه الحالة، يفترض Kawkab أن نموذج `Phone` يحتوي على عمود `user_id`. ومع ذلك، إذا كان المفتاح الأجنبي على نموذج `Phone` ليس `user_id`، يمكنك تمرير اسم مفتاح مخصص كمعامل ثانٍ إلى طريقة `belongsTo`:
+
+```js
+relationUser() {
+  return this.belongsTo(User, 'foreign_key');
+}
+```
+
+إذا كان النموذج الأصل لا يستخدم id كمفتاح أساسي، أو ترغب في العثور على النموذج المرتبط باستخدام عمود آخر، يمكنك تمرير معامل ثالث إلى طريقة `belongsTo` يحدد المفتاح المخصص لجدول الأصل:
+
+```js
+relationUser() {
+  return this.belongsTo(User, 'foreign_key', 'owner_key');
+}
+```
+
+### علاقة واحد إلى كثير
+
+تُستخدم العلاقة واحد إلى كثير لتعريف العلاقات حيث يكون النموذج الفردي هو الأصل لنموذج أو أكثر من النماذج الفرعية. على سبيل المثال، يمكن أن يكون لمنشور مدونة عدد لا نهائي من التعليقات. مثل جميع علاقات Kawkab الأخرى، تُعرّف العلاقات واحد إلى كثير بتعريف طريقة على نموذج Kawkab الخاص بك:
+
+```js
+import { BaseModel } from "kawkab";
+
+class Post extends Model {
+  relationComments() {
+    return this.hasMany(Comment);
+  }
+}
+```
+
+تذكر أن Kawkab سيحدد تلقائيًا عمود المفتاح الأجنبي المناسب لنموذج `Comment`. بالاتفاقية، سيأخذ Kawkab اسم "snake case" للنموذج الأصل ويلحقه بـ `_id`. لذا، في هذا المثال، سيفترض Kawkab أن عمود المفتاح الأجنبي على نموذج `Comment` هو `post_id`.
+
+بمجرد تعريف طريقة العلاقة، يمكننا الوصول إلى مجموعة التعليقات ذات الصلة عن طريق الوصول إلى طريقة `getRelated('comments')`:
+
+```js
+const { Post } = require('./models');
+
+const post = await Post.query().find(1);
+const comments = await post.getRelated('comments');
+
+comments.map(comment => {
+  //
+});
+```
+
+نظرًا لأن جميع العلاقات تخدم أيضًا كأدوات بناء استعلام، يمكنك إضافة قيود إضافية إلى استعلام العلاقة عن طريق استدعاء طريقة `related('comments')` ومواصلة سلسلة الشروط على الاستعلام:
+
+```js
+const post = await Post.query().find(1);
+const comment = await post.related('comments')
+  .where('title', 'foo')
+  .first();
+```
+
+مثل طريقة `hasOne`، يمكنك أيضًا تجاوز المفاتيح الأجنبية والمحلية عن طريق تمرير معاملات إضافية إلى طريقة `hasMany`:
+
+```js
+return this.hasMany(Comment, 'foreign_key');
+
+return this.hasMany(Comment, 'foreign_key', 'local_key');
+```
+
+### علاقة واحد إلى كثير (عكس) / ينتمي إلى
+
+الآن وبعد أن became نستطيع الوصول إلى جميع تعليقات المنشور، دعونا نعرّف علاقة تتيح للتعليق الوصول إلى منشوره الأصل. لتعريف عكس علاقة `hasMany`، عرّف طريقة علاقة على النموذج الفرعي التي تستدعي طريقة `belongsTo`:
+
+```js
+import { BaseModel } from "kawkab";
+
+class Comment extends Model {
+  relationPost() {
+    return this.belongsTo(Post);
+  }
+}
+```
+
+في المثال أعلاه، سيحاول Kawkab العثور على نموذج Post يحتوي على id يطابق عمود `post_id` على نموذج `Comment`.
+
+يحدد Kawkab اسم المفتاح الأجنبي الافتراضي عن طريق فحص اسم طريقة العلاقة وإلحاق اسم الطريقة بـ `_` يتبعه اسم عمود المفتاح الأساسي للنموذج الأصل. لذا، في هذا المثال، سيفترض Kawkab أن المفتاح الأجنبي لنموذج `Post` على جدول `comments` هو `post_id`.
+
+ومع ذلك، إذا كان المفتاح الأجنبي لعلاقتك لا يتبع هذه الاتفاقيات، يمكنك تمرير اسم مفتاح أجنبي مخصص كمعامل ثانٍ إلى طريقة `belongsTo`:
+
+```js
+relationPost() {
+  return this.belongsTo(Post, 'foreign_key');
+}
+```
+
+إذا كان النموذج الأصل لا يستخدم id كمفتاح أساسي، أو ترغب في العثور على النموذج المرتبط باستخدام عمود آخر، يمكنك تمرير معامل ثالث إلى طريقة `belongsTo` يحدد المفتاح المخصص لجدول الأصل:
+
+```js
+relationPost() {
+  return this.belongsTo(Post, 'foreign_key', 'owner_key');
+}
+```
+
+**النماذج الافتراضية**
+
+تتيح لك علاقات `belongsTo` و`hasOne` تعريف نموذج افتراضي سيتم إرجاعه إذا كانت العلاقة المحددة فارغة. يُشار إلى هذا النمط غالبًا باسم نمط Null Object ويمكن أن يساعد في إزالة التحققات الشرطية من كودك. في المثال التالي، ستقوم علاقة `user` بإرجاع نموذج `User` فارغ إذا لم يكن هناك مستخدم مرتبط بنموذج `Post`:
+
+```js
+reLationUser() {
+  return this.belongsTo(User).withDefault();
+}
+```
+
+لتعبئة النموذج الافتراضي بالسمات، يمكنك تمرير كائن أو إغلاق إلى طريقة `withDefault`:
+
+```js
+reLationUser() {
+  return this.belongsTo(User).withDefault({
+    name: 'Guest Author'
+  });
+}
+
+reLationUser() {
+  return this.belongsTo(User).withDefault((user, post) => ({
+    name: `Post ${post.id} Author`
+  }));
+}
+```
+
+### علاقات كثير إلى كثير
+
+العلاقات كثير إلى كثير أكثر تعقيدًا من علاقات `hasOne` و`hasMany`. مثال على علاقة كثير إلى كثير هو مستخدم له العديد من الأدوار وتُشارك تلك الأدوار أيضًا مع مستخدمين آخرين في التطبيق. على سبيل المثال، يمكن تعيين المستخدم إلى دور "المؤلف" و"المحرر"؛ ومع ذلك، يمكن تعيين تلك الأدوار أيضًا إلى مستخدمين آخرين. لذا، يملك المستخدم العديد من الأدوار ويملك الدور العديد من المستخدمين.
+
+**هيكل الجدول**
+
+لتعريف هذه العلاقة، تحتاج إلى ثلاثة جداول قواعد بيانات: `users` و`roles` و`role_user`. يُستمد جدول `role_user` من الترتيب الأبجدي لأسماء النماذج ذات الصلة ويحتوي على أعمدة `user_id` و`role_id`. يُستخدم هذا الجدول كجدول وسيط يربط المستخدمين والأدوار.
+
+تذكر أنه نظرًا لأن الدور يمكن أن ينتمي إلى العديد من المستخدمين، فلا يمكننا ببساطة وضع عمود `user_id` على جدول `roles`. سيعني ذلك أن الدور يمكن أن ينتمي فقط إلى مستخدم واحد. لتوفير الدعم لتعيين الأدوار لمستخدمين متعددين، مطلوب جدول `role_user`. يمكننا ملخص هيكل جدول العلاقة على النحو التالي:
+
+```
+users
+  id - integer
+  name - string
+
+roles
+  id - integer
+  name - string
+
+role_user
+  user_id - integer
+  role_id - integer
+```
+
+**هيكل النموذج**
+
+تُعرّف علاقات كثير إلى كثير بكتابة طريقة تقوم بإرجاع نتيجة طريقة `belongsToMany`. توفر طريقة `belongsToMany` من قبل فئة الأساس `Model` التي يستخدمها جميع نماذج تطبيق Kawkab الخاص بك. على سبيل المثال، دعونا نعرّف طريقة `relationRoles` على نموذج `User` الخاص بنا. المعامل الأول الممرر إلى هذه الطريقة هو اسم فئة نموذج العلاقة المرتبط:
+
+```js
+import { BaseModel } from "kawkab";
+
+class User extends Model {
+  relationRoles() {
+    return this.belongsToMany(Role);
+  }
+}
+```
+
+نظرًا لأن جميع العلاقات تخدم أيضًا كأدوات بناء استعلام، يمكنك إضافة قيود إضافية إلى استعلام العلاقة عن طريق استدعاء طريقة `related('roles')` ومواصلة سلسلة الشروط على الاستعلام:
+
+```js
+const user = await User.query().find(1);
+const roles = await user.related('roles').orderBy('name').get();
+```
+
+لتحديد اسم جدول العلاقة الوسيط، سيقوم Kawkab بدمج أسماء النماذج ذات الصلة بالترتيب الأبجدي. ومع ذلك، يمكنك تجاوز هذه الاتفاقية. يمكنك القيام بذلك عن طريق تمرير معامل ثانٍ إلى طريقة `belongsToMany`:
+
+```js
+return this.belongsToMany(Role, 'role_user');
+```
+
+بالإضافة إلى تخصيص اسم الجدول الوسيط، يمكنك أيضًا تخصيص أسماء الأعمدة للمفاتيح على الجدول عن طريق تمرير معاملات إضافية إلى طريقة `belongsToMany`. المعامل الثالث هو اسم المفتاح الأجنبي للنموذج الذي تقوم بتعريف العلاقة عليه، بينما المعامل الرابع هو اسم المفتاح الأجنبي للنموذج الذي ستقوم بالانضمام إليه:
+
+```js
+return this.belongsToMany(Role, 'role_user', 'user_id', 'role_id');
+```
+
+**تعريف عكس العلاقة**
+
+لتعريف "عكس" علاقة كثير إلى كثير، يجب عليك تعريف طريقة على النموذج ذات الصلة تقوم أيضًا بإرجاع نتيجة طريقة `belongsToMany`. لإكمال مثالنا `user` / `role`، دعونا نعرّف طريقة `relationUsers` على نموذج `Role`:
+
+```js
+import { BaseModel } from "kawkab";
+
+class Role extends Model {
+  relationUsers() {
+    return this.belongsToMany(User);
+  }
+}
+```
+
+كما ترى، تُعرّف العلاقة بالضبط على غرار نظيرتها في نموذج `User` مع استثناء مرجعة نموذج `User`. نظرًا لأننا نعيد استخدام طريقة `belongsToMany`، فإن جميع خيارات تخصيص الجدول والمفتاح متاحة عند تعريف "عكس" علاقات كثير إلى كثير.
+
+#### استرجاع أعمدة جدول وسيط
+
+كما تعلمنا بالفعل، يتطلب التعامل مع علاقات كثير إلى كثير وجود جدول وسيط. يوفر Kawkab بعض الطرق المفيدة جدًا للتفاعل مع هذا الجدول. على سبيل المثال، دعونا نفترض أن نموذج `User` الخاص بنا له العديد من نماذج Role التي يرتبط بها. بعد الوصول إلى هذه العلاقة، يمكننا الوصول إلى الجدول الوسيط باستخدام سمة `pivot` على النماذج:
+
+```js
+const { User } = require('./models');
+
+const user = await User.query().find(1);
+const roles = await user.getRelated('roles');
+
+roles.map(role => {
+  console.log(role.pivot.created_at);
+});
+```
+
+لاحظ أن كل نموذج `Role` نسترجعه يُعيّن له تلقائيًا سمة pivot. تحتوي هذه السمة على نموذج يمثل الجدول الوسيط.
+
+بشكل افتراضي، ستكون مفاتيح النموذج فقط موجودة على نموذج pivot. إذا كان الجدول الوسيط يحتوي على سمات إضافية، فيجب عليك تحديدها عند تعريف العلاقة:
+
+```js
+return this.belongsToMany(Role).withPivot('active', 'created_by');
+```
+
+إذا كنت ترغب في أن يحتوي الجدول الوسيط الخاص بك على `created_at` و`updated_at` أوقات تم تحديثها تلقائيًا من قبل Kawkab، فاستدعِ طريقة `withTimestamps` عند تعريف العلاقة:
+
+```js
+return this.belongsToMany(Role).withTimestamps();
+```
+
+**تخصيص اسم السمة `pivot`**
+
+كما لوحظ مسبقًا، يمكن الوصول إلى السمات من الجدول الوسيط على النماذج من خلال السمة `pivot`. ومع ذلك، يمكنك تخصيص اسم هذه السمة لتعكس غرضها بشكل أفضل داخل تطبيقك.
+
+على سبيل المثال، إذا كان تطبيقك يحتوي على مستخدمين يمكنهم الاشتراك في البودكاست، فمن المرجح أن يكون لديك علاقة كثير إلى كثير بين المستخدمين والبودكاست. إذا كان الحال كذلك، فقد ترغب في إعادة تسمية سمة الجدول الوسيط الخاصة بك إلى `subscription` بدلاً من `pivot`. يمكن القيام بذلك باستخدام طريقة `as` عند تعريف العلاقة:
+
+```js
+return this.belongsToMany(Podcast)
+    .as('subscription')
+    .withTimestamps();
+```
+
+#### تصفية الاستعلامات عبر أعمدة الجدول الوسيط
+
+يمكنك أيضًا تصفية النتائج التي تم إرجاعها بواسطة استعلامات علاقة `belongsToMany` باستخدام الطرق `wherePivot` و`wherePivotIn` و`wherePivotNotIn` و`wherePivotBetween` و`wherePivotNotBetween` و`wherePivotNull` و`wherePivotNotNull` عند تعريف العلاقة:
+
+```js
+return this.belongsToMany(Role)
+  .wherePivot('approved', 1);
+
+return this.belongsToMany(Role)
+  .wherePivotIn('priority', [1, 2]);
+
+return this.belongsToMany(Role)
+  .wherePivotNotIn('priority', [1, 2]);
+
+return this.belongsToMany(Podcast)
+  .as('subscriptions')
+  .wherePivotBetween('created_at', ['2020-01-01 00:00:00', '2020-12-31 00:00:00']);
+
+return this.belongsToMany(Podcast)
+  .as('subscriptions')
+  .wherePivotNotBetween('created_at', ['2020-01-01 00:00:00', '2020-12-31 00:00:00']);
+
+return this.belongsToMany(Podcast)
+  .as('subscriptions')
+  .wherePivotNull('expired_at');
+
+return this.belongsToMany(Podcast)
+  .as('subscriptions')
+  .wherePivotNotNull('expired_at');
+```
+
+#### ترتيب الاستعلامات عبر أعمدة الجدول الوسيط
+
+يمكنك ترتيب النتائج التي تم إرجاعها بواسطة استعلامات علاقة `belongsToMany` باستخدام طريقة `orderByPivot`. في المثال التالي، سنسترجع جميع الشارات الأحدث للمستخدم:
+
+```js
+return this.belongsToMany(Badge)
+  .where('rank', 'gold')
+  .orderByPivot('created_at', 'desc');
+```
+
+### استعلام العلاقات
+
+نظرًا لأن جميع علاقات Kawkab معرّفة عبر طرق، يمكنك استدعاء تلك الطرق للحصول على مثيل للعلاقة دون تنفيذ استعلام فعليًا لتحميل النماذج ذات الصلة. بالإضافة إلى ذلك، تخدم جميع أنواع علاقات Kawkab أيضًا كأدوات بناء استعلام، مما يتيح لك مواصلة سلسلة القيود على استعلام العلاقة قبل تنفيذ استعلام SQL في النهاية ضد قاعدة بياناتك.
+
+على سبيل المثال، تصور تطبيق مدونة يحتوي نموذج `User` على العديد من نماذج `Post` ذات الصلة:
+
+```js
+import { BaseModel } from "kawkab";
+
+class User extends Model {
+  relationPosts() {
+    return this.hasMany(Post);
+  }
+}
+```
+
+يمكنك استعلام العلاقة posts وإضافة قيود إضافية إلى العلاقة على النحو التالي:
+
+```js
+const { User } = require('./models');
+
+const user = await User.query().find(1);
+
+await user.related('posts').where('active', 1).get();
+```
+
+يمكنك استخدام أي من طرق أداة بناء استعلام Kawkab على العلاقة، لذا تأكد من استكشاف وثائق أداة بناء الاستعلام لمعرفة جميع الطرق المتاحة لك.
+
+**سلسلة عبارات `orWhere` بعد العلاقات**
+
+كما تم توضيحه في المثال أعلاه، يمكنك إضافة قيود إضافية إلى العلاقات عند استعلامها. ومع ذلك، يرجى اتخاذ الحذر عند سلسلة عبارات `orWhere` على علاقة، حيث سيتم تجميع عبارات `orWhere` منطقيًا على نفس المستوى مثل قيود العلاقة:
+
+```js
+await user.related('posts')
+  .where('active', 1)
+  .orWhere('votes', '>=', 100)
+  .get();
+```
+
+سيولد المثال أعلاه SQL التالي. كما ترى، تأمر العبارة or الاستعلام بإرجاع أي مستخدم له أكثر من 100 تصويت. لم يعد الاستعلام مقيدًا بمستخدم معين:
+
+```SQL
+select *
+from posts
+where user_id = ? and active = 1 or votes >= 100
+```
+
+في معظم الحالات، يجب عليك استخدام المجموعات المنطقية لتجميع التحققات الشرطية بين أقواس:
+
+```js
+await user.related('posts')
+  .where(query => {
+    return query.where('active', 1).orWhere('votes', '>=', 100);
+  })
+  .get();
+```
+
+سينتج المثال أعلاه SQL التالي. لاحظ أن التجميع المنطقي قد جمع القيود بشكل صحيح وظل الاستعلام مقيدًا بمستخدم معين:
+
+```SQL
+select *
+from posts
+where user_id = ? and (active = 1 or votes >= 100)
+```
+
+#### استعلام وجود العلاقة
+
+عند استرجاع سجلات النموذج، قد ترغب في تقييد نتائجك بناءً على وجود علاقة. على سبيل المثال، تصور أنك تريد استرجاع جميع منشورات المدونة التي لها تعليق واحد على الأقل. للقيام بذلك، يمكنك تمرير اسم العلاقة إلى طرق `has` و`orHas`:
+
+```js
+const { Post } = require('./models');
+// استرجاع جميع المنشورات التي لها تعليق واحد على الأقل...
+const posts = await Post.query().has('comments').get();
+```
+
+يمكنك أيضًا تحديد مشغل وقيمة عدد لتخصيص الاستعلام أكثر:
+
+```js
+// استرجاع جميع المنشورات التي لها ثلاثة تعليقات أو أكثر...
+const posts = await Post.query().has('comments', '>=', 3).get();
+```
+
+يمكن بناء عبارات has متداخلة باستخدام اسم النقطة. على سبيل المثال، يمكنك استرجاع جميع المنشورات التي لها تعليق واحد على الأقل يحتوي على صور:
+
+```js
+// استرجاع المنشورات التي لها تعليق واحد على الأقل مع صور...
+const posts = await Post.query().has('comments.images').get();
+```
+
+إذا كنت بحاجة إلى مزيد من القوة، يمكنك استخدام طرق `whereHas` و`orWhereHas` لتحديد قيود استعلام إضافية على استعلامات has الخاصة بك، مثل فحص محتوى تعليق:
+
+```js
+// استرجاع المنشورات التي لها تعليق واحد على الأقل يحتوي على كلمات مثل code%...
+const posts = await Post.query().whereHas('comments', query => {
+  query.where('content', 'like', 'code%');
+}).get();
+
+// استرجاع المنشورات التي لها عشرة تعليقات على الأقل تحتوي على كلمات مثل code%...
+const posts = await Post.query().whereHas('comments', query => {
+  query.where('content', 'like', 'code%');
+}, '>=', 10).get();
+```
+
+### تجميع النماذج ذات الصلة
+
+#### عد النماذج ذات الصلة
+
+في بعض الأحيان، قد ترغب في عد عدد النماذج ذات الصلة لعلاقة معينة دون تحميل النماذج فعليًا. لتحقيق ذلك، يمكنك استخدام طريقة `withCount`. ستضع طريقة `withCount` سمة `{relation}_count` على النماذج الناتجة:
+
+```js
+const { Post } = require('./models');
+
+const posts = await Post.query().withCount('comments').get();
+
+posts.map(post => {
+  console.log(post.comments_count);
+});
+```
+
+عن طريق تمرير مصفوفة إلى طريقة `withCount`، يمكنك إضافة "العد" لعلاقات متعددة بالإضافة إلى إضافة قيود إضافية إلى الاستعلامات:
+
+```js
+const posts = await Post.query().withCount({
+  comments: query => query.where('content', 'like', 'code%');
+}).get();
+
+console.log(posts.get(0).comments_count);
+```
+
+#### تحميل العد مؤجل
+
+باستخدام طريقة `loadCount`، يمكنك تحميل عد علاقة بعد أن يتم استرجاع النموذج الأصل بالفعل:
+
+```js
+const book = await Book.query().first();
+
+await book.loadCount('genres');
+```
+
+إذا كنت بحاجة إلى تعيين قيود استعلام إضافية على استعلام العد، فيمكنك تمرير مصفوفة مفتاحة بالعلاقات التي ترغب في عدها. يجب أن تكون قيم المصفوفة إغلاق تلقى مثيل أداة بناء الاستعلام:
+
+```js
+await book.loadCount({
+  reviews: query => query.where('rating', 5);
+})
+```
+
+#### عد العلاقات والبيانات التحديدية المخصصة
+
+إذا كنت تجمع بين `withCount` مع بيان تحديد، فتأكد من أنك تستدعي `withCount` بعد طريقة `select`:
+
+```js
+const posts = await Post.query().select(['title', 'body'])
+  .withCount('comments')
+  .get();
+```
+
+#### وظائف تجميع أخرى
+
+بالإضافة إلى طريقة `withCount`، يوفر Kawkab طرق `withMin` و`withMax` و`withAvg` و`withSum` و`withExists`. ستضع هذه الطرق سمة `{relation}_{function}_{column}` على النماذج الناتجة:
+
+```js
+const { Post } = require('./models');
+
+const posts = await Post.query().withSum('comments', 'votes').get();
+
+posts.map(post => {
+  console.log(post.comments_sum_votes);
+});
+```
+
+مثل طريقة `loadCount`، تتوفر أيضًا إصدارات مؤجلة من هذه الطرق. يمكن تنفيذ هذه العمليات التجميعية الإضافية على نماذج Kawkab التي تم استرجاعها بالفعل:
+
+```js
+const post = await Post.query().first();
+
+await post.loadSum('comments', 'votes');
+```
+
+إذا كنت تجمع بين هذه الطرق التجميعية مع بيان تحديد، فتأكد من أنك تستدعي الطرق التجميعية بعد طريقة `select`:
+
+```js
+const posts = await Post.query().select(['title', 'body'])
+  .withExists('comments')
+  .get();
+```
+
+### التحميل المسبق
+
+عند الوصول إلى علاقات Kawkab كخصائص، يتم تحميل النماذج ذات الصلة "بشكل كسول". هذا يعني أن بيانات العلاقة لا تُحمّل فعليًا حتى تصل إلى الخاصية لأول مرة. ومع ذلك، يمكن أن يقوم Kawkab بـ "تحميل مسبق" للعلاقات في الوقت الذي تقوم فيه باستعلام النموذج الأصل. يخفف التحميل المسبق من مشكلة استعلام `N + 1`. لتوضيح مشكلة استعلام `N + 1`، تأمل نموذج `Book` ينتمي إلى نموذج `Author`:
+
+```js
+import { BaseModel } from "kawkab";
+
+class Book extends Model {
+  relationAuthor() {
+    return this.belongsTo(Author);
+  }
+}
+```
+
+الآن، دعونا نسترجع جميع الكتب ومؤلفيها:
+
+```js
+const { Book } = require('./models');
+
+const books = await Book.query().all();
+books.map(async book => {
+  const author = await book.getRelated('author');
+  console.log(author.name);
+});
+```
+
+سيقوم هذا الحلقة بتنفيذ استعلام لاسترجاع جميع الكتب داخل جدول قاعدة البيانات، ثم استعلام آخر لكل كتاب لاسترجاع مؤلف الكتاب. لذا، إذا كان لدينا 25 كتابًا، فسيقوم الكود أعلاه بتشغيل 26 استعلامًا: واحد للكتاب الأصلي، و25 استعلامًا إضافيًا لاسترجاع مؤلف كل كتاب.
+
+حسنًا، يمكننا استخدام التحميل المسبق لتقليل هذه العملية إلى استعلامين فقط. عند بناء استعلام، يمكنك تحديد العلاقات التي يجب تحميلها مسبقًا باستخدام طريقة `with`:
+
+```js
+const books = await Book.query().with('author').get();
+
+books.map(book => {
+  console.log(book.author.name);
+});
+```
+
+في هذه العملية، سيتم تنفيذ استعلامين فقط - استعلام لاسترجاع جميع الكتب واستعلام لاسترجاع جميع المؤلفين لجميع الكتب:
+
+```SQL
+select * from books
+
+select * from authors where id in (1, 2, 3, 4, 5, ...)
+```
+
+**التحميل المسبق لعلاقات متعددة**
+
+في بعض الأحيان، قد تحتاج إلى التحميل المسبق لعدة علاقات مختلفة. للقيام بذلك، مجرد تمرير مصفوفة من العلاقات إلى طريقة `with`:
+
+```js
+const books = await Book.query().with(['author', 'publisher']).get();
+```
+
+**التحميل المسبق المتداخل**
+
+للتحميل المسبق لعلاقات العلاقة، يمكنك استخدام بناء الجملة "النقطي". على سبيل المثال، دعونا نقوم بالتحميل المسبق لجميع مؤلفي الكتب وجميع جهات اتصال المؤلف الشخصية:
+
+```js
+const books = await Book.query().with('author.contacts').get();
+```
+
+**التحميل المسبق لأعمدة محددة**
+
+قد لا تحتاج دائمًا إلى كل عمود من العلاقات التي تسترجعها. لهذا السبب، يسمح Kawkab لك بتحديد الأعمدة التي ترغب في استرجاعها من العلاقة:
+
+```js
+const books = await Book.query().with('author:id,name,book_id').get();
+```
+
+#### قيود التحميل المسبق
+
+في بعض الأحيان، قد ترغب في التحميل المسبق لعلاقة ولكن تحديد قيود استعلام إضافية لاستعلام التحميل المسبق. يمكنك تحقيق ذلك عن طريق تمرير مصفوفة من العلاقات إلى طريقة `with` حيث يكون مفتاح الكائن اسم العلاقة وقيمة الكائن هي إغلاق يضيف قيود إضافية إلى استعلام التحميل المسبق:
+
+```js
+const users = await User.query().with({
+  posts: query => query.where('title', 'like', '%code%')
+}).get();
+// أو
+const users = await User.query().with('posts', query => {
+  query.where('title', 'like', '%code%');
+}).get();
+```
+
+في هذا المثال، سيقوم Kawkab فقط بالتحميل المسبق للمنشورات حيث يحتوي عمود `title` للمنشور على كلمة code. يمكنك استدعاء طرق أداة بناء الاستعلام الأخرى لتخصيص عملية التحميل المسبق أكثر:
+
+```js
+const users = await User.query().with({
+  posts: query => query.orderBy('created_at', 'desc')
+}).get();
+```
+
+#### التحميل المسبق الكسول
+
+في بعض الأحيان، قد تحتاج إلى التحميل المسبق لعلاقة بعد أن يتم استرجاع النموذج الأصل بالفعل. على سبيل المثال، قد يكون هذا مفيدًا إذا كنت بحاجة إلى تحديد ما إذا كان يجب تحميل النماذج ذات الصلة بشكل ديناميكي:
+
+```js
+const { Book } = require('./models');
+const books = await Book.query().all();
+
+if (someCondition) {
+  await books.load('author', 'publisher');
+}
+```
+
+إذا كنت بحاجة إلى تعيين قيود استعلام إضافية على استعلام التحميل المسبق، فيمكنك تمرير كائن مفتاح بالعلاقات التي ترغب في تحميلها. يجب أن تكون قيم الكائن مثيلات إغلاق تلقى مثيل استعلام:
+
+```js
+await author.load({
+  books: query => query.orderBy('published_date', 'asc')
+});
+```
+
+### إدراج وتحديث النماذج ذات الصلة
+
+#### طريقة `save`
+
+يوفر Kawkab طرقًا ملائمة لإضافة نماذج جديدة إلى العلاقات. على سبيل المثال، قد تحتاج إلى إضافة تعليق جديد إلى منشور. بدلاً من تعيين سمة `post_id` يدويًا على نموذج `Comment`، يمكنك إدراج التعليق باستخدام طريقة `save` للعلاقة:
+
+```js
+const { Post, Comment } = require('./models');
+
+const comment = new Comment({
+  message: 'A new comment.'
+});
+
+const post = await Post.query().find(1);
+
+await post.related('comments').save(comment);
+```
+
+لاحظ أننا لم نصل إلى علاقة `comments` كخاصية ديناميكية. بدلاً من ذلك، استدعينا طريقة `related('comments')` للحصول على مثيل للعلاقة. ستقوم طريقة `save` تلقائيًا بإضافة قيمة `post_id` المناسبة إلى نموذج `Comment` الجديد.
+
+إذا كنت بحاجة إلى حفظ نماذج ذات صلة متعددة، يمكنك استخدام طريقة `saveMany`:
+
+```js
+await post.related('comments').saveMany([
+  new Comment({ message: 'A new comment.' }),
+  new Comment({ message: 'Another new comment.' }),
+]);
+```
+
+لا تقوم طرق `save` و`saveMany` بالاحتفاظ بمثيلات النموذج المحددة، ولكنها لن تضيف النماذج المحفوظة حديثًا إلى أي علاقات في الذاكرة محملة بالفعل على النموذج الأصل. إذا كنت تخطط للوصول إلى العلاقة بعد استخدام طرق `save` أو `saveMany`، فقد ترغب في استخدام طريقة `refresh` لإعادة تحميل النموذج وعلاقاته:
+
+```js
+await post.related('comments').save(comment);
+await post.refresh();
+
+// جميع التعليقات، بما في ذلك التعليق المحفوظ حديثًا...
+post.comments;
+```
+
+**حفظ النماذج والعلاقات بشكل متكرر**
+
+إذا كنت ترغب في حفظ نموذجك وجميع العلاقات ذات الصلة، يمكنك استخدام طريقة `push`. في هذا المثال، سيتم حفظ نموذج `Post` وتعليقاته ومؤلفي التعليقات:
+
+```js
+post.comments.get(0).message = 'Message';
+post.comments.get(0).author.name = 'Author Name';
+
+await post.push();
+```
+
+#### طريقة `create`
+
+بالإضافة إلى طرق `save` و`saveMany`، يمكنك أيضًا استخدام طريقة `create`، التي تأخذ كائن من السمات، وتنشئ نموذجًا، وتدرجه في قاعدة البيانات. الفرق بين `save` و`create` هو أن `save` يأخذ مثيل نموذج Kawkab كامل بينما يأخذ `create` كائنًا عاديًا. سيتم إرجاع النموذج المنشأ حديثًا بواسطة طريقة `create`:
+
+```js
+const { Post } = require('./models');
+
+const post = await Post.query().find(1);
+
+const comment = await post.related('comments').create({
+  message: 'A new comment.',
+});
+```
+
+يمكنك استخدام طريقة `createMany` لإنشاء نماذج ذات صلة متعددة:
+
+```js
+await post.related('comments').createMany([
+  { message: 'A new comment.' },
+  { message: 'Another new comment.' },
+]);
+```
+
+يمكنك أيضًا استخدام طرق `findOrNew` و`firstOrNew` و`firstOrCreate` و`updateOrCreate` لإنشاء وتحديث النماذج على العلاقات.
+
+#### علاقات تنتمي إلى
+
+إذا كنت ترغب في تعيين نموذج فرعي إلى نموذج أصل جديد، يمكنك استخدام طريقة `associate`. في هذا المثال، يعرّف نموذج `User` علاقة `belongsTo` إلى نموذج `Account`. ستقوم طريقة `associate` بتعيين المفتاح الأجنبي على النموذج الفرعي:
+
+```js
+const { Account } = require('./models');
+
+const account = await Account.query().find(10);
+user.related('account').associate(account);
+
+await user.save();
+```
+
+لإزالة نموذج أصل من نموذج فرعي، يمكنك استخدام طريقة `dissociate`. ستقوم هذه الطريقة بتعيين المفتاح الأجنبي للعلاقة على null:
+
+```js
+user.related('account').dissociate();
+
+await user->save();
+```
+
+#### علاقات كثير إلى كثير
+
+**الإرفاق / الفصل**
+
+يوفر Kawkab أيضًا طرقًا لجعل التعامل مع علاقات كثير إلى كثير أكثر ملاءمة. على سبيل المثال، دعونا نتخيل أن المستخدم يمكن أن يكون له العديد من الأدوار ويمكن أن يكون للدور العديد من المستخدمين. يمكنك استخدام طريقة `attach` لإرفاق دور بمستخدم عن طريق إدراج سجل في جدول العلاقة الوسيط:
+
+```js
+const { User } = require('./models');
+
+const user = await User.query().find(1);
+
+await user.related('roles').attach(roleId);
+```
+
+عند إرفاق علاقة بنموذج، يمكنك أيضًا تمرير مصفوفة من البيانات الإضافية ليتم إدراجها في الجدول الوسيط:
+
+```js
+await user.related('roles').attach(roleId, {
+  expires: expires,
+});
+```
+
+في بعض الأحيان، قد يكون من الضروري إزالة دور من مستخدم. لإزالة سجل علاقة كثير إلى كثير، استخدم طريقة `detach`. ستقوم طريقة `detach` بحذف السجل المناسب من الجدول الوسيط؛ ومع ذلك، سيظل كلا النماذج موجودين في قاعدة البيانات:
+
+```js
+// فصل دور واحد عن المستخدم...
+await user.related('roles').detach(roleId);
+
+// فصل جميع الأدوار عن المستخدم...
+await user.related('roles').detach();
+```
+
+لراحتك، تقبل `attach` و`detach` أيضًا مدخلات مصفوفة من المعرفات:
+
+```js
+const user = await User.query().find(1);
+
+await user.related('roles').detach([1, 2, 3]);
+
+await user.related('roles').attach([1, 2]);
+```
+
+**مزامنة الارتباطات**
+
+يمكنك أيضًا استخدام طريقة `sync` لبناء ارتباطات كثير إلى كثير. تأخذ طريقة `sync` مصفوفة من المعرفات لوضعها على الجدول الوسيط. سيتم إزالة أي معرفات غير موجودة في المصفوفة المحددة من الجدول الوسيط. بعد اكتمال هذه العملية، سيكون فقط المعرفات في المصفوفة المحددة موجودة في الجدول الوسيط:
+
+```js
+await user.related('roles').sync([1, 2, 3]);
+```
+
+يمكنك أيضًا تمرير قيم الجدول الوسيط الإضافية مع المعرفات:
+
+```js
+await user.related('roles').sync({ 1: { expires: true }, 2: {}, 3: {} });
+```
+
+إذا كنت ترغب في إدراج نفس قيم الجدول الوسيط مع كل من معرفات النماذج المزامنة، يمكنك استخدام طريقة `syncWithPivotValues`:
+
+```js
+await user.related('roles').syncWithPivotValues([1, 2, 3], { active: true });
+```
+
+إذا كنت لا ترغب في فصل المعرفات الحالية التي تفتقر إلى المصفوفة المحددة، فيمكنك استخدام طريقة `syncWithoutDetaching`:
+
+```js
+await user.related('roles').syncWithoutDetaching([1, 2, 3]);
+```
+
+**تحديث سجل على الجدول الوسيط**
+
+إذا كنت بحاجة إلى تحديث صف حالي في جدول العلاقة الوسيط الخاص بك، يمكنك استخدام طريقة `updateExistingPivot`. تأخذ هذه الطريقة المفتاح الأجنبي للسجل الوسيط وكائن من السمات للتحديث:
+
+```js
+await user.related('roles').updateExistingPivot(roleId, {
+  active: false,
+});
+```

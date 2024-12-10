@@ -1,0 +1,56 @@
+---
+title: Production
+---
+
+# **Preparing for Production in Kawkab Framework**
+
+After developing your application using **Kawkab**, you'll need to deploy it in a production environment. This guide explains how to set up and run your application using the appropriate commands.
+
+---
+
+## **1. Build the Production Version**
+
+To prepare the application for the production environment, create a compressed and optimized build using the following command:
+
+```bash
+npm run build
+```
+
+This command will:
+
+- Generate the final files to be deployed on the server.
+
+The generated build will be saved in the `.dist` directory.
+
+---
+
+## **2. Run the Application in Production Mode**
+
+Once the build process is complete, you can run the application in production mode using the following command:
+
+```bash
+npm run start
+```
+
+### **What this command does:**
+- Loads the final version of the project.
+- Starts the production server.
+- Makes the application available at the specified address (usually `http://localhost:3000`).
+
+---
+
+## **3. Important Tips for Production**
+
+### **Environment Settings:**
+Ensure that the `.env.production` file contains the appropriate settings for production.
+
+### **Reverse Proxy:**
+For better performance and security, consider placing a reverse proxy server like **Nginx** or **Apache** in front of your application.
+
+---
+
+## **Conclusion**
+
+Once the application is running in production mode, it will be ready to handle users. The **Kawkab** framework offers you flexible and efficient tools to ensure high performance and a great user experience.
+
+Enjoy productivity with **Kawkab**! 🚀

@@ -1,0 +1,108 @@
+---
+title: API Versioning in Kawkab
+description: A comprehensive guide to managing API versioning in the Kawkab framework.
+---
+
+# **API Versioning**
+
+API versioning is an important practice in modern application development. It allows you to update your API while maintaining compatibility with legacy applications.
+
+## **How to Organize Versions in Kawkab**
+
+The Kawkab framework supports API version management by organizing controllers in different directories for each version.
+
+### **Suggested Directory Structure:**
+
+```
+modules/
+├── users/
+│   ├── controllers/
+│   │   ├── v1/
+│   │   │   └── index.ts
+│   │   └── v2/
+│   │       └── index.ts
+```
+
+## **Creating a Controller for a Specific Version**
+
+### **First Version (v1):**
+```bash
+npm run kawkab controller:make users/v1/profile users
+```
+
+### **Second Version (v2):**
+```bash
+npm run kawkab controller:make users/v2/profile users
+```
+
+## **Example of Different Version Controllers**
+
+### **Version 1 (v1) Controller:**
+
+```ts
+import { BaseController, inherit } from "kawkab";
+
+export default class extends inherit(BaseController) {
+    get() {
+        return {
+            status: true,
+            version: "1.0",
+            data: {
+                name: "User Name",
+                email: "user@example.com"
+            }
+        };
+    }
+}
+```
+
+### **Version 2 (v2) Controller:**
+
+```ts
+import { BaseController, inherit } from "kawkab";
+
+export default class extends inherit(BaseController) {
+    get() {
+        return {
+            status: true,
+            version: "2.0",
+            data: {
+                name: "User Name",
+                email: "user@example.com",
+                profile: {
+                    avatar: "https://example.com/avatar.jpg",
+                    bio: "User bio"
+                }
+            }
+        };
+    }
+}
+```
+
+## **Accessing Different Versions**
+
+Different versions can be accessed through the following paths:
+
+### **First Version:**
+```
+http://localhost:3000/api/v1/users/profile
+```
+
+### **Second Version:**
+```
+http://localhost:3000/api/v2/users/profile
+```
+
+## **Best Practices**
+
+1. **Clear Documentation:** Clearly document changes between versions.
+2. **Backward Compatibility:** Maintain older versions working for a transition period.
+3. **Deprecation Notice:** Inform users about versions that will become deprecated.
+4. **Support Duration:** Clearly define the support period for each version.
+
+## **Summary**
+
+API versioning in Kawkab is handled flexibly and simply through:
+1. Organizing controllers in version directories.
+2. Supporting multiple versions simultaneously.
+3. Maintaining compatibility.

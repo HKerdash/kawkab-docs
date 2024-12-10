@@ -1,0 +1,96 @@
+---
+title: Command System in Kawkab
+description: A comprehensive guide to using and creating commands in the Kawkab framework.
+---
+
+# Command System in Kawkab
+
+The **command** system in the **Kawkab** framework provides a powerful and flexible command-line interface to manage and execute various tasks in your application. You can use the built-in commands or create custom ones.
+
+## Viewing Available Commands
+
+To get a list of all available commands, run:
+
+```bash
+npm run kawkab
+```
+
+This command will display a list of all available commands with a brief description of each one.
+
+## Creating a New Command
+
+### Basic Syntax
+
+```bash
+npm run kawkab command:make <name> [module]
+```
+
+### Parameter Details:
+
+- **`<name>`**: The name of the command you wish to create.
+- **`[module]`**: The name of the module that will contain the command (optional, the default is `main`).
+
+### Example:
+
+```bash
+npm run kawkab command:make hello
+```
+
+This command will create a new command file at the appropriate location with the following basic structure:
+
+```typescript
+import { Command } from "kawkab";
+
+export default function(program: Command): void {
+  program
+    // Command syntax: '<variable_name>' is required, '[variable_name]' is optional
+    .command("hello <name> [module]")
+    // Description of the command that will appear in the CLI help
+    .description("Your custom command description")
+    // Action to be executed when the command is run
+    .action(async (name: string, module: string = "main") => {
+      // Write your command logic here
+      console.log(`Hello ${name}`);
+    });
+}
+```
+
+## Command Structure
+
+### Core Components
+
+1. **`command()`**: Defines the name and syntax of the command
+   - Required variables are written between `<>`
+   - Optional variables are written between `[]`
+
+2. **`description()`**: A brief description of the command that appears in the help list
+
+3. **`action()`**: The function containing the logic for executing the command
+   - It receives the variables defined in the command syntax
+   - It can be asynchronous (`async`)
+
+### Adding Options
+
+You can add options to your command using `option()`:
+
+```typescript
+program
+  .command("hello <name>")
+  .option("-c, --capitalize", "Convert the name to uppercase")
+  .action(async (name: string, options) => {
+    const output = options.capitalize ? name.toUpperCase() : name;
+    console.log(`Hello ${output}`);
+  });
+```
+
+## Best Practices
+
+1. **Clear Names**: Use descriptive and clear names for your commands.
+2. **Good Documentation**: Write a clear and detailed description for each command and its options.
+3. **Input Validation**: Always validate inputs before executing the command.
+4. **Clear Messages**: Display clear messages to the user about the result of the command execution.
+5. **Error Handling**: Implement proper error handling for potential issues.
+
+## Conclusion
+
+The command system in Kawkab provides an easy and flexible way to add new functionality to your application through the command-line interface. With support for required and optional variables and custom options, you can create powerful and useful commands for your application.

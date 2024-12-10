@@ -1,0 +1,155 @@
+# Hashing Encryption in Kawkab Kawkab
+
+In the world of modern application development, hashing is a fundamental tool to ensure the security of sensitive data such as passwords, secret keys, or other confidential information. In **Kawkab Kawkab**, we offer two main functions for handling encryption:
+
+- **`hash.generate`**: To generate a hash of the data.
+- **`hash.verify`**: To verify the correctness of the data compared to the hash.
+
+---
+
+## What is Hashing?
+
+Hashing is the process of transforming data into a unique string of characters (hash) using specific algorithms. This string cannot be reversed to the original data, making it ideal for securing sensitive data.
+
+### Uses of Hashing:
+1. **Securing passwords**: Passwords are hashed and stored in the database instead of saving them as plain text.
+2. **Integrity checking**: Used to confirm that data has not been modified during transmission.
+3. **Digital signatures**: To ensure the identity of the sender.
+
+---
+
+## How Does Hashing Work in **Kawkab Kawkab**?
+
+### 1. Generating Hash Using `hash.generate`
+
+The **`hash.generate`** function is used to create a hash for the data. A strong encryption algorithm is applied to produce a unique string.
+
+#### Example:
+```ts
+import { hash } from "kawkab";
+
+const password = "123456";
+const hashedPassword = await hash.generate(password);
+
+console.log(hashedPassword);
+// Output: A hashed string like: "$2b$10$E8s1h...abc123"
+```
+
+#### Additional Options:
+You can customize the encryption strength (salt rounds) based on security requirements.
+
+```ts
+const strongHash = await hash.generate(password, 10);
+console.log(strongHash);
+```
+
+---
+
+### 2. Verifying Hash Using `hash.verify`
+
+The **`hash.verify`** function is used to compare the original data with the hashed version to ensure they match.
+
+#### Example:
+```ts
+import { hash } from "kawkab";
+
+const password = "123456";
+const hashedPassword = await hash.generate(password);
+
+// Verify the entered password
+const isMatch = await hash.verify(password, hashedPassword);
+
+if (isMatch) {
+    console.log("Password is correct.");
+} else {
+    console.log("Password is incorrect.");
+}
+```
+
+#### Use Cases:
+- Verifying password correctness during login.
+- Verifying the integrity of data during file transfers.
+
+---
+
+## Additional Options When Using `hash.generate` and `hash.verify`
+
+### 1. **Hashing with Salt Rounds**
+The ability to specify the number of hashing rounds (Salt Rounds) to make the hash more secure. The more rounds, the stronger the encryption (but it takes longer).
+
+```ts
+const customHashed = await hash.generate("mySecurePassword", 14);
+```
+
+### 2. **Verification with Custom Options**
+The `hash.verify` function works smoothly with default values but can be customized when needed.
+
+---
+
+## Practical Examples
+
+### A) Storing Passwords During Registration
+```ts
+import { hash } from "kawkab";
+
+async function registerUser(username: string, password: string) {
+    const hashedPassword = await hash.generate(password);
+    // Save the username and hashed password in the database
+    console.log(`User registered: ${username}, with hashed password: ${hashedPassword}`);
+}
+
+registerUser("Hassan", "password123");
+```
+
+---
+
+### B) Verifying Password During Login
+```ts
+import { hash } from "kawkab";
+
+async function loginUser(inputPassword: string, storedHash: string) {
+    const isMatch = await hash.verify(inputPassword, storedHash);
+
+    if (isMatch) {
+        console.log("Login successful.");
+    } else {
+        console.log("Login failed. Incorrect password.");
+    }
+}
+
+// Example
+loginUser("password123", "$2b$10$E8s1h...abc123");
+```
+
+---
+
+### C) Using Hashing to Secure Files
+```ts
+import { hash } from "kawkab";
+
+async function secureFile(fileContent: string) {
+    const fileHash = await hash.generate(fileContent);
+    console.log(`File hash generated: ${fileHash}`);
+}
+
+secureFile("This is the content of the secret file.");
+```
+
+---
+
+## Practical Tips
+- Always store passwords as hashes in the database.
+- Use a sufficient number of **Salt Rounds** (usually between 10-14) to ensure encryption security.
+- Do not store hashes in a place that can be easily accessed.
+
+---
+
+## Comparison Between **hash.generate** and **hash.verify**
+| Function          | Purpose                                     | Inputs                           | Output                        |
+|-------------------|---------------------------------------------|----------------------------------|------------------------------|
+| **hash.generate**  | Create a hashed fingerprint                 | Plain text + Options (optional)  | Hashed string                 |
+| **hash.verify**    | Verify the matching of the text with the hash | Plain text + Hashed fingerprint   | `true` if matched, or `false` |
+
+---
+
+In this way, you can achieve a high level of security using **Hashing** in **Kawkab Kawkab**, ensuring the protection of user data and applications.

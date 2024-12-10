@@ -1,0 +1,108 @@
+---
+title: إصدارات واجهة برمجة التطبيقات (API Versioning) في كوكب Kawkab
+description: دليل شامل لإدارة إصدارات واجهة برمجة التطبيقات (API) في إطار العمل كوكب Kawkab.
+---
+
+# **إصدارات واجهة برمجة التطبيقات (API Versioning)**
+
+إدارة إصدارات واجهة برمجة التطبيقات (API Versioning) هي ممارسة مهمة في تطوير التطبيقات الحديثة. تسمح لك بتحديث واجهة برمجة التطبيقات مع الحفاظ على التوافق مع التطبيقات القديمة.
+
+## **كيفية تنظيم الإصدارات في كوكب Kawkab**
+
+يدعم إطار العمل كوكب Kawkab إدارة إصدارات API من خلال تنظيم المتحكمات في مجلدات مختلفة لكل إصدار.
+
+### **هيكل المجلدات المقترح:**
+
+```
+modules/
+├── users/
+│   ├── controllers/
+│   │   ├── v1/
+│   │   │   └── index.ts
+│   │   └── v2/
+│   │       └── index.ts
+```
+
+## **إنشاء متحكم لإصدار معين**
+
+### **الإصدار الأول (v1):**
+```bash
+npm run kawkab controller:make users/v1/profile users
+```
+
+### **الإصدار الثاني (v2):**
+```bash
+npm run kawkab controller:make users/v2/profile users
+```
+
+## **مثال على متحكمات مختلفة الإصدارات**
+
+### **متحكم الإصدار الأول (v1):**
+
+```ts
+import { BaseController, inherit } from "kawkab";
+
+export default class extends inherit(BaseController) {
+    get() {
+        return {
+            status: true,
+            version: "1.0",
+            data: {
+                name: "User Name",
+                email: "user@example.com"
+            }
+        };
+    }
+}
+```
+
+### **متحكم الإصدار الثاني (v2):**
+
+```ts
+import { BaseController, inherit } from "kawkab";
+
+export default class extends inherit(BaseController) {
+    get() {
+        return {
+            status: true,
+            version: "2.0",
+            data: {
+                name: "User Name",
+                email: "user@example.com",
+                profile: {
+                    avatar: "https://example.com/avatar.jpg",
+                    bio: "User bio"
+                }
+            }
+        };
+    }
+}
+```
+
+## **الوصول إلى الإصدارات المختلفة**
+
+يمكن الوصول إلى الإصدارات المختلفة من خلال المسارات التالية:
+
+### **الإصدار الأول:**
+```
+http://localhost:3000/api/v1/users/profile
+```
+
+### **الإصدار الثاني:**
+```
+http://localhost:3000/api/v2/users/profile
+```
+
+## **أفضل الممارسات**
+
+1. **التوثيق الواضح:** توثيق التغييرات بين الإصدارات بشكل واضح.
+2. **التوافق الخلفي:** الحفاظ على عمل الإصدارات القديمة لفترة انتقالية.
+3. **إشعار التقادم:** إعلام المستخدمين عن الإصدارات التي ستصبح قديمة.
+4. **تحديد مدة الدعم:** تحديد فترة دعم كل إصدار بوضوح.
+
+## **ملخص**
+
+إدارة إصدارات API في كوكب Kawkab تتم بشكل مرن وبسيط من خلال:
+1. تنظيم المتحكمات في مجلدات إصدارات.
+2. دعم عدة إصدارات في نفس الوقت.
+3. الحفاظ على التوافق.

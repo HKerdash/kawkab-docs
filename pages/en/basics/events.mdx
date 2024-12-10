@@ -1,0 +1,54 @@
+### Events in Kawkab Framework
+
+Events are a fundamental part of building modern applications, where the Event Emitter mechanism allows you to interact with different parts of the application in a flexible and extensible way. In the Kawkab framework, developers can easily create events using CLI commands, which is a powerful way to add dynamic functionality to their applications.
+
+#### Creation Command
+To create a new event, you can use the following command:
+
+```bash
+npm run kawkab event:make <n> <event> [module]
+```
+
+- **`<n>`**: The name of the file to be created.
+- **`<event>`**: The name of the event to be triggered.
+- **`[module]`**: The module name (optional, will default to "main" if not specified).
+
+#### Example:
+Let's say you want to create an event that generates an OTP (One-Time Password) for a user, you can execute the following command:
+
+```bash
+npm run kawkab event:make generateLoginOTP user
+```
+
+#### Generated File Result:
+A new file named `generateLoginOTP.ts` will be created in the specified path (`app/main/events/user/generateLoginOTP.ts`). The file contents will be as follows:
+
+```ts
+export default function (data: any) {
+  console.log("Event triggered:", data);
+}
+```
+
+#### Code Explanation:
+- **The `export default function`**: This is the function that gets executed when the event is triggered. This function receives `data` and prints it using `console.log`.
+- **`data`**: This is the object passed when triggering the event, and it can include any data you want to process.
+
+#### How to Use the Event:
+After creating the event, you can trigger it from anywhere within the application using the following code:
+
+```ts
+import { event } from "kawkab";
+
+// Trigger the event
+event.emit('user');
+```
+
+#### Passing Data with the Event:
+You can also pass data with the event using the following code:
+
+```ts
+event.emit('user', { otp: '123456', userId: 1 });
+```
+
+#### Conclusion:
+Events are a powerful way to organize work in your applications, allowing flexible interaction between different parts of the system. With Kawkab, creating and managing events has become easy and flexible, helping you build powerful and more interactive applications.

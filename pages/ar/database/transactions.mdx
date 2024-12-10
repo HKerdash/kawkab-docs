@@ -1,0 +1,65 @@
+# التعامل مع المعاملات (Transactions)
+
+يمكنك استخدام الطريقة `transaction` المتوفرة في اتصال Sutando لتنفيذ مجموعة من العمليات داخل معاملة قاعدة بيانات. إذا حدث استثناء داخل الإغلاق (closure) الخاص بالمعاملة، فسيتم تلقائيًا التراجع عن المعاملة (rollback) وإعادة طرح الاستثناء. أما إذا تم تنفيذ الإغلاق بنجاح، فستتم الموافقة على المعاملة تلقائيًا. لا داعي للقلق بشأن التراجع يدويًا أو الموافقة عند استخدام طريقة `transaction`:
+
+```js
+import { db } from "kawkab";
+
+await db.transaction(async (trx) => {
+  await User.query().transacting(trx).create(/* ... */);
+ 
+  await db.table('users').transacting(trx).insert(/* ... */);
+
+  const user = new User;
+  user.name = 'Sally';
+
+  await user.save({
+    client: trx,
+  });
+});
+```
+
+#### استخدام المعاملات يدويًا
+
+إذا كنت ترغب في بدء معاملة يدويًا والحصول على تحكم كامل بالتراجع والموافقة، يمكنك استخدام طريقة `beginTransaction` المتوفرة من خلال `sutando`:
+
+```js
+import { db } from "kawkab";
+
+const trx = await db.beginTransaction();
+```
+
+يمكنك التراجع عن المعاملة باستخدام طريقة `rollback`:
+
+```js
+await trx.rollback();
+```
+
+وأخيرًا، يمكنك الموافقة على المعاملة باستخدام طريقة `commit`:
+
+```js
+await trx.commit();
+```
+
+فيما يلي مثال كامل:
+
+```js
+import { db } from "kawkab";
+
+const trx = await db.beginTransaction();
+
+try {
+  const user = new User;
+  user.name = 'Sally';
+
+  await user.save({
+    client: trx,
+  });
+
+  await trx.commit();
+} catch (e) {
+  await trx.rollback();
+
+  console.log(e.stack);
+}
+```

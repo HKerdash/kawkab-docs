@@ -1,0 +1,173 @@
+---
+title: Basic File Operations in Kawkab
+description: A comprehensive guide to managing files in your application using the File library in Kawkab.
+---
+
+# Basic File Operations in Kawkab
+
+The **File** class in the **Kawkab** framework provides a powerful way to manage files easily and efficiently. In this guide, we will explore how to use all the available file operations.
+
+## Importing
+
+Before using any of the operations, you must import the class:
+
+```typescript
+import { file } from 'kawkab';
+```
+
+## Available File Operations
+
+### 1. Check if a File Exists (exists)
+
+Check if a file exists before performing any operation on it.
+
+```typescript
+const fileExists = await file.exists('storage/public/config.json');
+if (fileExists) {
+    console.log('File exists');
+} else {
+    console.log('File does not exist');
+}
+```
+
+### 2. Read File Content (read)
+
+Read the entire content of a text file.
+
+```typescript
+const content = await file.read('storage/public/config.json');
+console.log(content); // Displays file content
+```
+
+### 3. Write Content to a File (write)
+
+Write or replace content in a file.
+
+```typescript
+const data = {
+    name: "Kawkab App",
+    version: "1.0.0"
+};
+await file.write('storage/public/config.json', JSON.stringify(data, null, 2));
+```
+
+### 4. Append Content to a File (append)
+
+Append new content to the end of an existing file.
+
+```typescript
+await file.append('storage/public/log.txt', 'Logged in at ' + new Date().toISOString() + '\n');
+```
+
+### 5. Delete a File (delete)
+
+Delete a file from the system.
+
+```typescript
+await file.delete('storage/public/temp.txt');
+```
+
+### 6. List Files (list)
+
+Get a list of files in a folder with detailed information.
+
+```typescript
+const files = await file.list('storage/public');
+files.forEach(file => {
+    console.log(`File Name: ${file.name}`);
+    console.log(`Size: ${file.stats.size} bytes`);
+    console.log(`Creation Date: ${file.stats.created}`);
+    console.log(`Last Modified: ${file.stats.modified}`);
+    console.log(`Type: ${file.stats.isDirectory ? 'Directory' : 'File'}`);
+    console.log('---');
+});
+```
+
+### 7. Copy a File (copy)
+
+Copy a file from one location to another.
+
+```typescript
+await file.copy('storage/public/source.txt', 'storage/public/backup/source-backup.txt');
+```
+
+### 8. Move a File (move)
+
+Move a file from one location to another.
+
+```typescript
+await file.move('storage/public/old-location.txt', 'storage/public/new-location.txt');
+```
+
+### 9. File Information (stats)
+
+Get detailed information about a file.
+
+```typescript
+const stats = await file.stats('document.pdf');
+console.log(`File Size: ${stats.size} bytes`);
+console.log(`Creation Date: ${stats.created}`);
+console.log(`Last Modified: ${stats.modified}`);
+console.log(`Is it a directory? ${stats.isDirectory}`);
+```
+
+## Practical Examples
+
+### Example 1: Check if a File Exists Before Reading
+
+```typescript
+async function readIfExists(fileName: string) {
+    try {
+        if (await file.exists(fileName)) {
+            const content = await file.read(fileName);
+            return content;
+        }
+        return null;
+    } catch (error) {
+        console.error('Error occurred:', error.message);
+        return null;
+    }
+}
+```
+
+### Example 2: Copy a File with Existence Check
+
+```typescript
+async function safeBackup(fileName: string) {
+    const backupName = `${fileName}.backup`;
+    
+    try {
+        if (await file.exists(fileName)) {
+            await file.copy(fileName, backupName);
+            console.log('Backup created successfully');
+            return true;
+        }
+        console.log('Original file does not exist');
+        return false;
+    } catch (error) {
+        console.error('Failed to create backup:', error.message);
+        return false;
+    }
+}
+```
+
+## Best Practices
+
+1. **Check File Existence**: Always use `exists()` before performing any file operations to avoid errors.
+   
+2. **Error Handling**: Always use try-catch for error handling to manage potential issues.
+
+3. **Relative Paths**: Use relative paths instead of absolute paths to improve portability.
+
+4. **Type Checking**: Use `stats.isDirectory` to check the type of the item before performing operations.
+
+## Important Notes
+
+- All operations are asynchronous (use Promises).
+- You can use both relative and absolute paths.
+- All operations safely handle errors.
+- Use `init()` to set the base path at the start of the application.
+
+## Conclusion
+
+The **File** class in **Kawkab** provides a robust and easy-to-use interface for handling files. With the addition of the `exists()` function and other improvements, managing files becomes safer and more reliable. Use these functions along with the best practices to get the best results in your application.

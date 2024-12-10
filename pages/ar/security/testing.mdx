@@ -1,0 +1,215 @@
+---
+title: الاختبارات في كوكب
+description: دليل شامل للاختبارات وأنواعها في إطار العمل كوكب Kawkab
+---
+
+# الاختبارات في كوكب
+
+## مقدمة عن الاختبارات
+
+الاختبارات جزء أساسي في تطوير البرمجيات. في كوكب، نستخدم Jest كإطار عمل للاختبارات لسهولة استخدامه وقوة ميزاته.
+
+## أنواع الاختبارات
+
+### 1. اختبارات الوحدة (Unit Tests)
+
+تختبر جزءاً صغيراً من الكود بشكل منعزل.
+
+```typescript
+// tests/unit/Calculator.test.ts
+describe('آلة الحاسبة', () => {
+    test('عملية الجمع', () => {
+        const calc = new Calculator();
+        expect(calc.add(2, 3)).toBe(5);
+    });
+
+    test('عملية الضرب', () => {
+        const calc = new Calculator();
+        expect(calc.multiply(4, 3)).toBe(12);
+    });
+});
+```
+
+### 2. اختبارات التكامل (Integration Tests)
+
+تختبر تفاعل عدة مكونات مع بعضها.
+
+```typescript
+// tests/integration/UserAuth.test.ts
+describe('مصادقة المستخدم', () => {
+    test('عملية تسجيل الدخول', async () => {
+        const auth = new AuthService(new UserRepository());
+        const result = await auth.login('user@example.com', 'password');
+        expect(result.success).toBe(true);
+    });
+});
+```
+
+### 3. اختبارات API (API Tests)
+
+تختبر نقاط النهاية في التطبيق.
+
+```typescript
+// tests/api/users.test.ts
+describe('API المستخدمين', () => {
+    test('إنشاء مستخدم جديد', async () => {
+        const response = await request(app)
+            .post('/api/users')
+            .send({
+                name: 'أحمد',
+                email: 'ahmed@example.com'
+            });
+
+        expect(response.status).toBe(201);
+        expect(response.body).toHaveProperty('id');
+    });
+});
+```
+
+## أدوات المساعدة في الاختبارات
+
+### 1. المحاكاة (Mocks)
+
+تستخدم لمحاكاة السلوك المعقد أو الخدمات الخارجية.
+
+```typescript
+// محاكاة خدمة البريد
+jest.mock('@services/mail', () => ({
+    sendMail: jest.fn().mockResolvedValue({ sent: true })
+}));
+
+test('إرسال بريد التحقق', async () => {
+    const result = await sendVerificationEmail('user@example.com');
+    expect(result.sent).toBe(true);
+});
+```
+
+### 2. البيانات الوهمية (Fixtures)
+
+تستخدم لإنشاء بيانات اختبار ثابتة.
+
+```typescript
+// tests/fixtures/users.ts
+export const testUser = {
+    id: 1,
+    name: 'أحمد',
+    email: 'ahmed@example.com',
+    role: 'user'
+};
+```
+
+### 3. المساعدات (Helpers)
+
+دوال مساعدة لتبسيط الاختبارات.
+
+```typescript
+// tests/helpers/database.ts
+export async function cleanDatabase() {
+    await db.truncate(['users', 'posts', 'comments']);
+}
+
+export async function seedTestData() {
+    await db.seed(['users', 'posts']);
+}
+```
+
+## كتابة اختبارات جيدة
+
+### 1. التنظيم
+```typescript
+describe('خدمة المستخدمين', () => {
+    // إعداد قبل كل اختبار
+    beforeEach(async () => {
+        await cleanDatabase();
+    });
+
+    // مجموعة اختبارات الإنشاء
+    describe('إنشاء مستخدم', () => {
+        test('إنشاء ناجح', async () => {
+            // كود الاختبار
+        });
+
+        test('فشل الإنشاء - بريد مكرر', async () => {
+            // كود الاختبار
+        });
+    });
+});
+```
+
+### 2. أفضل الممارسات
+
+#### التسمية الواضحة
+```typescript
+// ✅ جيد
+test('يجب رفض كلمة المرور القصيرة', () => {});
+
+// ❌ سيء
+test('اختبار كلمة المرور', () => {});
+```
+
+#### اختبار حالة واحدة
+```typescript
+// ✅ جيد
+test('يجب رفض البريد غير الصالح', () => {
+    expect(validateEmail('invalid')).toBe(false);
+});
+
+// ❌ سيء
+test('التحقق من البريد', () => {
+    expect(validateEmail('valid@email.com')).toBe(true);
+    expect(validateEmail('invalid')).toBe(false);
+    expect(validateEmail('')).toBe(false);
+});
+```
+
+## تشغيل الاختبارات
+
+### الأوامر الأساسية
+```bash
+# تشغيل جميع الاختبارات
+npm test
+
+# تشغيل اختبارات محددة
+npm test users
+
+# تشغيل مع التغطية
+npm test -- --coverage
+```
+
+### خيارات التشغيل
+```bash
+# وضع المراقبة
+npm test -- --watch
+
+# تشغيل اختبار محدد
+npm test -- users.test.ts
+
+# تصفية الاختبارات
+npm test -- -t "إنشاء مستخدم"
+```
+
+## تغطية الكود (Code Coverage)
+
+تقرير تغطية الكود يظهر:
+- نسبة الكود المغطى بالاختبارات
+- الأجزاء غير المختبرة
+- فعالية الاختبارات
+
+```bash
+# توليد تقرير التغطية
+npm test -- --coverage
+```
+
+## الخاتمة
+
+الاختبارات في كوكب:
+- تضمن جودة الكود
+- تسهل اكتشاف الأخطاء
+- توفر توثيقاً عملياً
+- تزيد الثقة في التغييرات
+
+نصائح نهائية:
+- اكتب اختبارات لكل ميزة جديدة
+- حافظ على بساطة الاختبارات
+- اجعل الاختبارات سريعة ومستقلة
+- استخدم أدوات المساعدة بحكمة

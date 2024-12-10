@@ -1,0 +1,98 @@
+---
+title: Application Lifecycle in Kawkab
+description: A comprehensive guide to understanding the application lifecycle in the Kawkab framework and how to initialize and manage it.
+---
+
+# **Application Lifecycle in Kawkab**
+
+The **Kawkab** framework relies on the concept of **Application Lifecycle** to manage application initialization and request handling in an organized manner. The application lifecycle begins from the initialization point and moves through handling each request.
+
+---
+
+## **Application Initialization**
+
+### **1. Entry Point: `index.ts`**
+The `index.ts` file is the entry point for a **Kawkab** application. It imports the framework and initializes the application based on predefined settings.
+
+```ts
+import { kawkab } from 'kawkab'
+import { app as config } from './app/configuration'
+
+// Initialize the application using settings
+export const app = kawkab.init(config)
+```
+
+### **2. Configuration File: `configuration.ts`**
+This file contains the necessary settings for running the application. The application relies on a **Provider** that is responsible for registering and initializing modules.
+
+```ts
+import { Provider } from './provider'
+
+export const app = {
+    provider: Provider,
+}
+```
+
+---
+
+## **Service Provider**
+
+### **Provider's Role**
+The provider is responsible for registering the necessary **Modules** for the application and providing the required initialization. It is implemented through a class that inherits from `BaseProvider`.
+
+```ts
+import { BaseProvider } from "kawkab"
+
+export class Provider extends BaseProvider {
+    /**
+     * Current provider path
+     * Used to get the current directory path.
+     */
+    protected currentDir: string = __dirname
+
+    /**
+     * Register modules
+     * This function is called once when the application starts.
+     * Registers and initializes modules needed for the application.
+     */
+    async register() {
+        await this.modules()
+    }
+
+    /**
+     * Setup with each request
+     * This function is called with each new request.
+     * Used to register additional settings or services.
+     */
+    boot() {
+        // Write code here
+    }
+}
+```
+
+### **Provider Lifecycle**
+1. **Register**:  
+   Called only once when the server starts. Used to register modules and perform necessary initializations.
+   
+2. **Boot**:  
+   Called with each new request to handle dynamic settings or request services.
+
+---
+
+## **Application Lifecycle Explanation**
+
+1. **Framework Initialization:**
+   - The framework starts when `kawkab.init()` is called in `index.ts`.
+   - Application settings are imported from `configuration.ts`.
+   
+2. **Module Registration:**
+   - The provider calls `register()` to register modules needed for the application.
+
+3. **Request Handling:**
+   - `boot()` is called with each new request to provide additional services or reinitialize.
+
+---
+
+## **Summary**
+
+The **Kawkab** framework provides a clear and organized application lifecycle, allowing developers to manage module registration and initialization seamlessly. Using the `Provider`, initialization can be customized and high application performance can be ensured when handling requests.

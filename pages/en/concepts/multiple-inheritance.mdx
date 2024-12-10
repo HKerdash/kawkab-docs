@@ -1,0 +1,143 @@
+---
+title: Multiple Inheritance in Kawkab
+description: A comprehensive guide to understanding the concept of Multiple Inheritance and how to use it in the Kawkab framework.
+---
+
+# **Multiple Inheritance in Kawkab**
+
+In **JavaScript** and **TypeScript**, multiple inheritance is not directly supported, which presents a challenge for developers who need to combine multiple behaviors from different objects or services. However, **Kawkab** has introduced an innovative solution to this problem using the `inherit` function, enabling multiple inheritance in a flexible and easy way.
+
+---
+
+## **What is Multiple Inheritance?**
+
+Multiple inheritance is a programming pattern that allows you to make one object inherit from multiple objects or classes simultaneously. In languages that directly support multiple inheritance (like C++), an object can easily obtain properties and behaviors from multiple sources. However, **JavaScript** and **TypeScript** don't directly support this pattern; they only allow objects to inherit from a single object.
+
+---
+
+## **The Multiple Inheritance Problem in JavaScript and TypeScript**
+
+In **JavaScript** and **TypeScript**, objects can only inherit from one object. For example, you can't write something like:
+
+```ts
+class Child extends ParentA, ParentB {}
+```
+
+This limitation is not supported in **JavaScript** or **TypeScript**. However, if you have multiple classes with shared functions or behaviors you want to combine, there are alternative solutions like using **Mixins** or **Prototype-based inheritance**.
+
+---
+
+## **The Solution in Kawkab Using `inherit`**
+
+The `inherit` function in **Kawkab** allows you to combine multiple behaviors from multiple classes into a single class, providing a flexible solution for multiple inheritance. This function allows you to easily merge multiple functionalities into one class, enhancing code organization and helping reduce duplication.
+
+### **How Does `inherit` Work?**
+
+The inherit function is used to combine multiple classes together, allowing you to leverage the properties of inherited classes in a new class. inherit can be used with any class whose behaviors you want to combine, enabling dynamic and flexible behavior merging.
+
+---
+
+## **How to Use Multiple Inheritance in Kawkab?**
+
+### **Example of Multiple Inheritance Using `inherit`**
+
+In this example, we use `inherit` to combine the **BaseService** class and **Inject** class into the **WelcomeService** class.
+
+```ts
+import { BaseService, Inject, inherit } from "kawkab";
+
+export class WelcomeService extends inherit(BaseService, Inject) {
+    /**
+     * Return a welcome message
+     * @returns {string} The welcome message
+     */
+    message() {
+        return "Welcome to Kawkab Framework 🚀!";
+    }
+}
+```
+
+### **Example Explanation:**
+
+1. **BaseService**: Contains the basic functions needed by application services.
+2. **Inject**: Allows you to inject dependencies into the class, making object management easier within the application.
+3. **inherit**: Combines the `BaseService` and `Inject` classes into one class, allowing you to use functions from both classes within **WelcomeService**.
+
+---
+
+## **Using Multiple Inheritance in Controllers**
+
+You can use combined classes in **Kawkab** within Controllers. For example, we can use **WelcomeService** that inherits from `BaseService` and `Inject` inside a controller like this:
+
+```ts
+import { BaseController, inherit } from "kawkab";
+import { WelcomeService } from "../services/welcome";
+import { Docs } from "./docs";
+import { Middleware } from "./middleware";
+
+export default class extends inherit(BaseController, Middleware, Docs) {
+    constructor(private welcomeService = WelcomeService.inject()) {
+        super();
+    }
+
+    /**
+     * GET function to return welcome message
+     * @returns {object} JSON response
+     */
+    async get() {
+        return {
+            status: true,
+            message: this.welcomeService.message(),
+        };
+    }
+}
+```
+
+### **Process Explanation:**
+
+1. **Creating a Service:**  
+   **WelcomeService** is defined using `inherit` to combine **BaseService**, **Middleware**, and **Docs**.
+
+2. **Injecting the Service:**  
+   Inside the controller, `.inject()` is used to call **WelcomeService**.
+
+3. **Using Functions:**  
+   After injecting the service, you can call functions like `message()` that were inherited from other classes.
+
+---
+
+## **Benefits of Multiple Inheritance Using `inherit`**
+
+1. **Reducing Code Duplication:**  
+   Using `inherit`, you can combine multiple behaviors into one class, reducing the need for code duplication in your application.
+
+2. **Reusability:**  
+   The combined class can be used in different places without needing to recreate it.
+
+3. **Easy Maintenance:**  
+   When you need to modify or add new behavior, you can modify the original class instead of modifying multiple objects.
+
+4. **Design Flexibility:**  
+   `inherit` gives you great flexibility in combining classes without worrying about single inheritance constraints.
+
+---
+
+## **Best Practices for Using Multiple Inheritance**
+
+1. **Use `inherit` Moderately:**  
+   Make sure you need to combine multiple functions from multiple sources. If some functions are unnecessary, it might be better to keep them separate.
+
+2. **Organize Classes Well:**  
+   Make sure to organize classes in appropriate folders, like `/services` and `/controllers`, for easy maintenance.
+
+3. **Using `inherit`:**  
+   Ensure you use inheritance in an organized and effective way to ensure future scalability.
+
+4. **Unit Testing:**  
+   Use **Mock Services** when testing units to ensure test coverage for all possible scenarios.
+
+---
+
+## **Summary**
+
+Multiple inheritance is a concept not directly supported in **JavaScript** and **TypeScript**. However, using **Kawkab** and the `inherit` function, you can combine multiple behaviors from several objects into a single class. This solution provides great flexibility and makes code management easier in large applications, while reducing duplication and enhancing maintainability.

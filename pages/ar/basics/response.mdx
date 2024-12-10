@@ -1,0 +1,369 @@
+# إدارة الردود في إطار العمل كوكب Kawkab
+
+يوفر إطار العمل **كوكب Kawkab** واجهة سهلة الاستخدام لإنشاء الردود HTTP بأشكال متعددة مثل النصوص البسيطة، JSON، أو الملفات. هذه الوثيقة تشرح كيفية استخدام الكائنات `response` و `res` لتخصيص الردود وتلبية احتياجات تطبيقك.
+
+---
+
+## كائن Response
+
+`response` هو الكائن الأساسي الذي يتيح إنشاء أنواع مختلفة من الردود مع التحكم الكامل في **نوع المحتوى**، **الرؤوس (Headers)**، و**أكواد الحالة (Status Codes)**.
+
+### الأساليب المتوفرة
+
+#### `response.text()`
+
+يُستخدم لإنشاء رد نصي.
+
+```typescript
+import { response } from "kawkab";
+
+export function helloWorld() {
+  return response.text("مرحبًا، عالم!");
+}
+```
+
+#### `response.json()`
+
+يُستخدم لإنشاء رد بصيغة JSON.
+
+```typescript
+import { response } from "kawkab";
+
+export function getUserInfo() {
+  return response.json({ name: "Hassan", country: "Egypt" });
+}
+```
+
+#### `response.file()`
+
+لإرجاع ملف معين كاستجابة.
+
+```typescript
+import { response } from "kawkab";
+
+export async function getFile(request) {
+  return await response.file("/storage/public", "textFile.txt");
+}
+```
+
+#### `response.publicFile()`
+
+لإرجاع ملفات من المجلد العام.
+
+```typescript
+import { response } from "kawkab";
+
+export async function getPublicImage() {
+  return await response.publicFile("images/logo.png");
+}
+```
+
+#### `response.privateFile()`
+
+لإرجاع ملفات من المجلد الخاص.
+
+```typescript
+import { response } from "kawkab";
+
+export async function getPrivateDocument() {
+  return await response.privateFile("documents/report.pdf");
+}
+```
+
+---
+
+## كائن Res
+
+`res` يوفر أساليب سريعة لإنشاء الردود الشائعة، وهو مثالي لتطوير واجهات برمجة التطبيقات (APIs).
+
+### الأساليب المتوفرة
+
+#### `res.ok()`
+
+لإرجاع رد بنجاح (200 OK).
+
+```typescript
+import { res } from "kawkab";
+
+export function successResponse() {
+  return res.ok({ status: true });
+}
+```
+
+#### `res.created()`
+
+لإرجاع رد إنشاء (201 Created).
+
+```typescript
+import { res } from "kawkab";
+
+export function createUser() {
+  return res.created({ id: 1, name: "مستخدم جديد" });
+}
+```
+
+#### `res.noContent()`
+
+لإرجاع رد فارغ (204 No Content).
+
+```typescript
+import { res } from "kawkab";
+
+export function deleteUser() {
+  return res.noContent();
+}
+```
+
+#### `res.badRequest()`
+
+لإرجاع رد خطأ في الطلب (400 Bad Request).
+
+```typescript
+import { res } from "kawkab";
+
+export function validateInput(request) {
+  if (!request.body.email) {
+    return res.badRequest({ error: "البريد الإلكتروني مطلوب" });
+  }
+}
+```
+
+#### `res.notFound()`
+
+لإرجاع رد بعدم وجود المورد (404 Not Found).
+
+```typescript
+import { res } from "kawkab";
+
+export function getUser(id) {
+  const user = findUserById(id);
+  if (!user) {
+    return res.notFound({ error: "المستخدم غير موجود" });
+  }
+  return res.ok(user);
+}
+```
+
+---
+
+## خيارات الرؤوس وأكواد الحالة
+
+يمكن تخصيص الردود بإضافة الرؤوس وأكواد الحالة حسب الحاجة.
+
+```typescript
+import { response } from "kawkab";
+
+export function customResponse() {
+  return response.json(
+    { message: "رد مخصص" },
+    {
+      status: 202,
+      headers: {
+        "X-Custom-Header": "قيمة مخصصة",
+        "Content-Type": "application/json",
+      },
+    }
+  );
+}
+```
+
+---
+
+## استخدام `throw` في الردود
+
+يوفر **كوكب Kawkab** أساليب لرمي الردود مباشرةً وإنهاء المعالجة.
+
+#### مثال:
+
+```typescript
+import { res } from "kawkab";
+
+export function processInput(input) {
+  if (!isValid(input)) {
+    res.throwBadRequest({ error: "مدخلات غير صحيحة" });
+  }
+}
+```
+
+---
+
+## كائن Respond
+
+`respond` او مختصراً `resp` يوفر أساليب اكثر سرعة لإنشاء رد موحد لبناء (APIs).
+
+### الإستخدام
+
+يوفر كل الخصائص المتواجدة في `res` الذي تم تناوله قبل ذلك. مع الاضافة لتوحيد النتائج بإضافة status, code, data, message, messages بشكل تلقائي ومختصر.
+
+#### 1. مثال للتخصيص لحالات النجاح
+
+لإرجاع رد بنجاح (200 OK).
+
+```typescript
+import { respond } from "kawkab";
+
+export function successResponse() {
+  respond.ok({
+    status: true,
+    code: "ok",
+    data: { name: "Hassan", country: "Egypt" },
+  });
+}
+```
+
+##### الناتج
+
+```text
+{
+    "status": true,
+    "code": "ok",
+    "data": {
+        "name": "Hassan",
+        "country": "Egypt"
+    }
+}
+```
+
+#### 2. مثال بدون تخصيص لحالات النجاح
+
+```typescript
+import { respond } from "kawkab";
+
+export function successResponse() {
+  respond.ok({ name: "Hassan", country: "Egypt" });
+}
+```
+##### الناتج
+
+```text
+{
+    "status": true,
+    "code": "valid",
+    "data": {
+        "name": "Hassan",
+        "country": "Egypt"
+    }
+}
+```
+
+#### 3. مثال للتخصيص لحالات الفشل
+
+#### `res.notFound()`
+
+لإرجاع رد بعدم وجود المورد (404 Not Found).
+
+```typescript
+import { respond } from "kawkab";
+
+export function getUser(id) {
+  const user = findUserById(id);
+  if (!user) {
+    respond.notFound({
+      status: false,
+      code: "not_found_user",
+      message: "User not found",
+    });
+  }
+  return respond.ok(user);
+}
+```
+
+##### الناتج
+```text
+{
+    "status": false,
+    "code": "not_found_user",
+    "message": "User not found"
+}
+```
+
+أو بدل رسالة واحدة مع `message` يكون مصفوفة رسائل مع `messages`
+
+```typescript
+import { respond } from "kawkab";
+
+export function getUser(id) {
+  const user = findUserById(id);
+  if (!user) {
+    respond.notFound({
+        status: false,
+        code: "not_found_user",
+        messages: ["User not found", "ID not found"],
+      });
+  }
+  return respond.ok(user);
+}
+```
+
+##### الناتج
+```text
+{
+    "status": false,
+    "code": "not_found_user",
+    "messages": [
+        "User not found",
+        "ID not found"
+    ]
+}
+```
+
+#### 4. مثال بدون تخصيص لحالات الفشل
+
+#### `res.notFound()`
+
+لإرجاع رد بعدم وجود المورد (404 Not Found).
+
+```typescript
+import { respond } from "kawkab";
+
+export function getUser(id) {
+  const user = findUserById(id);
+  if (!user) {
+    respond.notFound({
+      message: "User not found",
+    });
+  }
+  return respond.ok(user);
+}
+```
+
+##### الناتج
+```text
+{
+    "status": false,
+    "code": "invalid",
+    "message": "User not found"
+}
+```
+
+أو بدل رسالة واحدة مع `message` يكون مصفوفة رسائل مع `messages`
+
+```typescript
+import { respond } from "kawkab";
+
+export function getUser(id) {
+  const user = findUserById(id);
+  if (!user) {
+    respond.notFound({
+        messages: ["User not found", "ID not found"],
+      });
+  }
+  return respond.ok(user);
+}
+```
+
+##### الناتج
+```text
+{
+    "status": false,
+    "code": "invalid",
+    "messages": [
+        "User not found",
+        "ID not found"
+    ]
+}
+```
+
+## خلاصة
+
+كوكب Kawkab يقدم أدوات مرنة لإدارة الردود HTTP، مما يتيح لك إنشاء ردود متوافقة مع احتياجات واجهات برمجة التطبيقات (APIs) الخاصة بك بسهولة. باستخدام الأساليب المناسبة، يمكنك ضمان تواصل فعال وسلس بين خدماتك والمستخدمين.

@@ -1,0 +1,49 @@
+# **Directory Structure in Kawkab**
+
+The **Kawkab** framework relies on an organized and advanced structure to support the flexible and efficient organization of all aspects of the application. This structure is designed to ensure high efficiency in development and ease of expansion in the long term.
+
+## **📂 app**
+The main directory that contains the application logic. It includes the following core files:
+
+### **📄 configuration.ts**
+Contains all application settings for the framework. It initializes the general services and basic configurations needed by different modules in the application.
+
+### **📄 provider.ts**
+Includes the definition of the **Provider** that extends from `BaseProvider`, and is responsible for initialization and binding of all modules. The file includes the following functions:
+
+- **register()**: Called when the server and application start, used to register and initialize modules.
+- **boot()**: Called with each incoming request, used to initialize any additional services or settings required by each request.
+
+### **📂 modules**
+Contains the different modules within the application. Each module is a folder that contains core components such as:
+
+- **📂 controllers**: Contains the logic that controls operations within the module.
+- **📂 services**: Contains the services or business logic specific to the module.
+- **📂 repositories**: Dedicated to interacting with databases or handling data.
+- **📄 module.ts**: The main file for the module that initializes and binds the module in the application, and handles its core functions.
+
+## **📂 storage**
+Contains dedicated folders for storing files:
+
+### **📂 private**
+Stores all sensitive files that must remain protected. This includes files that should not be accessible by any other party.
+
+### **📂 public**
+Stores files that everyone is allowed to access through the application. These files are available for public use.
+
+## **📄 .env**
+The environment file that contains sensitive variables specific to the application, such as API keys, database connection settings, and any sensitive information that should remain secret.
+
+---
+
+## **🔑 Key Points**
+
+- **configuration.ts**: Contains framework and application initialization settings.
+- **provider.ts**: Contains provider logic and module registration.
+- **modules**: Contains modules that include **controllers**, **services**, and **repositories**.
+- **storage**: Differentiates between public and private files through **private** and **public** folders.
+- **.env**: For storing sensitive variables used in the application environment.
+
+---
+
+The **Kawkab** directory structure is designed to provide a flexible and secure development environment, ensuring high performance and ease of expansion in future applications.

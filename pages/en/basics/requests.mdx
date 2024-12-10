@@ -1,0 +1,509 @@
+# Managing HTTP Requests in Kawkab Framework
+
+**Kawkab** provides a `Request` object that allows you to handle HTTP request data easily and efficiently. Using this object, you can access form inputs, read attached files, and upload them to different directories.
+
+## Accessing Data
+
+### Accessing Request Inputs
+You can use `request.input` to get the value of any input from the data sent through the request. You can also use the shorthand `req`.
+
+#### Example:
+
+```ts
+import { req } from "kawkab";
+
+// Retrieve the value of the "username" input
+const username = req.input('username');
+console.log(username);
+```
+
+---
+
+## Managing File Attachments
+
+### Uploading Files from Request
+You can use `request.file` to retrieve files attached to the request. When you have multiple files, you can access them as an array of files.
+
+#### Example for Single File Upload:
+
+```ts
+import { request } from "kawkab";
+
+// Retrieve the file attached with name "image"
+const imageFile = request.file('image');
+
+// Check if the file exists
+if (imageFile) {
+    // Move the image to the private directory
+    const uploadedImage = imageFile.toPrivate();
+    console.log('Image uploaded successfully:', uploadedImage);
+} else {
+    console.log('File not found.');
+}
+```
+
+#### Example for Multiple File Upload:
+When multiple files are uploaded through a multiple field like `images[]`, you can access them using `request.file` as follows:
+
+```ts
+import { request } from "kawkab";
+
+// Retrieve files attached with name "images[]"
+const images = await request.files('images[]');
+
+// Check if files exist
+if (images && images.length > 0) {
+    // Move each image to the public directory with a new name
+    images.forEach((image, index) => {
+        const uploadedImage = image.toPublic({
+            name: `image_${index}`,
+            extension: ".jpg"
+        });
+        console.log(`Image ${index + 1} uploaded successfully:`, uploadedImage);
+    });
+} else {
+    console.log('No files found.');
+}
+```
+
+### Moving Files to Different Directories
+
+#### 1. Moving File to Public Directory
+Use `toPublic` to move the file to the public directory. You can customize the name and extension if you want to change them.
+
+#### Example:
+
+```ts
+import { request } from "kawkab";
+
+const imageFile = request.file('image');
+
+// Check if the file exists
+if (imageFile) {
+    // Move the image to the public directory with custom name and extension
+    const uploadedImage = imageFile.toPublic({
+        name: "profile_picture",
+        extension: ".png"
+    });
+    console.log('Image uploaded successfully to public directory:', uploadedImage);
+} else {
+    console.log('File not found.');
+}
+```
+
+#### 2. Moving File to Private Directory
+Use `toPrivate` to move the file to the private directory. You can also customize the filename when moving it.
+
+#### Example:
+
+```ts
+import { request } from "kawkab";
+
+const imageFile = request.file('image');
+
+// Check if the file exists
+if (imageFile) {
+    // Move the image to the private directory with custom name
+    const uploadedImage = imageFile.toPrivate({
+        name: "privateFileName"
+    });
+    console.log('Image uploaded successfully to private directory:', uploadedImage);
+} else {
+    console.log('File not found.');
+}
+```
+
+#### 3. Uploading File to Root
+You can use `upload` to move the file to the root. You can also customize the filename and extension if needed.
+
+#### Example:
+
+```ts
+import { request } from "kawkab";
+
+const imageFile = request.file('image');
+
+// Check if the file exists
+if (imageFile) {
+    // Upload the image to root with custom name and extension
+    const uploadedImage = imageFile.upload({
+        name: "rootFileName",
+        extension: ".jpg"
+    });
+    console.log('Image uploaded successfully to root:', uploadedImage);
+} else {
+    console.log('File not found.');
+}
+```
+
+---
+
+## File Details
+
+### Viewing File Details
+Using the `details()` method, you can get information about the file such as name, size, extension, and file type.
+
+#### Example:
+
+```ts
+import { request } from "kawkab";
+
+const imageFile = request.file('image');
+
+// Get file details
+if (imageFile) {
+    const details = imageFile.details();
+    console.log(details);
+    // Output: { name: 'example.jpg', baseName: 'example', size: 123456, type: 'image/jpeg', extension: 'jpg' }
+} else {
+    console.log('File not found.');
+}
+```
+
+### Getting File Data as Blob
+To retrieve file content as a Blob, you can use `blob()`.
+
+#### Example:
+
+```ts
+import { request } from "kawkab";
+
+const imageFile = request.file('image');
+
+// Check if the file exists
+if (imageFile) {
+    const fileBlob = imageFile.blob();
+    console.log(fileBlob);
+} else {
+    console.log('File not found.');
+}
+```
+
+---
+
+## File Transfer Customization Options
+
+### MoveOptions Interface
+The `MoveOptions` interface provides multiple customization options when moving files. You can customize the path, name, and extension.
+
+#### Available Options:
+- **`path?: string`**: The path where the file will be moved to.
+- **`name?: string | null`**: Custom name for the file.
+- **`extension?: string | null`**: Custom extension for the file.
+
+---
+
+## Practical Examples
+
+### 1. Upload Image and Move to Public Directory with New Name
+
+```ts
+import { request } from "kawkab";
+
+const imageFile = request.file('image');
+
+// Check if the file exists
+if (imageFile) {
+    // Move the image with custom name and extension
+    const uploadedImage = imageFile.toPublic({
+        name: "profile_picture",
+        extension: ".png"
+    });
+    console.log('Image uploaded successfully to public directory:', uploadedImage);
+} else {
+    console.log('File not found.');
+}
+```
+
+### 2. Upload Document and Save to Private Directory
+
+```ts
+import { request } from "kawkab";
+
+const documentFile = request.file('document');
+
+// Check if the file exists
+if (documentFile) {
+    // Save file to private directory with custom name
+    const uploadedDocument = documentFile.toPrivate({
+        name: "user_document"
+    });
+    console.log('Document uploaded successfully to private directory:', uploadedDocument);
+} else {
+    console.log('File not found.');
+}
+```
+
+### 3. View Text File Details
+
+```ts
+import { request } from "kawkab";
+
+const textFile = request.file('textFile');
+
+// Check if the file exists
+if (textFile) {
+    const details = textFile.details();
+    console.log(details);
+    // Output: { name: 'example.txt', baseName: 'example', size: 12345, type: 'text/plain', extension: 'txt' }
+} else {
+    console.log('File not found.');
+}
+```
+
+---
+
+## Interacting with Headers and Data
+
+### 1. Accessing Headers
+
+#### View All Headers
+You can retrieve all headers from the request using `request.headers()`.
+
+#### Example:
+
+```ts
+import { request } from "kawkab";
+
+const allHeaders = request.headers();
+console.log(allHeaders);
+// Output: { 'content-type': 'application/json', 'authorization': 'Bearer ...', ... }
+```
+
+#### Access Specific Header
+Using `request.header(name)`, you can retrieve a specific header from the request.
+
+#### Example:
+
+```ts
+import { request } from "kawkab";
+
+const contentType = request.header('content-type', 'text/plain');
+console.log(contentType);
+// Output: 'application/json' or 'text/plain' if not set
+```
+
+#### Access Bearer Token
+If the request contains a Bearer token in the `Authorization` header, you can retrieve it using `request.bearerToken()`.
+
+#### Example:
+
+```ts
+import { request } from "kawkab";
+
+const token = request.bearerToken();
+console.log(token);
+// Output: 'your_token_here' or null if not present
+```
+
+---
+
+### 2. Getting Client IP Address
+
+#### Client IP Address
+You can retrieve the client's IP address using `request.ip()`.
+
+#### Example:
+
+```ts
+import { request } from "kawkab";
+
+const clientIp = request.ip();
+console.log(clientIp);
+// Output: '192.168.1.1' or null if not found
+```
+
+#### 11. Check for Missing Key
+Function: `missing(key: string)`  
+Description: Checks if the specified key is missing from the request.  
+Example:  
+```typescript copy
+import { request } from "kawkab";
+
+const isPasswordMissing = request.missing('password');
+console.log(isPasswordMissing);
+// Output: `true` or `false`
+```
+
+#### 12. Merge Data if Key is Missing
+Function: `mergeIfMissing(data: { [key: string]: any })`  
+Description: Merges the provided data into the request only if the keys are missing.  
+Example:  
+```typescript copy
+import { request } from "kawkab";
+
+request.mergeIfMissing({ role: 'guest' });
+```
+
+#### 13. Retrieve Data Except Specific Keys
+Function: `except(...keys: string[])`  
+Description: Retrieves all keys except the specified ones.  
+Example:  
+```typescript copy
+import { request } from "kawkab";
+
+const dataExceptPassword = request.except('password');
+console.log(dataExceptPassword);
+// Output: Request data without the 'password' key
+```
+
+#### 14. Retrieve Value from Request
+Function: `input(key: string, defaultValue: any = null)`  
+Description: Retrieves the value of the specified key from the request.  
+Example:  
+```typescript copy
+import { request } from "kawkab";
+
+const username = request.input('username', 'Guest');
+console.log(username);
+// Output: 'username' value or default value 'Guest' if not present
+```
+
+### URL and Link Functions:
+
+#### 1. Get Request URL
+Function: `url()`  
+Description: Retrieves the current request URL.  
+Example:  
+```typescript copy
+import { request } from "kawkab";
+
+const currentUrl = request.url();
+console.log(currentUrl);
+// Output: '/current/path'
+```
+
+#### 2. Get HTTP Method
+Function: `method()`  
+Description: Retrieves the HTTP method of the request.  
+Example:  
+```typescript copy
+import { request } from "kawkab";
+
+const httpMethod = request.method();
+console.log(httpMethod);
+// Output: 'GET', 'POST', etc.
+```
+
+#### 3. Get Referrer URL
+Function: `referrer()`  
+Description: Retrieves the referrer URL of the request.  
+Example:  
+```typescript copy
+import { request } from "kawkab";
+
+const referrerUrl = request.referrer();
+console.log(referrerUrl);
+// Output: 'https://previous.page'
+```
+
+#### 4. Get URL Parameters
+Function: `params()`  
+Description: Retrieves the URL parameters of the request.  
+Example:  
+```typescript copy
+import { request } from "kawkab";
+
+const urlParams = request.params();
+console.log(urlParams);
+// Output: [ { "key": "username", "value": "Hassan" }, { "key": "age", "value": "1" } ]
+```
+
+#### 5. Get Query Parameter
+Function: `query(key: string, defaultValue: any = null)`  
+Description: Retrieves a query parameter from the URL.  
+Example:  
+```typescript copy
+import { request } from "kawkab";
+
+const page = request.query('page', 1);
+console.log(page);
+// Output: 1 or parameter value if present
+```
+
+#### 6. Get Query String
+Function: `querystring()`  
+Description: Retrieves the query string from the URL.  
+Example:  
+```typescript copy
+import { request } from "kawkab";
+
+const querystring = request.querystring();
+console.log(querystring);
+// Output example: ?username=Hassan&role=developer
+```
+
+### Protocol and Host Functions:
+
+#### 1. Get Request Protocol
+Function: `protocol()`  
+Description: Retrieves the request protocol (e.g., 'http', 'https').  
+Example:  
+```typescript copy
+import { request } from "kawkab";
+
+const protocol = request.protocol();
+console.log(protocol);
+// Output: 'https'
+```
+
+#### 2. Get Full Request URL
+Function: `href()`  
+Description: Retrieves the full href of the request.  
+Example:  
+```typescript copy
+import { request } from "kawkab";
+
+const href = request.href(); 
+console.log(href);
+// Output: 'https://example.com/current/path'
+```
+
+Or:  
+```typescript copy
+import { request } from "kawkab";
+
+const fullUrl = request.fullUrl(); 
+console.log(fullUrl);
+// Output: 'https://example.com/current/path'
+```
+
+#### 3. Get Request Origin
+Function: `origin()`  
+Description: Retrieves the request origin (protocol, host, and port).  
+Example:  
+```typescript copy
+import { request } from "kawkab";
+
+const origin = request.origin();
+console.log(origin);
+// Output: 'https://example.com'
+```
+
+#### 4. Get Request Host
+Function: `host()`  
+Description: Retrieves the host of the request.  
+Example:  
+```typescript copy
+import { request } from "kawkab";
+
+const host = request.host();
+console.log(host);
+// Output: 'localhost:3000'
+```
+
+#### 5. Get Request Hostname
+Function: `hostname()`  
+Description: Retrieves the hostname of the request.  
+Example:  
+```typescript copy
+import { request } from "kawkab";
+
+const hostname = request.hostname();
+console.log(hostname);
+// Output: 'localhost'
+```
+
+## Conclusion
+
+**Kawkab** provides you with the necessary tools to handle HTTP requests in a flexible and powerful way, allowing you to manage files and data easily. By using these tools, you can build robust and secure applications.

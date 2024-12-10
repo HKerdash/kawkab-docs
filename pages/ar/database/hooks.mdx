@@ -1,0 +1,67 @@
+# الخطافات
+
+تطلق نماذج Kawkab عدة أحداث، مما يتيح لك الربط في اللحظات التالية في دورة حياة النموذج: `creating`، `created`، `updating`، `updated`، `saving`، `saved`، `deleting`، `deleted`، `restoring`، `restored`، `trashed`، `forceDeleting` و `forceDeleted`.
+
+يتم إطلاق أسماء الأحداث التي تنتهي بـ `-ing` قبل أن يتم حفظ أي تغييرات على النموذج، بينما يتم إطلاق الأحداث التي تنتهي بـ `-ed` بعد أن يتم حفظ التغييرات على النموذج.
+
+### الخطافات المتاحة
+
+| الخطاف                             | الوصف                                                                               |
+| -------------------------------- | ----------------------------------------------------------------------------------------- |
+| `creating`, `created`            | عند حفظ نموذج جديد لأول مرة                                              |
+| `updating`, `updated`            | عند تعديل نموذج موجود واستدعاء طريقة `save`                        |
+| `saving`, `saved`                | عند إنشاء أو تحديث نموذج - حتى إذا لم تتغير خصائص النموذج |
+| `deleting`, `deleted`            | عند حذف نموذج، بما في ذلك الحذف الناعم                                             |
+| `restoring`, `restored`          | عند استعادة نموذج                                                                  |
+| `trashed`                        | عند حذف نموذج حذفًا ناعمًا                                                              |
+| `forceDeleteing`, `forceDeleted` | عند حذف نموذج حذفًا نهائيًا                                                              |
+
+:::tip عند إصدار استعلام تحديث أو حذف جماعي عبر Kawkab، لن يتم إطلاق أحداث النموذج `saved`، `updated`، `deleting`، و `deleted` للنماذج المتأثرة. هذا لأن النماذج لا يتم استرجاعها فعليًا عند تنفيذ التحديثات أو الحذف الجماعي. :::
+
+### إعلان الخطافات
+
+هناك حاليًا طريقتان لإضافة الخطافات برمجيًا:
+
+```js
+class User extends Model {}
+
+User.creating(user => {
+  //
+});
+```
+
+```js
+class User {
+  static booted() {
+    this.creating(user => {
+      //
+    });
+
+    this.created(user => {
+      //
+    });
+  }
+}
+```
+
+### الخطافات والمعاملات
+
+```js
+User.deleted(async (user, { client }) => {
+  const query = user.related('posts');
+
+  if (client) {
+    query.transacting(client);
+  }
+
+  await query.delete();
+});
+
+const trx = await Kawkab.beginTransaction();
+
+await user.delete({
+  client: trx
+});
+
+await trx.commit();
+```

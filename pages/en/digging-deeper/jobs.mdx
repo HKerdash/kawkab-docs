@@ -1,0 +1,150 @@
+---
+title: Creating Jobs with Kawkab
+description: A comprehensive guide to creating and using Jobs in your application using the `npm run kawkab job:make` command.
+---
+
+# Creating Jobs with Kawkab
+
+**Jobs** are an effective way to execute background tasks and schedule long-running operations in your application. In this guide, we will learn how to create and use **Jobs** using the **Kawkab** framework.
+
+## Creating a New Job with Kawkab
+
+To create a new **Job** using **Kawkab**, run the following command in the command line:
+
+```bash
+npm run kawkab job:make <name> [module]
+```
+
+### **Parameter Details:**
+
+- **`<name>`**: The name of the Job you wish to create (e.g., `SendEmail`).
+- **`[module]`**: The name of the module containing the Job (optional, default is `main`).
+
+### Example of running the command:
+
+```bash
+npm run kawkab job:make SendEmail
+```
+
+After executing the command, a Job named `SendEmail` will be created in the `main` module.
+
+## Job File Structure
+
+When a new Job is created, a file with the following basic structure will be generated:
+
+```typescript
+import { BaseJob } from "kawkab";
+
+export class SendEmailJob extends BaseJob {
+    // Job name - used to identify the job in the queue system
+    name(): string {
+        return "SendEmailJob";
+    }
+
+    // Number of retry attempts in case of failure
+    attempts(): number {
+        return 3;
+    }
+
+    // Delay between retry attempts (in milliseconds)
+    delay(): number {
+        return 5000;
+    }
+
+    // The main logic for the job
+    async handle(data: any = {}) {
+        // Execute the job logic here
+        console.log("Sending email...", data);
+    }
+}
+```
+
+## Using the Job in the Application
+
+### Importing the Job:
+
+```typescript
+import { SendEmailJob } from "../jobs/SendEmail";
+```
+
+### Running the Job:
+
+You can run the job in two ways:
+
+#### Method 1: Without Data
+
+```typescript
+new SendEmailJob();
+```
+
+#### Method 2: With Data
+
+```typescript
+new SendEmailJob({
+    to: "user@example.com",
+    subject: "Hello",
+    message: "Message content"
+});
+```
+
+## Job Features in Kawkab
+
+### 1. Handling Data
+- You can access the data passed to the job inside the `handle` function using the `data` parameter.
+- The data passed to the job is available every time the job is executed.
+
+### 2. Retry Attempts
+- You can specify the number of retry attempts in case of failure using the `attempts()` function.
+- The delay between retry attempts can be specified using the `delay()` function.
+
+### 3. Naming Jobs
+- Every job must have a unique name, which is defined in the `name()` function.
+- This name is used to identify the job in the queue system.
+
+## Best Practices
+
+1. **Job Naming**: Use descriptive names that reflect the job's purpose.
+2. **Error Handling**: Always handle potential errors inside the `handle` function.
+3. **Data**: Make sure to validate the data passed to the job before processing it.
+4. **Documentation**: Document your jobs thoroughly, especially if they require specific data.
+
+## Practical Example
+
+Here is an example of a job that sends an email:
+
+```typescript
+import { BaseJob } from "kawkab";
+import { EmailService } from "../services/EmailService";
+
+export class SendEmailJob extends BaseJob {
+    name(): string {
+        return "SendEmailJob";
+    }
+
+    attempts(): number {
+        return 3;
+    }
+
+    delay(): number {
+        return 5000;
+    }
+
+    async handle(data: any = {}) {
+        try {
+            const emailService = new EmailService();
+            await emailService.send({
+                to: data.to,
+                subject: data.subject,
+                message: data.message
+            });
+        } catch (error) {
+            console.error("Failed to send email:", error);
+            throw error; // Re-throwing the error to trigger retry mechanism
+        }
+    }
+}
+```
+
+## Conclusion
+
+Using **Jobs** in Kawkab provides a powerful and flexible way to execute background tasks. With automatic retry support and custom delays, you can efficiently handle complex and long-running processes. Enjoy building your applications more effectively with the job system in Kawkab!

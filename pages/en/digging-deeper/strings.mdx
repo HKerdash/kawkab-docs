@@ -1,0 +1,448 @@
+# Strings in Kawkab
+
+**Strings** are a set of text values that can be used in various parts of the project. These strings are stored in a central location, making them easy to manage and modify without needing to repeat them in the application code. Kawkab provides a flexible way to organize strings, making editing and translation easier.
+
+```javascript
+import { string } from "kawkab";
+```
+
+### Available Functions:
+
+#### `trim(value: string): string`
+Removes whitespace from the beginning and end of the string.
+Example:
+```typescript
+string.trim("  Hello, World!  "); // returns: "Hello, World!"
+```
+
+#### `lower(value: string): string`
+Converts the string to lowercase.
+Example:
+```typescript
+string.lower("HELLO WORLD"); // returns: "hello world"
+```
+
+#### `upper(value: string): string`
+Converts the string to uppercase.
+Example:
+```typescript
+string.upper("hello world"); // returns: "HELLO WORLD"
+```
+
+#### `length(value: string): number`
+Returns the length of the string.
+Example:
+```typescript
+string.length("Hello"); // returns: 5
+```
+
+#### `contains(haystack: string, needle: string): boolean`
+Checks if the string contains a specific part.
+Example:
+```typescript
+string.contains("Hello, World!", "World"); // returns: true
+```
+
+#### `startsWith(haystack: string, needle: string): boolean`
+Checks if the string starts with a specific part.
+Example:
+```typescript
+string.startsWith("Hello, World!", "Hello"); // returns: true
+```
+
+#### `endsWith(haystack: string, needle: string): boolean`
+Checks if the string ends with a specific part.
+Example:
+```typescript
+string.endsWith("Hello, World!", "World!"); // returns: true
+```
+
+#### `replaceFirst(haystack: string, search: string, replace: string): string`
+Replaces the first occurrence of a specific part with another string.
+Example:
+```typescript
+string.replaceFirst("Hello, World!", "o", "0"); // returns: "Hell0, World!"
+```
+
+#### `replaceLast(haystack: string, search: string, replace: string): string`
+Replaces the last occurrence of a specific part with another string.
+Example:
+```typescript
+string.replaceLast("Hello, World!", "o", "0"); // returns: "Hello, W0rld!"
+```
+
+#### `random(length: number = 16): string`
+Creates a random string of the specified length.
+Example:
+```typescript
+string.random(8); // returns a random string of length 8, e.g., "a1B2c3D4"
+```
+
+#### `camel(value: string): string`
+Converts the string to camelCase.
+Example:
+```typescript
+string.camel("hello_world"); // returns: "helloWorld"
+```
+
+#### `snake(value: string): string`
+Converts the string to snake_case.
+Example:
+```typescript
+string.snake("helloWorld"); // returns: "hello_world"
+```
+
+#### `kebab(value: string): string`
+Converts the string to kebab-case.
+Example:
+```typescript
+string.kebab("helloWorld"); // returns: "hello-world"
+```
+
+#### `slug(value: string): string`
+Converts the string to a format suitable for a URL slug.
+Example:
+```typescript
+string.slug("Hello, World!"); // returns: "hello-world"
+```
+
+#### `after(value: string, search: string): string`
+Returns the part of the string that follows a specific part.
+Example:
+```typescript
+string.after("Hello, World!", ","); // returns: " World!"
+```
+
+#### `afterLast(value: string, search: string): string`
+Returns the part of the string that follows the last occurrence of a specific part.
+Example:
+```typescript
+string.afterLast("Hello, World, Again!", ","); // returns: " Again!"
+```
+
+#### `ascii(value: string): string`
+Removes non-ASCII characters from the string.
+Example:
+```typescript
+string.ascii("Héllö Wörld"); // returns: "Hell Wrld"
+```
+
+#### `before(value: string, search: string): string`
+Returns the part of the string that precedes a specific part.
+Example:
+```typescript
+string.before("Hello, World!", ","); // returns: "Hello"
+```
+
+#### `beforeLast(value: string, search: string): string`
+Returns the part of the string that precedes the last occurrence of a specific part.
+Example:
+```typescript
+string.beforeLast("Hello, World, Again!", ","); // returns: "Hello, World"
+```
+
+#### `between(value: string, start: string, end: string): string`
+Returns the part of the string between two specific parts.
+Example:
+```typescript
+string.between("Hello [World] Again", "[", "]"); // returns: "World"
+```
+
+#### `betweenFirst(value: string, start: string, end: string): string`
+Returns the part of the string between the first occurrences of two specific parts.
+Example:
+```typescript
+string.betweenFirst("Hello [World] [Again]", "[", "]"); // returns: "World"
+```
+
+#### `charAt(value: string, index: number): string`
+Returns the character at a specific index in the string.
+Example:
+```typescript
+string.charAt("Hello", 1); // returns: "e"
+```
+
+#### `chopStart(value: string, count: number): string`
+Removes a specified number of characters from the beginning of the string.
+Example:
+```typescript
+string.chopStart("Hello", 2); // returns: "llo"
+```
+
+#### `chopEnd(value: string, count: number): string`
+Removes a specified number of characters from the end of the string.
+Example:
+```typescript
+string.chopEnd("Hello", 2); // returns: "Hel"
+```
+
+#### `containsAll(value: string, needles: string[]): boolean`
+Checks if all specified parts are present in the string.
+Example:
+```typescript
+string.containsAll("Hello, World!", ["Hello", "World"]); // returns: true
+```
+
+#### `excerpt(value: string, phrase: string, options: { radius?: number; omission?: string }): string | null`
+Extracts an excerpt from the string around a specific phrase.
+Example:
+```typescript
+string.excerpt("This is a long text with a specific phrase to find.", "specific phrase", { radius: 10 });
+// returns: "...text with a specific phrase to find..."
+```
+
+#### `finish(value: string, cap: string): string`
+Ensures that the string ends with a specific string.
+**Example:**
+```javascript
+string.finish("Hello", "!"); // result: "Hello!"
+string.finish("Hello!", "!"); // result: "Hello!"
+```
+
+#### `headline(value: string): string`
+Converts the string to headline format (capitalizes the first letter of each word).
+**Example:**
+```javascript
+string.headline("hello world"); // result: "Hello World"
+```
+
+#### `inlineMarkdown(value: string): string`
+Converts inline Markdown formatting in the string to HTML.
+**Example:**
+```javascript
+string.inlineMarkdown("This is **bold** and *italic*"); // result: "This is <strong>bold</strong> and <em>italic</em>"
+```
+
+#### `is(value: string, pattern: string): boolean`
+Checks if the string matches a specific pattern.
+**Example:**
+```javascript
+string.is("foo", "f*"); // result: true
+```
+
+#### `isAscii(value: string): boolean`
+Checks if the string contains only ASCII characters.
+**Example:**
+```javascript
+string.isAscii("Hello"); // result: true
+string.isAscii("Héllo"); // result: false
+```
+
+#### `isJson(value: string): boolean`
+Checks if the string is in valid JSON format.
+**Example:**
+```javascript
+string.isJson('{"name":"John", "age":30}'); // result: true
+string.isJson("Not JSON"); // result: false
+```
+
+#### `isUlid(value: string): boolean`
+Checks if the string is in valid ULID format.
+**Example:**
+```javascript
+string.isUlid("01ARZ3NDEKTSV4RRFFQ69G5FAV"); // result: true
+string.isUlid("not-ulid"); // result: false
+```
+
+#### `isUrl(value: string): boolean`
+Checks if the string is in valid URL format.
+**Example:**
+```javascript
+string.isUrl("https://www.example.com"); // result: true
+string.isUrl("not-url"); // result: false
+```
+
+#### `isUuid(value: string): boolean`
+Checks if the string is in valid UUID format.
+**Example:**
+```javascript
+string.isUuid("550e8400-e29b-41d4-a716-446655440000"); // result: true
+string.isUuid("not-uuid"); // result: false
+```
+
+#### `lcfirst(value: string): string`
+Converts the first character of the string to lowercase.
+**Example:**
+```javascript
+string.lcfirst("Hello"); // result: "hello"
+```
+
+#### `limit(value: string, limit: number = 100, end: string = '...'): string`
+Limits the length of the string, adding an ellipsis if the text is truncated.
+**Example:**
+```javascript
+string.limit("This is a long text", 10); // result: "This is a..."
+```
+
+#### `padBoth(value: string, length: number, pad: string = ' '): string`
+Adds padding to both sides of the string until it reaches the specified length.
+**Example:**
+```javascript
+string.padBoth("Hello", 10, "-"); // result: "--Hello---"
+```
+
+#### `padLeft(value: string, length: number, pad: string = ' '): string`
+Adds padding to the left side of the string until it reaches the specified length.
+**Example:**
+```javascript
+string.padLeft("Hello", 10, "-"); // result: "-----Hello"
+```
+
+#### `padRight(value: string, length: number, pad: string = ' '): string`
+Adds padding to the right side of the string until it reaches the specified length.
+**Example:**
+```javascript
+string.padRight("Hello", 10, "-"); // result: "Hello-----"
+```
+
+#### `plural(value: string, count: number = 2): string`
+Converts the string to plural form based on the count.
+**Example:**
+```javascript
+string.plural("apple", 1); // result: "apple"
+string.plural("apple", 2); // result: "apples"
+```
+
+#### `removeWhitespace(value: string): string`
+Removes all whitespace from the string.
+**Example:**
+```javascript
+string.removeWhitespace("Hello World"); // result: "HelloWorld"
+```
+
+#### `repeat(value: string, times: number): string`
+Repeats the string a specified number of times.
+**Example:**
+```javascript
+string.repeat("Hello", 3); // result: "HelloHelloHello"
+```
+
+#### `reverse(value: string): string`
+Reverses the characters in the string.
+**Example:**
+```javascript
+string.reverse("Hello"); // result: "olleH"
+```
+
+#### `rotate(value: string, positions: number): string`
+Rotates the string by a specified number of positions (positive for right, negative for left).
+**Example:**
+```javascript
+string.rotate("Hello", 2); // result: "loHel"
+string.rotate("Hello", -1); // result: "elloH"
+```
+
+#### `simplifySlug(value: string): string`
+Converts the string to a simplified format suitable for use as a URL slug.
+**Example:**
+```javascript
+string.simplifySlug("Hello, World!"); // result: "hello-world"
+```
+
+#### `sort(value: string): string`
+Sorts the characters in the string in alphabetical order.
+**Example:**
+```javascript
+string.sort("hello"); // result: "ehllo"
+```
+
+#### `split(value: string, separator: string): string[]`
+Splits the string into an array of substrings based on a specified separator.
+**Example:**
+```javascript
+string.split("a,b,c", ","); // result: ["a", "b", "c"]
+```
+
+#### `shuffle(value: string): string`
+Shuffles the characters in the string randomly.
+**Example:**
+```javascript
+string.shuffle("hello"); // result: random order like "lloeh"
+```
+
+#### `stripTags(value: string): string`
+Removes HTML tags from the string.
+**Example:**
+```javascript
+string.stripTags("<p>Hello <b>World</b></p>"); // result: "Hello World"
+```
+
+#### `title(value: string, exclusions: string[] = []): string`
+Converts the string to title format (capitalizes the first letter of each word).
+**Example:**
+```javascript
+string.title("hello world"); // result: "Hello World"
+string.title("a fire upon the deep", ["a", "the", "upon"]); // result: "A Fire upon the Deep"
+```
+
+#### `transform(value: string, callback: (char: string) => string): string`
+Transforms the string by applying a callback function to each character in the text.
+**Example:**
+```javascript
+string.transform("hello", char => char.toUpperCase()); // result: "HELLO"
+```
+
+#### `trimLeft(value: string, char: string = ' '): string`
+Removes characters from the left side of the string.
+**Example:**
+```javascript
+string.trimLeft("  Hello"); // result: "Hello"
+string.trimLeft("!!!Hello", "!"); // result: "Hello"
+```
+
+#### `trimRight(value: string, char: string = ' '): string`
+Removes characters from the right side of the string.
+**Example:**
+```javascript
+string.trimRight("Hello  "); // result: "Hello"
+string.trimRight("Hello!!!", "!"); // result: "Hello"
+```
+
+#### `truncate(value: string, length: number, end: string = '...'): string`
+Truncates the string to a specified length, replacing any excess with an ellipsis (...).
+**Example:**
+```javascript
+string.truncate("This is a long text", 10); // result: "This is..."
+```
+
+#### `unescapeHtml(value: string): string`
+Unescapes HTML entities in the string.
+**Example:**
+```javascript
+string.unescapeHtml("&lt;p&gt;Hello&lt;/p&gt;"); // result: "<p>Hello</p>"
+```
+
+#### `ucwords(value: string): string`
+Converts the first character of each word to uppercase.
+**Example:**
+```javascript
+string.ucwords("hello world"); // result: "Hello World"
+```
+
+#### `urlencode(value: string): string`
+Converts the string to URL-encoded format.
+**Example:**
+```javascript
+string.urlencode("Hello World!"); // result: "Hello%20World%21"
+```
+
+#### `urldecode(value: string): string`
+Decodes the string from URL-encoded format.
+**Example:**
+```javascript
+string.urldecode("Hello%20World%21"); // result: "Hello World!"
+```
+
+#### `uuid(value: string): string`
+Converts the string to UUID format (32 hexadecimal characters, separated by hyphens).
+**Example:**
+```javascript
+string.uuid("550e8400e29b41d4a716446655440000"); // result: "550e8400-e29b-41d4-a716-446655440000"
+```
+
+#### `ucfirst(value: string): string`
+Converts the first character of the string to uppercase.
+**Example:**
+```javascript
+string.ucfirst("hello"); // result: "Hello"
+```

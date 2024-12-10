@@ -1,0 +1,152 @@
+---
+title: Managing Environment Variables with Kawkab
+description: A comprehensive guide to managing environment variables using the Kawkab framework.
+---
+
+# **Managing Environment Variables with Kawkab**
+
+The **Kawkab** framework provides a convenient and effective way to handle environment variables easily, supporting default values and type conversions such as strings, numbers, boolean values, as well as complex values like JSON and lists.
+
+---
+
+## **Initialization and Usage**
+
+### **1. Setting Up the Environment File**
+When you install the project, you will find a file named `.env.example` at the root of the project. This file serves as a template for environment variables that you can use in development and production environments.
+
+- To create the necessary files for each environment, use the following command:
+
+```bash
+npm run kawkab env
+```
+
+This command will create the following files:
+
+- `.env.development`
+- `.env.production`
+
+### **2. Example of Environment File Content**
+
+```ini
+# Application Information
+APP_NAME="Kawkab App"
+APP_DEBUG=true
+APP_MAINTENANCE_MODE=false
+
+# Server Configuration
+SERVER_URL=http://localhost
+SERVER_PORT=3000
+
+# Database Configuration
+DATABASE_CLIENT=mysql
+DATABASE_HOST=127.0.0.1
+DATABASE_PORT=3306
+DATABASE_USER=root
+DATABASE_PASSWORD=
+DATABASE_NAME=kawkab
+
+# Locale Configuration
+LOCALE_CODE=en
+
+# Mail Configuration
+MAIL_HOST=sandbox.smtp.example.io
+MAIL_PORT=587
+MAIL_USER=
+MAIL_PASS=
+MAIL_TLS=false
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+**Notes:**
+- Values can be written with or without quotes.
+- Comments can be used inside the file using `#`.
+- To support dynamic values, you can reference another variable using `${key}` as in the example.
+
+---
+
+## **3. Reading Environment Variables**
+
+### **Getting a String Value**
+To get a string value from an environment variable:
+
+```tsx
+const appName = env.get("APP_NAME", "DefaultApp");
+console.log(`Application name: ${appName}`);
+```
+
+**Explanation:**
+- If `APP_NAME` is not defined in the environment, `"DefaultApp"` will be used as the default value.
+
+### **Getting a Boolean Value**
+To get a boolean value:
+
+```tsx
+const isDebug = env.bool("APP_DEBUG");
+console.log(`Debug mode: ${isDebug}`);
+```
+
+**Explanation:**
+- The `bool` method returns `true` if the value is `"true"` or `"1"`, and `false` otherwise.
+
+### **Getting a Numeric Value**
+To get a numeric value:
+
+```tsx
+const serverPort = env.number("SERVER_PORT", 3000);
+console.log(`Server port: ${serverPort}`);
+```
+
+**Explanation:**
+- If `SERVER_PORT` is not defined, `3000` will be used as the default value.
+
+---
+
+## **4. Handling Complex Values**
+
+### **Getting a JSON Value**
+If you have a variable containing JSON data:
+
+```tsx
+const databaseConfig = env.json("DATABASE_CONFIG", { host: "localhost" });
+console.log(databaseConfig);
+```
+
+**Explanation:**
+- If `DATABASE_CONFIG` is not defined, the default object `{ host: "localhost" }` will be used.
+
+### **Getting a List of Values**
+If you have a comma-separated list:
+
+```tsx
+const supportedLocales = env.array("SUPPORTED_LOCALES", ",", ["en", "ar"]);
+console.log(`Supported locales: ${supportedLocales}`);
+```
+
+**Explanation:**
+- The string is converted to an array based on the separator (`,` in the example).
+
+---
+
+## **5. Modifying Environment Variables**
+
+### **Adding a New Variable**
+To add a new environment variable dynamically:
+
+```tsx
+env.set("NEW_FEATURE", "enabled");
+console.log(env.get("NEW_FEATURE")); // Output: "enabled"
+```
+
+### **Deleting an Environment Variable**
+To remove an environment variable:
+
+```tsx
+env.delete("TEMP_VARIABLE");
+console.log(env.has("TEMP_VARIABLE")); // Output: false
+```
+
+---
+
+## **Conclusion**
+The **Kawkab** framework makes it easy to manage environment variables in a flexible and simple way. It provides the necessary tools to get and convert values easily, with support for default values, making it an ideal choice for developers looking for effective solutions to manage application environments.

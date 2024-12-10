@@ -1,0 +1,159 @@
+---
+title: Dependency Injection in Kawkab
+description: A comprehensive guide to understanding the concept of Dependency Injection in the Kawkab framework and how to use it in applications.
+---
+
+# **Dependency Injection in Kawkab**
+
+The **Kawkab** framework provides a built-in and easy-to-use system for **Dependency Injection** to manage application objects and services in an organized way, enhancing testability, reusability, and reducing code duplication.
+
+---
+
+## **What is Dependency Injection?**
+
+Dependency Injection is a design pattern that allows dependencies (such as objects and services) to be passed into **Classes** dynamically rather than being created within the class itself. This promotes separation between components and reduces coupling between them.
+
+---
+
+## **Dependency Injection Mechanism in Kawkab**
+
+In **Kawkab**, dependency injection is implemented using a combination of inheriting from `Inject` and the `.inject()` function. This system is provided to support a modular architecture while facilitating object management across the application.
+
+---
+
+## **Using Dependency Injection with Services**
+
+### **1. Defining a Service**
+To create a service that uses dependency injection, you must inherit from both `BaseService` and `Inject`.
+
+```ts
+import { BaseService, Inject, inherit } from "kawkab";
+
+// Define WelcomeService
+export class WelcomeService extends inherit(BaseService, Inject) {
+    /**
+     * Return a welcome message
+     * @returns {string} The welcome message
+     */
+    message() {
+        return "Welcome to Kawkab Framework 🚀!";
+    }
+}
+```
+
+### **2. Using the Service in a Controller**
+To inject the service into a controller, use the service's `.inject()` function.
+
+```ts
+import { BaseController, inherit } from "kawkab";
+import { WelcomeService } from "../services/welcome";
+
+// Controller using WelcomeService
+export default class extends inherit(BaseController) {
+    constructor(private welcomeService = WelcomeService.inject()) {
+        super();
+    }
+
+    /**
+     * GET function to return welcome message
+     * @returns {object} JSON response
+     */
+    async get() {
+        return {
+            status: true,
+            message: this.welcomeService.message(),
+        };
+    }
+}
+```
+
+### **Process Explanation**
+1. **Creating the Service:**  
+   The service is defined using inheritance from `BaseService` and `Inject`.
+   
+2. **Injecting the Service:**  
+   The service is called using `.inject()`, where the service is dynamically injected as a ready-to-use unit.
+
+3. **Using the Service:**  
+   Service functions can be called within the controller or any other unit.
+
+---
+
+## **Benefits of Dependency Injection in Kawkab**
+
+1. **Separation of Concerns:**  
+   Business logic is isolated from controllers, making the code more organized.
+
+2. **Reusability:**  
+   The same service can be used in multiple places without needing to recreate it.
+
+3. **Easy Testing:**  
+   Dependencies can be replaced with **Mock Services** during testing.
+
+4. **Reduced Duplication:**  
+   Dependencies are created only once and injected when needed.
+
+---
+
+## **Best Practices for Using Dependency Injection**
+
+1. **Organizing Services:**  
+   Organize services in dedicated folders, like `/services`, for easy access and maintenance.
+
+2. **Relying on Inheritance:**  
+   Inheriting from `Inject` and `BaseService` simplifies service management.
+
+3. **Leveraging `.inject()`:**  
+   Use `.inject()` to get the service object without needing to create it manually.
+
+4. **Unit Testing:**  
+   Replace dependencies with mock services during testing to ensure coverage of multiple scenarios.
+
+---
+
+## **Practical Example**
+
+### **Service File**
+```ts
+import { BaseService, Inject, inherit } from "kawkab";
+
+export class WelcomeService extends inherit(BaseService, Inject) {
+    message() {
+        return "Welcome to Kawkab Framework 🚀!";
+    }
+}
+```
+
+### **Controller File**
+```ts
+import { BaseController, inherit } from "kawkab";
+import { WelcomeService } from "../services/welcome";
+
+export default class extends inherit(BaseController) {
+    constructor(private welcomeService = WelcomeService.inject()) {
+        super();
+    }
+
+    async get() {
+        return {
+            status: true,
+            message: this.welcomeService.message(),
+        };
+    }
+}
+```
+
+### **Result**
+
+```json
+{
+    "status": true,
+    "message": "Welcome to Kawkab Framework 🚀!"
+}
+```
+
+---
+
+## **Summary**
+
+The **Dependency Injection** system in **Kawkab** is a powerful feature for simplifying dependency management in applications. Using tools like `.inject()` and inheriting from `Inject`, you can create flexible and maintainable applications while reducing the effort required in manually managing dependencies.

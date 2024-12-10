@@ -1,0 +1,84 @@
+---
+title: MVC Pattern in Kawkab Kawkab
+description: A simple explanation of the MVC pattern in the Kawkab Kawkab framework
+---
+
+# MVC Pattern in Kawkab Kawkab
+
+The MVC (Model-View-Controller) pattern is a design pattern that divides the application into three main parts. In Kawkab, you can use the `main` module to immediately start implementing this pattern, as it comes with the framework by default and contains everything you need.
+
+## Key Components
+
+### 1. Model
+- **M** stands for Model
+- Represents the data and business logic
+- Interacts with the database
+- Example:
+```typescript
+// app/modules/main/models/User.ts
+export class User extends Model {
+    // Contains the definition of data and business logic
+}
+```
+
+### 2. View
+- **V** stands for View
+- Represents the user interface
+- Displays data to the user
+- Example:
+```typescript
+{
+    "message": "Hello",
+    "data": {
+        "name": "Ahmed",
+        "email": "ahmed@example.com"
+    }
+}
+```
+
+### 3. Controller
+- **C** stands for Controller
+- Handles user requests
+- Controls the flow of data
+- Example:
+```typescript
+// app/modules/main/controllers/users/index.ts
+export default class extends BaseController {
+    // Handles requests and processes them
+    get() {
+        return {
+            message: "Hello",
+            data: {
+                name: "Ahmed",
+                email: "ahmed@example.com"
+            }
+        };
+    }
+}
+```
+
+## Folder Structure in main
+```
+app/
+├── modules/
+│   └── main/           # The main module - comes preconfigured with the app
+│       ├── controllers/    # Controllers (C)
+│       ├── models/         # Models (M)
+│       └── views/          # Views (V)
+```
+
+## Quick Start with main
+
+You can start directly by using the MVC pattern with the `main` module:
+1. Models: Place your models in `main/models`
+2. Controllers: Add your controllers in `main/controllers`
+3. Views: Format the data in the controllers
+
+## Conclusion
+
+The MVC pattern in Kawkab helps to:
+- Organize code logically
+- Separate responsibilities between components
+- Make maintenance and development easier
+
+With the default `main` module, you can start developing your app immediately without additional setup.

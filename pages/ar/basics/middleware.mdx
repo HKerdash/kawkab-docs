@@ -1,0 +1,194 @@
+---
+title: Middleware في كوكب Kawkab
+description: دليل شامل لفهم الـ Middleware في إطار العمل كوكب Kawkab وكيفية إنشائها واستخدامها بفعالية.
+---
+
+# **البرمجيات الوسيطة Middleware في إطار العمل كوكب Kawkab**
+
+الـ **Middleware** هي طبقة وسيطة تُستخدم لمعالجة الطلبات الواردة قبل الوصول إلى المتحكمات (**Controllers**) أو لتنفيذ منطق معين بعد الاستجابة.  
+تُعد Middleware أداة قوية لتنفيذ المهام الشائعة مثل المصادقة، التحقق من الصلاحيات، وتسجيل الأخطاء.
+
+---
+
+## **إنشاء Middleware جديد**
+
+لإنشاء Middleware جديد في كوكب Kawkab، استخدم الأمر التالي:
+
+```bash
+npm run kawkab middleware:make <name> [module]
+```
+
+### **المتغيرات:**
+- **`<name>`**: اسم الـ Middleware.
+- **`[module]`**: الوحدة التي سيتم إضافة الـ Middleware إليها (اختياري، الافتراضي هو `main`).
+
+### **مثال عملي:**
+
+```bash
+npm run kawkab middleware:make auth main
+```
+
+الناتج:
+```plaintext
+🆗 Middleware auth created successfully in module main.
+
+1️⃣  Your middleware file is ready! You can now import it like this:
+👉 import { AuthMiddleware } from "../middleware/auth"
+
+2️⃣  Use the middleware like so:
+👉 new AuthMiddleware()
+
+3️⃣  You can pass the data like this:
+👉 new AuthMiddleware({id:1, name:'Hassan'})
+
+4️⃣  You can access the data in middleware class like this:
+👉 this.data
+```
+
+---
+
+## **محتوى Middleware الافتراضي**
+
+عند إنشاء Middleware جديد، يتم إنشاء ملف يحتوي على الهيكل الأساسي التالي:
+
+```ts
+import { BaseMiddleware, inherit } from "kawkab";
+
+export class AuthMiddleware extends BaseMiddleware {
+    /**
+     * تنفيذ المنطق الأساسي للـ Middleware.
+     */
+    handle() {
+        console.log("Middleware executed with data:", this.data);
+    }
+}
+```
+
+---
+
+## **كيفية استخدام Middleware**
+
+### **استيراد Middleware**
+بعد إنشاء الـ Middleware، يمكنك استيراده في المتحكم أو في أي جزء من التطبيق.
+
+```ts
+import { AuthMiddleware } from "../middleware/auth";
+```
+
+### **تطبيق Middleware**
+للاستفادة من الـ Middleware، يمكنك استخدامه بالطريقة التالية:
+
+```ts
+new AuthMiddleware();
+```
+
+### **تمرير البيانات إلى Middleware**
+يمكنك تمرير بيانات عند استدعاء الـ Middleware:
+
+```ts
+new AuthMiddleware({ id: 1, name: "Hassan" });
+```
+
+### **الوصول إلى البيانات داخل Middleware**
+يمكنك الوصول إلى البيانات التي تم تمريرها باستخدام الخاصية `this.data` داخل فئة الـ Middleware:
+
+```ts
+export class AuthMiddleware extends BaseMiddleware {
+    handle() {
+        console.log("User ID:", this.data.id);
+        console.log("User Name:", this.data.name);
+    }
+}
+```
+
+---
+
+## **دمج Middleware مع المتحكمات**
+
+يمكنك ربط الـ Middleware بدوال معينة في المتحكم باستخدام دالة `middleware()`.
+
+### **مثال عملي:**
+```ts
+import { BaseController, inherit } from "kawkab";
+import { AuthMiddleware } from "../middleware/auth";
+
+export default class extends inherit(BaseController) {
+    middleware() {
+        return {
+            get: () => new AuthMiddleware({ role: "admin" }),
+        };
+    }
+
+    get() {
+        return { status: true, message: "Welcome, admin!" };
+    }
+}
+```
+
+- **`middleware()`**: تربط Middleware معين بطرق مثل `get`, `post`, وغيرها.
+- **`new AuthMiddleware({ role: "admin" })`**: يتم تمرير بيانات إلى Middleware أثناء التنفيذ.
+
+---
+
+## **أمثلة عملية**
+
+### **مصادقة المستخدم**
+إنشاء Middleware خاص بالتحقق من المصادقة:
+
+```ts
+import { BaseMiddleware, inherit } from "kawkab";
+
+export class AuthMiddleware extends BaseMiddleware {
+    handle() {
+        if (!this.data || !this.data.token) {
+            throw new Error("Authentication failed!");
+        }
+
+        console.log("Authenticated user with token:", this.data.token);
+    }
+}
+```
+
+استخدامه في المتحكم:
+```ts
+import { BaseController, inherit } from "kawkab";
+import AuthMiddleware from "../middleware/auth";
+
+export default class extends inherit(BaseController) {
+    middleware() {
+        return {
+            get: () => new AuthMiddleware({ token: "valid-token" }),
+        };
+    }
+
+    get() {
+        return { status: true, message: "User is authenticated!" };
+    }
+}
+```
+
+---
+
+## **ملخص**
+
+### **خطوات استخدام Middleware:**
+1. إنشاء Middleware جديد باستخدام الأمر:
+   ```bash
+   npm run kawkab middleware:make <name> [module]
+   ```
+2. استيراد Middleware في المتحكم أو أي مكان آخر.
+3. تطبيق Middleware باستخدام `new MiddlewareName()`.
+4. تمرير البيانات عند الحاجة باستخدام `{}` والوصول إليها باستخدام `this.data`.
+5. ربط Middleware بدوال المتحكم عبر دالة `middleware()`.
+
+### **أهم ميزات Middleware في كوكب Kawkab:**
+- **سهولة الإنشاء**: باستخدام أوامر بسيطة.
+- **مرونة الاستخدام**: يمكن تطبيقها على مستوى الوحدة أو المتحكم.
+- **تمرير البيانات**: تسهيل نقل البيانات أثناء التنفيذ.
+
+---
+
+## **خاتمة**
+
+الـ Middleware في إطار العمل **كوكب Kawkab** يوفر أداة قوية لتخصيص تدفق الطلبات وتنفيذ المهام الشائعة.  
+يمكنك استخدامه لتنفيذ مصادقة، التحقق من الصلاحيات، أو حتى تسجيل الطلبات، مما يمنحك تحكمًا كاملاً بسير عمل التطبيق.

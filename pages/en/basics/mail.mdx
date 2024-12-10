@@ -1,0 +1,134 @@
+# Email Sending in **Kawkab Framework**
+
+**Kawkab** provides a flexible and easy-to-use interface for sending emails in your applications. Using flexible environment configurations, you can easily send text or HTML messages using the `Mail` class that provides various options according to your needs.
+
+## Configuration in `.env` File
+
+Email settings are defined in the `.env` environment file within your application. You can customize these settings to match your email server, whether it's an SMTP service like Gmail or any other server.
+
+### Example of Email Settings in `.env`:
+
+```dotenv
+# Email Settings
+MAIL_HOST=smtp.example.com        # SMTP server
+MAIL_PORT=587                     # Port number (587 for TLS)
+MAIL_USER=your-username@example.com  # Authentication username
+MAIL_PASS=your-email-password      # Authentication password
+MAIL_TLS=true                      # Enable/disable TLS
+MAIL_FROM_ADDRESS="hello@example.com"  # Default email address
+MAIL_FROM_NAME="${APP_NAME}"       # Default sender name (can include app name)
+```
+
+### Email Settings Explanation:
+
+- **MAIL_HOST**: The SMTP server name you'll connect to (e.g., smtp.gmail.com).
+- **MAIL_PORT**: The port used by the SMTP server (typically 587 for TLS or 465 for SSL).
+- **MAIL_USER**: Username for authentication with the email server.
+- **MAIL_PASS**: Password for the email account.
+- **MAIL_TLS**: Specify whether to use TLS (true or false).
+- **MAIL_FROM_ADDRESS**: Default sender email address.
+- **MAIL_FROM_NAME**: Sender name that appears in sent messages (you can use `${APP_NAME}` to get the app name dynamically).
+
+---
+
+## Sending Email Using Kawkab
+
+To send an email, you can use the `send` method from the `Mail` class. This method allows you to customize the sender, recipient, subject, body, and format (text or HTML) as you wish.
+
+### Basic Usage for Sending Email:
+
+```javascript
+import { mail } from "kawkab";
+
+mail
+  .send({
+    from: "sender@example.com", // Optional: If set in .env, value from .env will be used
+    fromName: "Sender Name", // Optional: If not set, value from .env will be used
+    to: "recipient@example.com", // Recipient's email
+    toName: "Recipient Name", // Optional: Recipient's name (can be included)
+    subject: "Hello!", // Email subject
+    body: "This is a plain text body.", // Message content
+    isHtml: false, // Specify if content is plain text (false) or HTML (true)
+  })
+  .then((info) => {
+    console.log("Email sent successfully:", info);
+  })
+  .catch((error) => {
+    console.error("Failed to send email:", error);
+  });
+```
+
+### Explanation of Available Options in `mail.send`:
+
+- **from**: (Optional) Sender's email address. If not specified, the value from `MAIL_FROM_ADDRESS` in `.env` will be used.
+- **fromName**: (Optional) Sender's name. If not specified, the value from `MAIL_FROM_NAME` in `.env` will be used.
+- **to**: Recipient's email address.
+- **toName**: (Optional) Recipient's name. When specified, the email will appear as "Recipient Name \<recipient@example.com\>".
+- **subject**: The subject that appears in the message.
+- **body**: Message text (can be plain text or HTML depending on the value entered in `isHtml`).
+- **isHtml**: (Optional) To specify if the body contains HTML. If `false`, it will be treated as plain text.
+
+---
+
+## Practical Examples of Sending Email Using **Kawkab**
+
+### 1. Sending a Simple Text Email:
+
+```javascript
+import { mail } from "kawkab";
+
+mail
+  .send({
+    to: "recipient@example.com",
+    subject: "Plain Text Email",
+    body: "This is a plain text email.",
+  })
+  .then((info) => console.log("Email sent successfully:", info))
+  .catch((error) => console.error("Error sending email:", error));
+```
+
+### 2. Sending an HTML-Formatted Email:
+
+```javascript
+import { mail } from "kawkab";
+
+mail
+  .send({
+    to: "recipient@example.com",
+    subject: "HTML Email",
+    body: "<h1>Welcome</h1><p>This is an HTML email!</p>",
+    isHtml: true,
+  })
+  .then((info) => console.log("Email sent successfully:", info))
+  .catch((error) => console.error("Error sending email:", error));
+```
+
+### 3. Sending an Email with Custom Sender:
+
+```javascript
+import { mail } from "kawkab";
+
+mail
+  .send({
+    from: "customsender@example.com",
+    fromName: "Custom Sender",
+    to: "recipient@example.com",
+    toName: "John Doe",
+    subject: "Custom Sender Email",
+    body: "This email comes from a custom sender address and name.",
+  })
+  .then((info) => console.log("Email sent successfully:", info))
+  .catch((error) => console.error("Error sending email:", error));
+```
+
+---
+
+## Summary
+
+- **Email Settings**: Defined through environment variables in the `.env` file, allowing you to easily configure the mail server, authentication data, and port.
+- **Sending Email**: Done through the `mail.send` method with customization options like sender, recipient, subject, body (text or HTML), and more.
+- **Customization**: **Kawkab** provides you with the ability to customize many aspects of email such as addresses, names, and also message content.
+
+You can easily integrate email sending functionality into your application, making communication with users or customers more effective and flexible.
+
+---

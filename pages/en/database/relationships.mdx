@@ -1,0 +1,817 @@
+# Relationships
+
+Kawkab relationships are defined as methods on your Kawkab model classes. Since relationships also serve as powerful query builders, defining relationships as methods provides strong method chaining and querying capabilities. For example, we can chain additional query constraints on this `posts` relationship:
+
+```js
+await user.related('posts').where('active', 1).get();
+```
+
+However, before diving deep into using relationships, let's learn how to define each type of relationship supported by Kawkab.
+
+### One-to-One Relationship
+
+A one-to-one relationship is a very basic type of database relationship. For example, a `User` model might be associated with one `Phone` model. To define this relationship, we will place a `phone` method on the `User` model. The `relationPhone` method should call the `hasOne` method and return its result. The `hasOne` method is available to your model via the base `Model` class:
+
+```js
+import { BaseModel } from "kawkab";
+
+class Phone extends Model {}
+
+class User extends Model {
+  relationPhone() {
+    return this.hasOne(Phone);
+  }
+}
+```
+
+The first argument passed to the `hasOne` method is the name of the related model class. Once the relationship is defined, we can retrieve the related record using the `getRelated` method:
+
+```js
+const user = await User.query().find(1);
+const phone = await user.getRelated('phone');
+```
+
+Kawkab determines the foreign key of the relationship based on the name of the originating model. In this case, it is assumed that the `Phone` model automatically contains a foreign key `user_id`. If you wish to override this convention, you can pass a second argument to the `hasOne` method:
+
+```js
+return this.hasOne(Phone, 'foreign_key');
+```
+
+Additionally, Kawkab assumes that the foreign key should have a value matching the primary key column of the origin. In other words, Kawkab will look for the value of the user's `id` column in the `user_id` column of the `Phone` record. If you want the relationship to use a different primary key value or the `primaryKey` property of the model, you can pass a third argument to the `hasOne` method:
+
+```js
+return this.hasOne(Phone, 'foreign_key', 'local_key');
+```
+
+#### Defining the Inverse of the Relationship
+
+So, we can access the `Phone` model from our `User` model. Now, let's define a relationship on the `Phone` model that allows us to access the user who owns the phone. We can define the inverse of a `hasOne` relationship using the `belongsTo` method:
+
+```js
+import { BaseModel } from "kawkab";
+
+class User extends Model {
+  relationPhone() {
+    return this.hasOne(Phone);
+  }
+}
+
+class Phone extends Model {
+  relationUser() {
+    return this.belongsTo(User);
+  }
+}
+```
+
+When calling `related('user')`, Kawkab will attempt to find a `User` model that has an `id` matching the `user_id` column on the `Phone` model.
+
+Kawkab determines the name of the foreign key by examining the name of the relationship method and appending the method name with `_id`. Therefore, in this case, Kawkab assumes that the `Phone` model has a column `user_id`. However, if the foreign key on the `Phone` model is not `user_id`, you can pass a custom key name as the second argument to the `belongsTo` method:
+
+```js
+relationUser() {
+  return this.belongsTo(User, 'foreign_key');
+}
+```
+
+If the originating model does not use `id` as the primary key, or you want to find the related model using another column, you can pass a third argument to the `belongsTo` method that specifies the custom key for the originating table:
+
+```js
+relationUser() {
+  return this.belongsTo(User, 'foreign_key', 'owner_key');
+}
+```
+
+### One-to-Many Relationship
+
+One-to-many relationships are used to define relationships where a single model owns any number of child models. For example, a blog post may have an infinite number of comments. Like all other Kawkab relationships, one-to-many relationships are defined by defining a method on your Kawkab model:
+
+```js
+import { BaseModel } from "kawkab";
+
+class Post extends Model {
+  relationComments() {
+    return this.hasMany(Comment);
+  }
+}
+```
+
+Remember that Kawkab will automatically determine the appropriate foreign key column for the `Comment` model. By convention, Kawkab will take the "snake case" name of the originating model and append it with `_id`. So, in this example, Kawkab will assume that the foreign key column on the `Comment` model is `post_id`.
+
+Once the relationship method is defined, we can access the set of related comments by accessing the `getRelated('comments')` method:
+
+```js
+const { Post } = require('./models');
+
+const post = await Post.query().find(1);
+const comments = await post.getRelated('comments');
+
+comments.map(comment => {
+  //
+});
+```
+
+Since all relationships also serve as query builders, you can add additional constraints to the relationship query by calling the `related('comments')` method and continuing to chain conditions onto the query:
+
+```js
+const post = await Post.query().find(1);
+const comment = await post.related('comments')
+  .where('title', 'foo')
+  .first();
+```
+
+Like the `hasOne` method, you can also override the foreign and local keys by passing additional arguments to the `hasMany` method:
+
+```js
+return this.hasMany(Comment, 'foreign_key');
+
+return this.hasMany(Comment, 'foreign_key', 'local_key');
+```
+
+### One-to-Many (Inverse) / Belongs To
+
+Now that we can access all of a post's comments, let's define a relationship that allows a comment to access its originating post. To define the inverse of a `hasMany` relationship, define a relationship method on the child model that calls the `belongsTo` method:
+
+```js
+import { BaseModel } from "kawkab";
+
+class Comment extends Model {
+  relationPost() {
+    return this.belongsTo(Post);
+  }
+}
+```
+
+In the example above, Kawkab will attempt to find a `Post` model that has an `id` matching the `post_id` column on the `Comment` model.
+
+Kawkab determines the default foreign key name by examining the name of the relationship method and appending the method name with `_` followed by the name of the primary key column of the originating model. So, in this example, Kawkab will assume that the foreign key for the `Post` model on the `comments` table is `post_id`.
+
+However, if your relationship's foreign key does not follow these conventions, you can pass a custom foreign key name as the second argument to the `belongsTo` method:
+
+```js
+relationPost() {
+  return this.belongsTo(Post, 'foreign_key');
+}
+```
+
+If the originating model does not use `id` as the primary key, or you want to find the related model using another column, you can pass a third argument to the `belongsTo` method that specifies the custom key for the originating table:
+
+```js
+relationPost() {
+  return this.belongsTo(Post, 'foreign_key', 'owner_key');
+}
+```
+
+**Default Models**
+
+The `belongsTo` and `hasOne` relationships allow you to define a default model that will be returned if the specified relationship is empty. This pattern is often referred to as the Null Object pattern and can help remove conditional checks from your code. In the following example, the `user` relationship will return an empty `User` model if there is no user related to the `Post` model:
+
+```js
+reLationUser() {
+  return this.belongsTo(User).withDefault();
+}
+```
+
+To populate the default model with attributes, you can pass an object or a closure to the `withDefault` method:
+
+```js
+reLationUser() {
+  return this.belongsTo(User).withDefault({
+    name: 'Guest Author'
+  });
+}
+
+reLationUser() {
+  return this.belongsTo(User).withDefault((user, post) => ({
+    name: `Post ${post.id} Author`
+  }));
+}
+```
+
+### Many-to-Many Relationships
+
+Many-to-many relationships are more complicated than `hasOne` and `hasMany` relationships. An example of a many-to-many relationship is a user having many roles and those roles being shared with other users in the application. For example, a user can be assigned the roles of "Author" and "Editor"; however, those roles can also be assigned to other users. So, a user owns many roles and a role owns many users.
+
+**Table Structure**
+
+To define this relationship, you need three database tables: `users`, `roles`, and `role_user`. The `role_user` table is derived from the alphabetical order of the related model names and contains `user_id` and `role_id` columns. This table is used as a pivot table that joins users and roles.
+
+Remember that since a role can belong to many users, we cannot simply place a `user_id` column on the `roles` table. That would mean a role could only belong to one user. To provide support for assigning roles to multiple users, a `role_user` table is required. We can summarize the relationship table structure as follows:
+
+```
+users
+  id - integer
+  name - string
+
+roles
+  id - integer
+  name - string
+
+role_user
+  user_id - integer
+  role_id - integer
+```
+
+**Model Structure**
+
+Many-to-many relationships are defined by writing a method that returns the result of the `belongsToMany` method. The `belongsToMany` method is provided by the base `Model` class that all of your application's Kawkab models use. For example, let's define a `relationRoles` method on our `User` model. The first argument passed to this method is the name of the related model class:
+
+```js
+import { BaseModel } from "kawkab";
+
+class User extends Model {
+  relationRoles() {
+    return this.belongsToMany(Role);
+  }
+}
+```
+
+Since all relationships also serve as query builders, you can add additional constraints to the relationship query by calling the `related('roles')` method and continuing to chain conditions onto the query:
+
+```js
+const user = await User.query().find(1);
+const roles = await user.related('roles').orderBy('name').get();
+```
+
+To specify the name of the intermediate pivot table, Kawkab will concatenate the names of the related models in alphabetical order. However, you can override this convention. You can do this by passing a second argument to the `belongsToMany` method:
+
+```js
+return this.belongsToMany(Role, 'role_user');
+```
+
+In addition to customizing the name of the pivot table, you can also customize the names of the columns for the keys on the table by passing additional arguments to the `belongsToMany` method. The third argument is the name of the foreign key for the model you are defining the relationship on, while the fourth argument is the name of the foreign key for the model you will be joining to:
+
+```js
+return this.belongsToMany(Role, 'role_user', 'user_id', 'role_id');
+```
+
+**Defining the Inverse of the Relationship**
+
+To define the "inverse" of a many-to-many relationship, you must define a method on the related model that also returns the result of the `belongsToMany` method. To complete our `user` / `role` example, let's define a `relationUsers` method on the `Role` model:
+
+```js
+import { BaseModel } from "kawkab";
+
+class Role extends Model {
+  relationUsers() {
+    return this.belongsToMany(User);
+  }
+}
+```
+
+As you can see, the relationship is defined exactly like its counterpart in the `User` model with the exception of referencing the `User` model. Since we are reusing the `belongsToMany` method, all table and key customization options are available when defining the "inverse" of many-to-many relationships.
+
+#### Retrieving Intermediate Table Columns
+
+As we have already learned, dealing with many-to-many relationships requires the presence of an intermediate pivot table. Kawkab provides some very useful methods for interacting with this table. For example, let's assume our `User` model has many `Role` models that it is related to. After accessing this relationship, we can access the pivot table using the `pivot` attribute on the models:
+
+```js
+const { User } = require('./models');
+
+const user = await User.query().find(1);
+const roles = await user.getRelated('roles');
+
+roles.map(role => {
+  console.log(role.pivot.created_at);
+});
+```
+
+Note that each `Role` model we retrieve is automatically assigned a `pivot` attribute. This attribute contains a model representing the pivot table.
+
+By default, only the model keys will be present on the pivot model. If the pivot table contains extra attributes, you should specify them when defining the relationship:
+
+```js
+return this.belongsToMany(Role).withPivot('active', 'created_by');
+```
+
+If you want your pivot table to contain `created_at` and `updated_at` timestamps that are automatically updated by Kawkab, call the `withTimestamps` method when defining the relationship:
+
+```js
+return this.belongsToMany(Role).withTimestamps();
+```
+
+**Customizing the `pivot` Attribute Name**
+
+As noted earlier, attributes from the pivot table can be accessed on the models via the `pivot` attribute. However, you can customize the name of this attribute to better reflect its purpose within your application.
+
+For example, if your application has users who can subscribe to podcasts, you likely have a many-to-many relationship between users and podcasts. If that is the case, you might want to rename your pivot table attribute to `subscription` instead of `pivot`. This can be done using the `as` method when defining the relationship:
+
+```js
+return this.belongsToMany(Podcast)
+    .as('subscription')
+    .withTimestamps();
+```
+
+#### Filtering Queries via Pivot Table Columns
+
+You can also filter the results returned by `belongsToMany` relationship queries using the `wherePivot`, `wherePivotIn`, `wherePivotNotIn`, `wherePivotBetween`, `wherePivotNotBetween`, `wherePivotNull`, and `wherePivotNotNull` methods when defining the relationship:
+
+```js
+return this.belongsToMany(Role)
+  .wherePivot('approved', 1);
+
+return this.belongsToMany(Role)
+  .wherePivotIn('priority', [1, 2]);
+
+return this.belongsToMany(Role)
+  .wherePivotNotIn('priority', [1, 2]);
+
+return this.belongsToMany(Podcast)
+  .as('subscriptions')
+  .wherePivotBetween('created_at', ['2020-01-01 00:00:00', '2020-12-31 00:00:00']);
+
+return this.belongsToMany(Podcast)
+  .as('subscriptions')
+  .wherePivotNotBetween('created_at', ['2020-01-01 00:00:00', '2020-12-31 00:00:00']);
+
+return this.belongsToMany(Podcast)
+  .as('subscriptions')
+  .wherePivotNull('expired_at');
+
+return this.belongsToMany(Podcast)
+  .as('subscriptions')
+  .wherePivotNotNull('expired_at');
+```
+
+#### Ordering Queries via Pivot Table Columns
+
+You can order the results returned by `belongsToMany` relationship queries using the `orderByPivot` method. In the following example, we will retrieve all of a user's newest badges:
+
+```js
+return this.belongsToMany(Badge)
+  .where('rank', 'gold')
+  .orderByPivot('created_at', 'desc');
+```
+
+### Querying Relationships
+
+Since all Kawkab relationships are defined via methods, you can call those methods to get a relationship instance without executing an actual query to load the related models. Additionally, all types of Kawkab relationships also serve as query builders, allowing you to continue chaining constraints onto the relationship query before eventually executing an SQL query against your database.
+
+For example, imagine a blog application where a `User` model has many related `Post` models:
+
+```js
+import { BaseModel } from "kawkab";
+
+class User extends Model {
+  relationPosts() {
+    return this.hasMany(Post);
+  }
+}
+```
+
+You can query the `posts` relationship and add additional constraints to the relationship like so:
+
+```js
+const { User } = require('./models');
+
+const user = await User.query().find(1);
+
+await user.related('posts').where('active', 1).get();
+```
+
+You can use any of Kawkab's query builder methods on the relationship, so be sure to explore the query builder documentation to learn about all the methods available to you.
+
+**Chaining `orWhere` Clauses After Relationships**
+
+As illustrated in the example above, you can add additional constraints to relationships when querying them. However, take care when chaining `orWhere` clauses onto a relationship, as `orWhere` clauses will be logically grouped at the same level as the relationship constraints:
+
+```js
+await user.related('posts')
+  .where('active', 1)
+  .orWhere('votes', '>=', 100)
+  .get();
+```
+
+The example above will generate the following SQL. As you can see, the `or` clause instructs the query to return any user with more than 100 votes. The query is no longer constrained to a specific user:
+
+```SQL
+select *
+from posts
+where user_id = ? and active = 1 or votes >= 100
+```
+
+In most cases, you should use logical groupings to group the conditional checks within parentheses:
+
+```js
+await user.related('posts')
+  .where(query => {
+    return query.where('active', 1).orWhere('votes', '>=', 100);
+  })
+  .get();
+```
+
+The example above will generate the following SQL. Notice that the logical grouping has correctly grouped the constraints and the query remains constrained to a specific user:
+
+```SQL
+select *
+from posts
+where user_id = ? and (active = 1 or votes >= 100)
+```
+
+#### Querying Relationship Existence
+
+When retrieving model records, you may wish to constrain your results based on the existence of a relationship. For example, imagine you want to retrieve all blog posts that have at least one comment. To do this, you can pass the name of the relationship to the `has` and `orHas` methods:
+
+```js
+const { Post } = require('./models');
+// Retrieve all posts that have at least one comment...
+const posts = await Post.query().has('comments').get();
+```
+
+You can also specify an operator and count value to further customize the query:
+
+```js
+// Retrieve all posts that have three or more comments...
+const posts = await Post.query().has('comments', '>=', 3).get();
+```
+
+Nested `has` statements can be built using dot notation. For example, you can retrieve all posts that have at least one comment containing images:
+
+```js
+// Retrieve posts that have at least one comment with images...
+const posts = await Post.query().has('comments.images').get();
+```
+
+If you need more power, you can use the `whereHas` and `orWhereHas` methods to add additional query constraints to your `has` queries, such as examining the content of a comment:
+
+```js
+// Retrieve posts that have at least one comment containing words like code%...
+const posts = await Post.query().whereHas('comments', query => {
+  query.where('content', 'like', 'code%');
+}).get();
+
+// Retrieve posts that have at least ten comments containing words like code%...
+const posts = await Post.query().whereHas('comments', query => {
+  query.where('content', 'like', 'code%');
+}, '>=', 10).get();
+```
+
+### Aggregating Related Models
+
+#### Counting Related Models
+
+Sometimes you may want to count the number of related models for a given relationship without actually loading the models. To accomplish this, you can use the `withCount` method. The `withCount` method will place a `{relation}_count` attribute on the resulting models:
+
+```js
+const { Post } = require('./models');
+
+const posts = await Post.query().withCount('comments').get();
+
+posts.map(post => {
+  console.log(post.comments_count);
+});
+```
+
+By passing an array to the `withCount` method, you can add the "count" for multiple relationships as well as add additional constraints to the queries:
+
+```js
+const posts = await Post.query().withCount({
+  comments: query => query.where('content', 'like', 'code%');
+}).get();
+
+console.log(posts.get(0).comments_count);
+```
+
+#### Deferred Count Loading
+
+Using the `loadCount` method, you can load the count of a relationship after the original model has already been retrieved:
+
+```js
+const book = await Book.query().first();
+
+await book.loadCount('genres');
+```
+
+If you need to add additional query constraints to the count query, you can pass an array keyed by the relationships you wish to count. The values of the array should be closures that receive a query builder instance:
+
+```js
+await book.loadCount({
+  reviews: query => query.where('rating', 5);
+})
+```
+
+#### Counting Relationships & Custom Aggregate Data
+
+If you are combining `withCount` with a select statement, make sure to call `withCount` after the `select` method:
+
+```js
+const posts = await Post.query().select(['title', 'body'])
+  .withCount('comments')
+  .get();
+```
+
+#### Other Aggregate Functions
+
+In addition to the `withCount` method, Kawkab provides `withMin`, `withMax`, `withAvg`, `withSum`, and `withExists` methods. These methods will place a `{relation}_{function}_{column}` attribute on the resulting models:
+
+```js
+const { Post } = require('./models');
+
+const posts = await Post.query().withSum('comments', 'votes').get();
+
+posts.map(post => {
+  console.log(post.comments_sum_votes);
+});
+```
+
+Like the `loadCount` method, deferred versions of these methods are also available. These additional aggregate operations can be performed on Kawkab models that have already been retrieved:
+
+```js
+const post = await Post.query().first();
+
+await post.loadSum('comments', 'votes');
+```
+
+If you are combining these aggregate methods with a select statement, make sure to call the aggregate methods after the `select` method:
+
+```js
+const posts = await Post.query().select(['title', 'body'])
+  .withExists('comments')
+  .get();
+```
+
+### Eager Loading
+
+When accessing Kawkab relationships as properties, the related models are "lazily" loaded. This means that the relationship data is not actually loaded until the property is first accessed. However, Kawkab can "eager load" relationships at the time you query the parent model. Eager loading alleviates the N + 1 query problem. To illustrate the N + 1 query problem, consider a `Book` model that belongs to an `Author` model:
+
+```js
+import { BaseModel } from "kawkab";
+
+class Book extends Model {
+  relationAuthor() {
+    return this.belongsTo(Author);
+  }
+}
+```
+
+Now, let's retrieve all books and their authors:
+
+```js
+const { Book } = require('./models');
+
+const books = await Book.query().all();
+books.map(async book => {
+  const author = await book.getRelated('author');
+  console.log(author.name);
+});
+```
+
+This loop will execute a query to retrieve all books within a database table, then another query for each book to retrieve the book's author. So, if we have 25 books, the code above will run 26 queries: one for the original books and 25 additional queries to retrieve the author of each book.
+
+Well, we can use eager loading to reduce this to just two queries. When building a query, you can specify the relationships that should be eagerly loaded using the `with` method:
+
+```js
+const books = await Book.query().with('author').get();
+
+books.map(book => {
+  console.log(book.author.name);
+});
+```
+
+In this operation, only two queries will be executed - one to retrieve all books and one to retrieve all authors for all books:
+
+```SQL
+select * from books
+
+select * from authors where id in (1, 2, 3, 4, 5, ...)
+```
+
+**Eager Loading Multiple Relationships**
+
+Sometimes you may need to eager load multiple different relationships. To do so, just pass an array of the relationships to the `with` method:
+
+```js
+const books = await Book.query().with(['author', 'publisher']).get();
+```
+
+**Nested Eager Loading**
+
+To eager load relationships on the relationships, you can use "dot" syntax. For example, let's eager load all authors of the books and all of the author's personal contacts:
+
+```js
+const books = await Book.query().with('author.contacts').get();
+```
+
+**Eager Loading Specific Columns**
+
+You may not always need every column from the relationships you retrieve. For this reason, Kawkab allows you to specify which columns you wish to retrieve from the relationship:
+
+```js
+const books = await Book.query().with('author:id,name,book_id').get();
+```
+
+#### Constraining Eager Loads
+
+Sometimes you may wish to eager load a relationship but also specify additional query constraints for the eager loading query. You can accomplish this by passing an array of the relationships to the `with` method where the key of the object is the name of the relationship and the value of the object is a closure that adds additional constraints to the eager loading query:
+
+```js
+const users = await User.query().with({
+  posts: query => query.where('title', 'like', '%code%')
+}).get();
+// Or
+const users = await User.query().with('posts', query => {
+  query.where('title', 'like', '%code%');
+}).get();
+```
+
+In this example, Kawkab will only eager load the posts where the `title` column of the post contains the word code. You can call other query builder methods to further customize the eager loading operation:
+
+```js
+const users = await User.query().with({
+  posts: query => query.orderBy('created_at', 'desc')
+}).get();
+```
+
+#### Lazy Eager Loading
+
+Sometimes you may need to eager load a relationship after the parent model has already been retrieved. For example, this may be useful if you need to dynamically decide whether to load related models:
+
+```js
+const { Book } = require('./models');
+const books = await Book.query().all();
+
+if (someCondition) {
+  await books.load('author', 'publisher');
+}
+```
+
+If you need to add additional query constraints to the eager loading query, you can pass an object keyed by the relationships you wish to load. The values of the object should be closures that receive a query builder instance:
+
+```js
+await author.load({
+  books: query => query.orderBy('published_date', 'asc')
+});
+```
+
+### Inserting & Updating Related Models
+
+#### The `save` Method
+
+Kawkab provides convenient methods for adding new models to relationships. For example, you may need to add a new comment to a post. Instead of manually setting a `post_id` attribute on the `Comment` model, you can insert the comment using the `save` method of the relationship:
+
+```js
+const { Post, Comment } = require('./models');
+
+const comment = new Comment({
+  message: 'A new comment.'
+});
+
+const post = await Post.query().find(1);
+
+await post.related('comments').save(comment);
+```
+
+Notice that we did not access the `comments` relationship as a dynamic property. Instead, we called the `related('comments')` method to get a relationship instance. The `save` method will automatically add the appropriate `post_id` value to the new `Comment` model.
+
+If you need to save multiple related models, you can use the `saveMany` method:
+
+```js
+await post.related('comments').saveMany([
+  new Comment({ message: 'A new comment.' }),
+  new Comment({ message: 'Another new comment.' }),
+]);
+```
+
+The `save` and `saveMany` methods do not keep the specified model instances, but they will not add the newly saved models to any already loaded relationships in memory. If you plan to access the relationship after using the `save` or `saveMany` methods, you might want to use the `refresh` method to reload the model and its relationships:
+
+```js
+await post.related('comments').save(comment);
+await post.refresh();
+
+// All comments, including the newly saved comment...
+post.comments;
+```
+
+**Saving Models & Relationships Recursively**
+
+If you want to save your model and all of its related models, you can use the `push` method. In this example, the `Post` model and its comments and comment authors will be saved:
+
+```js
+post.comments.get(0).message = 'Message';
+post.comments.get(0).author.name = 'Author Name';
+
+await post.push();
+```
+
+#### The `create` Method
+
+In addition to the `save` and `saveMany` methods, you can also use the `create` method, which takes an object of attributes, creates a model, and persists it to the database. The difference between `save` and `create` is that `save` takes a full Kawkab model instance while `create` takes a plain object. The newly created model will be returned by the `create` method:
+
+```js
+const { Post } = require('./models');
+
+const post = await Post.query().find(1);
+
+const comment = await post.related('comments').create({
+  message: 'A new comment.',
+});
+```
+
+You can use the `createMany` method to create multiple related models:
+
+```js
+await post.related('comments').createMany([
+  { message: 'A new comment.' },
+  { message: 'Another new comment.' },
+]);
+```
+
+You can also use the `findOrNew`, `firstOrNew`, `firstOrCreate`, and `updateOrCreate` methods to create and update models on relationships.
+
+#### Belongs To Relationships
+
+If you want to set a child model to a new parent model, you can use the `associate` method. In this example, the `User` model defines a `belongsTo` relationship to an `Account` model. The `associate` method will set the foreign key on the child model:
+
+```js
+const { Account } = require('./models');
+
+const account = await Account.query().find(10);
+user.related('account').associate(account);
+
+await user.save();
+```
+
+To remove a parent model from a child model, you can use the `dissociate` method. This method will set the foreign key of the relationship to null:
+
+```js
+user.related('account').dissociate();
+
+await user->save();
+```
+
+#### Many-to-Many Relationships
+
+**Attaching / Detaching**
+
+Kawkab also provides methods to make working with many-to-many relationships more convenient. For example, let's imagine a user can have many roles and a role can have many users. You can use the `attach` method to attach a role to a user by inserting a record in the pivot table:
+
+```js
+const { User } = require('./models');
+
+const user = await User.query().find(1);
+
+await user.related('roles').attach(roleId);
+```
+
+When attaching a relationship to a model, you can also pass an array of additional data to be inserted into the pivot table:
+
+```js
+await user.related('roles').attach(roleId, {
+  expires: expires,
+});
+```
+
+Sometimes it may be necessary to remove a role from a user. To remove a many-to-many relationship record, use the `detach` method. The `detach` method will delete the appropriate record from the pivot table; however, both models will remain in the database:
+
+```js
+// Detach one role from the user...
+await user.related('roles').detach(roleId);
+
+// Detach all roles from the user...
+await user.related('roles').detach();
+```
+
+For your convenience, `attach` and `detach` also accept array inputs of IDs:
+
+```js
+const user = await User.query().find(1);
+
+await user.related('roles').detach([1, 2, 3]);
+
+await user.related('roles').attach([1, 2]);
+```
+
+**Syncing Associations**
+
+You can also use the `sync` method to build many-to-many associations. The `sync` method accepts an array of IDs to place on the pivot table. Any IDs that are not in the given array will be removed from the pivot table. After this operation is complete, only the IDs in the given array will exist in the pivot table:
+
+```js
+await user.related('roles').sync([1, 2, 3]);
+```
+
+You can also pass additional pivot table values with the IDs:
+
+```js
+await user.related('roles').sync({ 1: { expires: true }, 2: {}, 3: {} });
+```
+
+If you want to insert the same pivot table values with each of the synchronized model IDs, you can use the `syncWithPivotValues` method:
+
+```js
+await user.related('roles').syncWithPivotValues([1, 2, 3], { active: true });
+```
+
+If you do not want to detach any existing IDs that are missing from the given array, you can use the `syncWithoutDetaching` method:
+
+```js
+await user.related('roles').syncWithoutDetaching([1, 2, 3]);
+```
+
+**Updating a Record On The Pivot Table**
+
+If you need to update an existing row in your pivot table, you can use the `updateExistingPivot` method. This method takes the foreign key of the pivot record and an object of attributes to update:
+
+```js
+await user.related('roles').updateExistingPivot(roleId, {
+  active: false,
+});
+```

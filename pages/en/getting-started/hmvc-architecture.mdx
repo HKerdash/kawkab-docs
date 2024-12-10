@@ -1,0 +1,120 @@
+---
+title: HMVC Pattern in Kawkab  
+description: A simplified explanation of the HMVC pattern in the Kawkab framework and how to use modules
+---
+
+# HMVC Pattern in Kawkab
+
+The HMVC (Hierarchical Model-View-Controller) pattern is an extension of the traditional MVC pattern, where the application is organized into independent modules. In Kawkab, each module has its own MVC.
+
+## What is HMVC?
+
+### What is HMVC?
+- **H** stands for Hierarchical
+- **MVC** refers to the same basic components (Model, View, Controller)
+- Each module operates independently
+- Modules can communicate with each other
+
+## Module Structure
+
+```
+app/
+├── modules/
+│   ├── main/           # Main module
+│   │   ├── controllers/
+│   │   ├── models/
+│   │   └── views/
+│   │
+│   ├── blog/          # Blog module
+│   │   ├── controllers/
+│   │   ├── models/
+│   │   └── views/
+│   │
+│   └── shop/          # Shop module
+│       ├── controllers/
+│       ├── models/
+│       └── views/
+```
+
+## Creating a New Module
+
+You can create a new module using the following command:
+
+```bash
+npm run kawkab module:make blog
+```
+
+## Module Examples
+
+### 1. Blog Module
+```typescript
+// app/modules/blog/controllers/posts/index.ts
+export default class extends BaseController {
+    get() {
+        return {
+            message: "Blog Posts",
+            data: [
+                { title: "First Post" },
+                { title: "Second Post" }
+            ]
+        };
+    }
+}
+```
+
+### 2. Shop Module
+```typescript
+// app/modules/shop/controllers/products/index.ts
+export default class extends BaseController {
+    get() {
+        return {
+            message: "Shop Products",
+            data: [
+                { name: "Product 1" },
+                { name: "Product 2" }
+            ]
+        };
+    }
+}
+```
+
+## Benefits of HMVC in Kawkab
+
+### 1. Better Code Organization
+- Each module is independent
+- Easier management of large projects
+- Logical division of functionality
+
+### 2. Code Reusability
+- A module can be reused in different projects
+- Shared functionality between modules
+- Reduces code duplication
+
+### 3. Easier Maintenance
+- Modifying one module doesn't affect others
+- Testing each module independently
+- Easy updates to functionality
+
+## Best Practices
+
+1. **Logical Division of Modules**
+   - Each module represents a distinct part of the application
+   - Avoid overlapping between modules
+
+2. **Independence**
+   - Each module operates independently
+   - Minimize dependencies between modules
+
+3. **Reusability**
+   - Design modules to be reusable
+   - Share common components between modules
+
+## Conclusion
+
+The HMVC pattern in Kawkab provides:
+- Better organization for large projects
+- Flexibility in managing modules
+- Scalability and maintainability
+- Code reusability
+
+You can start with the main module and then add new modules as needed for your project.

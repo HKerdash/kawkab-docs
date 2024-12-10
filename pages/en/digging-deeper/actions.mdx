@@ -1,0 +1,100 @@
+---
+title: Actions in Kawkab
+description: A comprehensive guide to creating and using actions in your application with the command `npm run kawkab action:make`.
+---
+
+# Creating Actions in Kawkab
+
+Actions are classes that represent activities or operations that can be performed in your application, such as updating a password, generating random numbers, and more. With **Kawkab**, you can easily create actions and organize the related code in a flexible manner to perform a specific task.
+
+## Creating a New Action with Kawkab
+
+To create a new **Action** with **Kawkab**, run the following command in the terminal:
+
+```bash
+npm run kawkab action:make <name> [module]
+```
+
+### **Parameter Details:**
+
+- **`<name>`**: The name of the action you want to create (e.g., `UpdateUserPassword`).
+- **`[module]`**: The name of the module containing the action (optional, default is `main`).
+
+### Example of running the command:
+
+```bash
+npm run kawkab action:make UpdateUserPassword
+```
+
+After running the command, an **Action** named `UpdateUserPassword` will be created in the `main` module.
+
+### What happens after running the command?
+
+- A file for the **Action** named `'UpdateUserPassword'` will be created successfully.
+- You can now use this **Action** in your application by importing and using it as shown in the following example.
+
+## Using an Action in the Application
+
+Once the **Action** is created, you can import and use it anywhere in your application.
+
+### Importing the Action:
+
+To import the **Action** that was created, use the following code in your file:
+
+```javascript
+import { UpdateUserPasswordAction } from "../actions/UpdateUserPassword";
+```
+
+### Content of the Action File:
+
+The **Action** file `UpdateUserPassword` will contain the following code:
+
+```javascript
+import { BaseAction } from "kawkab";
+
+export class UpdateUserPasswordAction extends BaseAction {
+    handle() {
+        // Add the code for handling password update here
+    }
+}
+```
+
+### Using the Action in the Application:
+
+You can now use the **Action** by creating a new object from the `UpdateUserPasswordAction` class as follows:
+
+```javascript
+const action = new UpdateUserPasswordAction();
+action.handle(); // The code inside the handle function will be executed
+```
+
+#### Passing Data to the Action:
+
+You can pass data when creating the **Action** object:
+
+```javascript
+const action = new UpdateUserPasswordAction({ id: 1, name: 'Hassan' });
+console.log(action.data);  // Will print { id: 1, name: 'Hassan' }
+```
+
+#### Accessing Data Inside the Action:
+
+Inside the **Action**, you can access the passed data using `this.data`:
+
+```javascript
+export class UpdateUserPasswordAction extends BaseAction {
+    handle() {
+        console.log(this.data);  // Will print the passed data like { id: 1, name: 'Hassan' }
+    }
+}
+```
+
+## Additional Notes
+
+- **Multiple Actions:** You can create multiple actions in your application using the same approach, creating new `Action` classes for any operation you need.
+- **Expanding Functionality:** Inside each `Action`, you can add your custom business logic, such as database queries or handling the passed data.
+- **Data Flexibility:** Data can be passed when creating the **Action** for easy access within the **Action** using `this.data`.
+
+## Conclusion
+
+**Actions** in Kawkab provide a powerful way to organize operations that your application needs to perform. With **Kawkab**, you can easily create and use actions to perform tasks like updating data, sending notifications, and much more. Leverage the flexibility that Kawkab offers to structure your application and improve its efficiency!
