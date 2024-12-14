@@ -34,7 +34,7 @@ npm run kawkab module:make <name>
 #### **مثال على محتوى ملف `module.ts`:**
 
 ```ts
-import { app, BaseModule } from "kawkab";
+import { BaseModule } from "kawkab";
 
 export class Module extends BaseModule {
     /**
@@ -114,7 +114,7 @@ npm run kawkab module:make users
 
 ### **الهيكل الناتج**
 ```
-modules/
+app/
 ├── users/
 │   ├── controllers/
 │   ├── services/
@@ -126,7 +126,7 @@ modules/
 ### **إعداد ملف `module.ts` للوحدة `users`**
 
 ```ts
-import { app, BaseModule } from "kawkab";
+import { BaseModule } from "kawkab";
 
 export class Module extends BaseModule {
     name(): string {

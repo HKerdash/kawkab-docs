@@ -24,7 +24,7 @@ export default {
     title: 'الهيكلية HMVC',
   },
   'configuration': {
-    title: 'الإعدادات',
+    title: 'التكوينات',
   },
   'environment-variables': {
     title: 'المتغيرات البيئية',

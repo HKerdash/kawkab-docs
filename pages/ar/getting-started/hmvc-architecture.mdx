@@ -19,14 +19,13 @@ description: شرح مبسط لنمط HMVC في إطار العمل كوكب Kaw
 
 ```
 app/
-└── modules/
-    └── main/
-        └── controllers/
-            ├── index.ts         // يمثل "/"
-            ├── about.ts         // يمثل "/about"
-            └── users/
-                ├── index.ts     // يمثل "/users"
-                └── [id].ts      // يمثل "/users/:id"
+└── main/
+    └── controllers/
+        ├── index.ts         // يمثل "/"
+        ├── about.ts         // يمثل "/about"
+        └── users/
+            ├── index.ts     // يمثل "/users"
+            └── [id].ts      // يمثل "/users/:id"
 ```
 
 ## أنواع المسارات
@@ -34,6 +33,9 @@ app/
 ### 1. المسارات الثابتة
 ```typescript
 // app/modules/main/controllers/about.ts
+
+import { BaseController, req } from "kawkab";
+
 export default class extends BaseController {
     get() {
         return {
@@ -46,10 +48,13 @@ export default class extends BaseController {
 ### 2. المسارات الديناميكية
 ```typescript
 // app/modules/main/controllers/users/[id].ts
+
+import { BaseController, req } from "kawkab";
+
 export default class extends BaseController {
     get() {
         return {
-            message: `المستخدم ${this.params.id}`
+            message: `المستخدم ${req.var('id')}`
         }
     }
 }
@@ -68,6 +73,9 @@ npm run kawkab module:make blog
 ### 1. وحدة المدونة
 ```typescript
 // app/modules/blog/controllers/posts/index.ts
+
+import { BaseController, req } from "kawkab";
+
 export default class extends BaseController {
     get() {
         return {
@@ -84,6 +92,9 @@ export default class extends BaseController {
 ### 2. وحدة المتجر
 ```typescript
 // app/modules/shop/controllers/products/index.ts
+
+import { BaseController, req } from "kawkab";
+
 export default class extends BaseController {
     get() {
         return {

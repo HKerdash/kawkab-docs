@@ -15,7 +15,6 @@ description: شرح كيفية عمل نظام التوجيه المبني عل�
 
 ```
 app/
-└── modules/
     └── main/
         └── controllers/
             ├── index.ts         // يمثل "/"
@@ -30,6 +29,9 @@ app/
 ### 1. المسارات الثابتة
 ```typescript
 // app/modules/main/controllers/about.ts
+
+import { BaseController, req } from "kawkab";
+
 export default class extends BaseController {
     get() {
         return {
@@ -42,9 +44,12 @@ export default class extends BaseController {
 ### 2. المسارات الديناميكية
 ```typescript
 // app/modules/main/controllers/users/[id].ts
+
+import { BaseController, req } from "kawkab";
+
 export default class extends BaseController {
     get() {
-        const userId = this.params.id;
+        const userId = req.var('id');
         return {
             message: `عرض المستخدم رقم ${userId}`
         }
@@ -55,9 +60,12 @@ export default class extends BaseController {
 ### 3. المسارات المتداخلة
 ```typescript
 // app/modules/main/controllers/blog/[category]/[post].ts
+
+import { BaseController, req } from "kawkab";
+
 export default class extends BaseController {
     get() {
-        const { category, post } = this.params;
+        const { category, post } = req.vars();
         return {
             category,
             post
@@ -111,10 +119,13 @@ export default class extends BaseController {
 
 ```typescript
 // app/modules/main/controllers/api/products/[id]/reviews/[reviewId].ts
+
+import { BaseController, req } from "kawkab";
+
 export default class extends BaseController {
     // GET /api/products/1/reviews/5
     get() {
-        const { id, reviewId } = this.params;
+        const { id, reviewId } = req.vars();
         return {
             productId: id,
             reviewId: reviewId,
@@ -124,7 +135,7 @@ export default class extends BaseController {
 
     // POST /api/products/1/reviews
     post() {
-        const { id } = this.params;
+        const { id } = req.vars();
         return {
             message: `إضافة مراجعة جديدة للمنتج ${id}`
         }

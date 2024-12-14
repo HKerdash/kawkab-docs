@@ -36,7 +36,7 @@ The `module.ts` file is the heart of each module. It is used to define the modul
 #### **Example of `module.ts` File Content:**
 
 ```ts
-import { app, BaseModule } from "kawkab";
+import { BaseModule } from "kawkab";
 
 export class Module extends BaseModule {
     /**
@@ -118,7 +118,7 @@ npm run kawkab module:make users
 
 ### **Generated Structure**
 ```
-modules/
+app/
 ├── users/
 │   ├── controllers/
 │   ├── services/
@@ -130,7 +130,7 @@ modules/
 ### **Configuring the `module.ts` File for the `users` Module**
 
 ```ts
-import { app, BaseModule } from "kawkab";
+import { BaseModule } from "kawkab";
 
 export class Module extends BaseModule {
     name(): string {

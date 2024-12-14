@@ -15,14 +15,13 @@ In Kawkab, routes are automatically defined based on the file structure within t
 
 ```
 app/
-└── modules/
-    └── main/
-        └── controllers/
-            ├── index.ts         // represents "/"
-            ├── about.ts         // represents "/about"
-            └── users/
-                ├── index.ts     // represents "/users"
-                └── [id].ts      // represents "/users/:id"
+└── main/
+    └── controllers/
+        ├── index.ts         // represents "/"
+        ├── about.ts         // represents "/about"
+        └── users/
+            ├── index.ts     // represents "/users"
+            └── [id].ts      // represents "/users/:id"
 ```
 
 ## Types of Routes
@@ -30,6 +29,9 @@ app/
 ### 1. Static Routes
 ```typescript
 // app/modules/main/controllers/about.ts
+
+import { BaseController, req } from "kawkab";
+
 export default class extends BaseController {
     get() {
         return {
@@ -42,9 +44,12 @@ export default class extends BaseController {
 ### 2. Dynamic Routes
 ```typescript
 // app/modules/main/controllers/users/[id].ts
+
+import { BaseController, req } from "kawkab";
+
 export default class extends BaseController {
     get() {
-        const userId = this.params.id;
+        const userId = req.var('id');
         return {
             message: `Viewing user number ${userId}`
         }
@@ -55,9 +60,12 @@ export default class extends BaseController {
 ### 3. Nested Routes
 ```typescript
 // app/modules/main/controllers/blog/[category]/[post].ts
+
+import { BaseController, req } from "kawkab";
+
 export default class extends BaseController {
     get() {
-        const { category, post } = this.params;
+        const { category, post } = req.vars();
         return {
             category,
             post
@@ -112,10 +120,13 @@ export default class extends BaseController {
 
 ```typescript
 // app/modules/main/controllers/api/products/[id]/reviews/[reviewId].ts
+
+import { BaseController, req } from "kawkab";
+
 export default class extends BaseController {
     // GET /api/products/1/reviews/5
     get() {
-        const { id, reviewId } = this.params;
+        const { id, reviewId } = req.vars();
         return {
             productId: id,
             reviewId: reviewId,
@@ -125,7 +136,7 @@ export default class extends BaseController {
 
     // POST /api/products/1/reviews
     post() {
-        const { id } = this.params;
+        const { id } = req.vars();
         return {
             message: `Adding a new review for product ${id}`
         }
