@@ -1,0 +1,143 @@
+---
+
+title: Scheduling Cron Jobs in Kawkab  
+description: A comprehensive guide to scheduling Cron Jobs in Kawkab with an explanation of how to customize the timing of task execution flexibly and professionally.
+
+---
+
+# Scheduling Cron Jobs in Kawkab
+
+**Cron Jobs** are a powerful mechanism for scheduling and executing tasks periodically at specific times, and they are a core part of any application that requires regular execution of scheduled operations. In **Kawkab**, you can easily and flexibly set the timing of tasks through **Cron** settings, allowing you to customize the task schedule according to your specific needs.
+
+## Creating a Cron Job in Kawkab
+
+To add a new **Cron Job** in **Kawkab**, you can use the following command to create the scheduled task:
+
+```bash
+npm run kawkab cron:make <name> [module]
+```
+
+- `<name>`: The name of the Cron Job you want to create.
+- `[module]`: The module to which you want to add the Cron Job (optional, and the default is `main`).
+
+### Practical Example:
+
+Suppose you want to create a Cron Job named `DailyTask` in the `tasks` module, you can use the following command:
+
+```bash
+npm run kawkab cron:make DailyTask tasks
+```
+
+## Cron Syntax
+
+The **Cron** syntax consists of five fields, and it determines when tasks will be executed based on the following fields:
+
+1. **Minute**: (0-59) - The minute when the task will be executed.
+2. **Hour**: (0-23) - The hour when the task will be executed.
+3. **Day of Month**: (1-31) - The day of the month when the task will be executed.
+4. **Month**: (1-12) - The month when the task will be executed.
+5. **Day of Week**: (0-6) - The day of the week when the task will be executed (0 is Sunday, and 6 is Saturday).
+
+### How to Set Time in Cron
+
+You can specify the task execution timing easily using **Kawkab** through custom functions in the `BaseCronJob` class, which handles task scheduling. Here are some examples of how to set task timing:
+
+#### Task Scheduling Examples:
+
+1. **Run the task every minute**:
+   ```text
+   * * * * *
+   ```
+
+2. **Run the task at the beginning of every hour**:
+   ```text
+   0 * * * *
+   ```
+
+3. **Run the task daily at 3 AM**:
+   ```text
+   0 3 * * *
+   ```
+
+4. **Run the task every Sunday at 5 PM**:
+   ```text
+   0 17 * * 0
+   ```
+
+5. **Run the task on the first day of every month**:
+   ```text
+   0 0 1 * *
+   ```
+
+6. **Run the task on Monday at 6 AM**:
+   ```text
+   0 6 * * 1
+   ```
+
+7. **Run the task on the first day of the month at 12 PM**:
+   ```text
+   0 12 1 * *
+   ```
+
+## Customizing Task Timing in Kawkab
+
+**Kawkab** allows you to customize task timing using built-in functions in the `BaseCronJob` class. The following code illustrates how to customize Cron Job execution timing in Kawkab using various timing functions:
+
+### Setting Time in **BaseCronJob**:
+
+1. **Minute**:  
+   The `minute()` function is used to specify the minute when the task will be executed.
+   
+2. **Hour**:  
+   The `hour()` function is used to specify the hour when the task will be executed.
+   
+3. **Day of Month**:  
+   The `dayOfMonth()` function is used to specify the day of the month.
+   
+4. **Month**:  
+   The `month()` function is used to specify the month when the task will be executed.
+   
+5. **Day of Week**:  
+   The `dayOfWeek()` function is used to specify the day of the week.
+
+### Practical Example: Scheduling a Cron Job in Kawkab
+
+Assume you want to run a **Cron Job** every Monday at 8:00 AM. The code would look like this:
+
+```typescript
+import { BaseCronJob, CronJobDayOfWeekEnum } from 'kawkab';
+
+export default class extends BaseCronJob {
+    isEnabled(): boolean {
+        return true;  // Ensure the task is enabled
+    }
+
+    minute(): number | string {
+        return '0';  // Minute 0
+    }
+
+    hour(): number | string {
+        return '8';  // 8 AM
+    }
+
+    dayOfMonth(): number | string {
+        return '*';  // Every day of the month
+    }
+
+    month(): number | string {
+        return '*';  // Every month
+    }
+
+    dayOfWeek(): number | string {
+        return CronJobDayOfWeekEnum.Monday;  // Monday
+    }
+
+    async handle(): Promise<void> {
+        console.log("Cron Job is running...");
+    }
+}
+```
+
+## Conclusion
+
+**Cron Jobs** are a vital and effective tool for scheduling tasks in any application that requires periodic operations. With **Kawkab**, you can precisely and flexibly define task execution timings, allowing you to customize your task schedule according to your needs without being tied to a specific operating system. Tasks can be executed on all systems that support **Cron Jobs**, making them ideal for cross-platform applications.

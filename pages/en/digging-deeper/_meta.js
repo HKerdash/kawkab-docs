@@ -71,6 +71,9 @@ export default {
   jobs: {
     title: "Jobs",
   },
+  'cron-jobs': {
+    title: "Cron Jobs",
+  },
   "api-documentation": {
     title: "API Documentation",
   },

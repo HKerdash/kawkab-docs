@@ -71,6 +71,9 @@ export default {
   jobs: {
     title: "المهام",
   },
+  'cron-jobs': {
+    title: "وظائف Cron",
+  },
   "api-documentation": {
     title: "توثيق API",
   },
